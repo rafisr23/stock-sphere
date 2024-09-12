@@ -5,6 +5,10 @@
 <script src="{{ URL::asset('build/js/fonts/custom-font.js') }}"></script>
 <script src="{{ URL::asset('build/js/pcoded.js') }}"></script>
 <script src="{{ URL::asset('build/js/plugins/feather.min.js') }}"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script src="{{ URL::asset('build/js/plugins/dataTables.min.js') }}"></script>
+<script src="{{ URL::asset('build/js/plugins/dataTables.bootstrap5.min.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 @if (env('APP_DARK_LAYOUT') == 'default')
 <script>
@@ -87,5 +91,25 @@
 @if (env('APP_PRESET_THEME') != '')
     <script>
         preset_change("{{env('APP_PRESET_THEME')}}");
+    </script>
+@endif
+
+@if (session('success'))
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: '{{ session('success') }}',
+        });
+    </script>
+@endif
+
+@if (session('error'))
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: '{{ session('error') }}',
+        });
     </script>
 @endif
