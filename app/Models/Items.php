@@ -9,6 +9,10 @@ class Items extends Model
 {
     use HasFactory;
 
-    protected $table = 'items';
-    protected $fillable = ['item_name', 'item_description', 'downtime', 'modality'];
+    protected $guarded = ['id'];
+
+    public function items_units()
+    {
+        return $this->hasMany(Items_units::class, 'item_id');
+    }
 }

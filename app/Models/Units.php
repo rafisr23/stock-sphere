@@ -8,6 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Units extends Model
 {
     use HasFactory;
-    protected $table = 'units';
-    protected $fillable = ['customer_name', 'street', 'city', 'postal_code'];
+    protected $guarded = ['id'];
+    
+    public function items_units()
+    {
+        return $this->hasMany(Items_units::class, 'unit_id');
+    }
 }
