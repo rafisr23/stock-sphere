@@ -29,7 +29,7 @@
                         </div>
 
                     </div>
-                    <a href="{{ route('items.index') }}" class="btn btn-primary">Back</a>
+                    <a href="{{ route('items.index') }}" class="btn btn-secondary">Back</a>
                 </div>
                 <div class="card-body">
                     <div class="row">
