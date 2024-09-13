@@ -35,9 +35,9 @@ class ItemsController extends Controller
                     return $row->units->customer_name;
                 })
                 ->addColumn('action', function ($row) {
-                    $btn = ' <a href="' . route('items.show', $row->id) . '" class="view btn btn-info btn-sm"><i class="ph-duotone ph-eye"></i></a>';
-                    $btn = $btn . ' <a href="' . route('items.edit', $row->id) . '" class="edit btn btn-warning btn-sm"><i class="ph-duotone ph-pencil-line"></i></a>';
-                    $btn = $btn . ' <a href="#" class="delete btn btn-danger btn-sm"  data-id="' . $row->id . '"><i class="ph-duotone ph-trash"></i></a>';
+                    $btn = '<a href="' . route('items.show', $row->id) . '" class="view btn btn-info btn-sm me-2"><i class="ph-duotone ph-eye"></i></a>';
+                    $btn = $btn . '<a href="' . route('items.edit', $row->id) . '" class="edit btn btn-warning btn-sm me-2"><i class="ph-duotone ph-pencil-line"></i></a>';
+                    $btn = $btn . '<a href="#" class="delete btn btn-danger btn-sm"  data-id="' . $row->id . '"><i class="ph-duotone ph-trash"></i></a>';
                     return $btn;
                 })
                 ->rawColumns(['action'])
