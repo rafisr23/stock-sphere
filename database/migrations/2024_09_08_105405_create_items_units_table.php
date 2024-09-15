@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             // $table->foreignId('item_id')->constrained('items');
             // $table->foreignId('unit_id')->constrained('units');
-            $table->string('item_id');
-            $table->string('unit_id');
+            $table->bigInteger('item_id');
+            $table->bigInteger('unit_id');
             $table->string('serial_number');
             $table->string('software_version');
             $table->string('installation_date');
