@@ -5,7 +5,8 @@
 <script src="{{ URL::asset('build/js/fonts/custom-font.js') }}"></script>
 <script src="{{ URL::asset('build/js/pcoded.js') }}"></script>
 <script src="{{ URL::asset('build/js/plugins/feather.min.js') }}"></script>
-<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 <script src="{{ URL::asset('build/js/plugins/dataTables.min.js') }}"></script>
 <script src="{{ URL::asset('build/js/plugins/dataTables.bootstrap5.min.js') }}"></script>
 <script src="{{ URL::asset('build/js/plugins/dataTables.responsive.min.js') }}"></script>
@@ -13,19 +14,19 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 @if (env('APP_DARK_LAYOUT') == 'default')
-<script>
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        dark_layout = 'true';
-    } else {
-        dark_layout = 'false';
-    }
-    layout_change_default();
-    if (dark_layout == 'true') {
-        layout_change('dark');
-    } else {
-        layout_change('light');
-    }
-</script>
+    <script>
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            dark_layout = 'true';
+        } else {
+            dark_layout = 'false';
+        }
+        layout_change_default();
+        if (dark_layout == 'true') {
+            layout_change('dark');
+        } else {
+            layout_change('light');
+        }
+    </script>
 @endif
 
 @if (env('APP_DARK_LAYOUT') != 'default')
@@ -92,7 +93,7 @@
 
 @if (env('APP_PRESET_THEME') != '')
     <script>
-        preset_change("{{env('APP_PRESET_THEME')}}");
+        preset_change("{{ env('APP_PRESET_THEME') }}");
     </script>
 @endif
 
@@ -102,6 +103,10 @@
             icon: 'success',
             title: 'Success',
             text: '{{ session('success') }}',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            allowOutsideClick: false,
         });
     </script>
 @endif
@@ -112,6 +117,10 @@
             icon: 'error',
             title: 'Error',
             text: '{{ session('error') }}',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            allowOutsideClick: false,
         });
     </script>
 @endif

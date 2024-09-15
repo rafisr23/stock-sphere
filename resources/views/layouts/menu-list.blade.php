@@ -24,6 +24,7 @@
     </a>
     <ul class="pc-submenu">
         <li class="pc-item"><a class="pc-link" href="/items">Items</a></li>
+        <li class="pc-item"><a class="pc-link" href="{{ route('units.index') }}">Units</a></li>
     </ul>
 </li>
 {{-- <li class="pc-item pc-hasmenu">

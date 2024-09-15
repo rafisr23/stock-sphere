@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ItemsController;
+use App\Http\Controllers\UnitsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,6 +37,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/items/{id}/edit', [ItemsController::class, 'edit'])->name('items.edit');
     Route::put('/items/{id}', [ItemsController::class, 'update'])->name('items.update');
     Route::delete('/items', [ItemsController::class, 'destroy'])->name('items.delete');
+
+    Route::resource('units', UnitsController::class);
 
     // Define a GET route with dynamic placeholders for route parameters
     Route::get('{routeName}/{name?}', [HomeController::class, 'pageView']);
