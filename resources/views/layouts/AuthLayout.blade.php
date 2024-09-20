@@ -37,9 +37,9 @@
                     <div class="auth-wrapper">
     @endif
     @yield('content')
-    @if (!View::hasSection('auth-v2'))
+    {{-- @if (!View::hasSection('auth-v2'))
         @include('layouts.authFooter')
-    @endif
+    @endif --}}
     </div>
     </div>
     @if (View::hasSection('auth-v2'))

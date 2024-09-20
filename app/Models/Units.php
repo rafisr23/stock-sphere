@@ -14,4 +14,9 @@ class Units extends Model
     {
         return $this->hasMany(Items_units::class, 'unit_id');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

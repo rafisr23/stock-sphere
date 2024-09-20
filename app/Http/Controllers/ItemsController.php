@@ -24,7 +24,12 @@ class ItemsController extends Controller
 
     public function getItems(Request $request)
     {
-        $itemsUnits = Items_units::all();
+        if (auth()->user()->hasRole('unit')) {
+            $itemsUnits = Items_units::where('unit_id', auth()->user()->unit->id)->get();
+        } else {
+            $itemsUnits = Items_units::all();
+        }
+
         if ($request->ajax()) {
             return datatables()->of($itemsUnits)
                 ->addIndexColumn()
