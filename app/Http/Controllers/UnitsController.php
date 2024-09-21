@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Units;
 use App\Http\Requests\StoreUnitsRequest;
 use App\Http\Requests\UpdateUnitsRequest;
+use App\Models\Items_units;
 use Illuminate\Http\Request;
 
 class UnitsController extends Controller
@@ -108,13 +109,22 @@ class UnitsController extends Controller
      */
     public function destroy($id)
     {
-        $unit = Units::find(decrypt($id));
-        $unit->delete();
+        $id = decrypt($id);
+        $checkUnit = Items_units::where('unit_id', $id)->exists();
 
-        if ($unit) {
-            return response()->json(['success' => 'Unit deleted successfully.']);
+        if ($checkUnit) {
+            $return = response()->json(['error' => 'There are still items on the unit.']);
         } else {
-            return response()->json(['error' => 'Unit deletion failed.']);
+            $unit = Units::find(decrypt($id));
+            $unit->delete();
+
+            if ($unit) {
+                $return = response()->json(['success' => 'Unit deleted successfully.']);
+            } else {
+                $return = response()->json(['error' => 'Unit deletion failed.']);
+            }
         }
+
+        return $return;
     }
 }
