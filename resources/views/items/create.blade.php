@@ -7,6 +7,7 @@
 @section('breadcrumb-item-active', 'Add Item')
 
 @section('css')
+    <link rel="stylesheet" href="{{ URL::asset('build/css/plugins/dropzone.min.css') }}">
     <style>
         .required:after {
             content: " *";
@@ -25,90 +26,39 @@
                     <a href="{{ route('items.index') }}" class="btn btn-secondary">Back</a>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('items.store') }}" method="POST">
+                    <form action="{{ route('items.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="form-group row">
                             <label for="item_name" class="col-sm-3 col-form-label required">Item Name</label>
                             <div class="col-sm-9 mb-4">
-                                <input type="text" class="form-control" id="item_name" name="item_name" required>
+                                <input type="text" class="form-control" id="item_name" name="item_name" required placeholder="Enter item name">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="item_description" class="col-sm-3 col-form-label required">Description</label>
                             <div class="col-sm-9 mb-4">
                                 <input type="text" class="form-control" id="item_description" name="item_description"
-                                    required>
+                                    required placeholder="Enter item description">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="downtime" class="col-sm-3 col-form-label required">Downtime</label>
                             <div class="col-sm-9 mb-4">
-                                <input type="number" class="form-control" id="downtime" name="downtime" required>
+                                <input type="number" class="form-control" id="downtime" name="downtime" required placeholder="Enter downtime">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="modality" class="col-sm-3 col-form-label required">Modality</label>
                             <div class="col-sm-9 mb-4">
-                                <input type="text" class="form-control" id="modality" name="modality" required>
+                                <input type="text" class="form-control" id="modality" name="modality" required placeholder="Enter modality">
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="serial_number" class="col-sm-3 col-form-label required">Serial Number</label>
-                            <div class="col-sm-9 mb-4">
-                                <input type="text" class="form-control" id="serial_number" name="serial_number" required>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="software_version" class="col-sm-3 col-form-label required">Software Version</label>
-                            <div class="col-sm-9 mb-4">
-                                <input type="text" class="form-control" id="software_version" name="software_version"
-                                    required>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="installation_date" class="col-sm-3 col-form-label required">Installation Date</label>
-                            <div class="col-sm-9 mb-4">
-                                <input type="date" class="form-control" id="installation_date" name="installation_date"
-                                    required>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="contract" class="col-sm-3 col-form-label required">Contract</label>
-                            <div class="col-sm-9 mb-4">
-                                <input type="text" class="form-control" id="contract" name="contract" required>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="end_of_service" class="col-sm-3 col-form-label required">End of Service</label>
-                            <div class="col-sm-9 mb-4">
-                                <input type="date" class="form-control" id="end_of_service" name="end_of_service"
-                                    required>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="unit_id" class="col-sm-3 col-form-label required">Unit</label>
-                            <div class="col-sm-9 mb-4">
-                                <select class="form-control" id="unit_id" name="unit_id" required>
-                                    <option value="">-- Select Unit --</option>
-                                    @foreach ($units as $unit)
-                                        <option value="{{ $unit->id }}">{{ $unit->customer_name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="srs_status" class="col-sm-3 col-form-label required">SRS Status</label>
-                            <div class="col-sm-9 mb-4">
-                                <input type="text" class="form-control" id="srs_status" name="srs_status"
-                                    value="No SRS Connection" readonly>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="last_checked_date" class="col-sm-3 col-form-label required">Last Checked
-                                Date</label>
-                            <div class="col-sm-9">
-                                <input type="text" class="form-control" id="last_checked_date"
-                                    name="last_checked_date" value="{{ now() }}" readonly>
+                            <label for="image" class="col-sm-3 col-form-label required">Image</label>
+                            <div class="col-sm-9 mb-4 dropzone">
+                                <div class="fallback">
+                                    <input type="file" id="image" name="image" required>
+                                </div>
                             </div>
                         </div>
                         <div class="form-group row">
@@ -122,4 +72,31 @@
         </div>
     </div>
     <!-- [ Main Content ] end -->
+@endsection
+@section('scripts')
+    <!-- [Page Specific JS] start -->
+    <!-- file-upload Js -->
+    <script src="{{ URL::asset('build/js/plugins/dropzone-amd-module.min.js') }}"></script>
+    {{-- <script>
+        Dropzone.autoDiscover = false;
+        $(document).ready(function() {
+            $("div.dropzone").dropzone({
+                url: "{{ route('items.store') }}",
+                addRemoveLinks: true,
+                maxFiles: 1,
+                maxFilesize: 1,
+                acceptedFiles: "image/*",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(file, response) {
+                    console.log(response);
+                },
+                error: function(file, response) {
+                    console.log(response);
+                }
+            });
+        });
+    </script> --}}
+    <!-- [Page Specific JS] end -->
 @endsection
