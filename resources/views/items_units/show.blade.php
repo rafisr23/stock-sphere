@@ -13,6 +13,15 @@
         <div class="col-sm-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="col-md-3">
+                        @if ($item->items->image == null)
+                            <img src="{{ asset('images/img-profile-card.jpg') }}" alt="image" class="img-thumbnail"
+                                style="width: 200px; height: 200px;">
+                        @else
+                            <img src="{{ asset('images/items' . $item->items->image) }}" alt="image" class="img-thumbnail"
+                                style="width: 200px; height: 200px;">
+                        @endif
+                    </div>
                     <div class="col">
                         <div class="row">
                             <h4 class="card-title mb-4">{{ $item->items->item_name }}</h4>

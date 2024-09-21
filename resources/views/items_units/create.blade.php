@@ -13,6 +13,7 @@
             color: red;
         }
     </style>
+    <link rel="stylesheet" href="{{ URL::asset('build/css/plugins/datepicker-bs5.min.css') }}">
 @endsection
 
 @section('content')
@@ -52,14 +53,22 @@
                         <div class="form-group row">
                             <label for="serial_number" class="col-sm-3 col-form-label required">Serial Number</label>
                             <div class="col-sm-9 mb-4">
-                                <input type="text" class="form-control" id="serial_number" name="serial_number" required>
+                                <input type="text" class="form-control" id="serial_number" name="serial_number" required placeholder="Enter Serial Number">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="software_version" class="col-sm-3 col-form-label required">Software Version</label>
                             <div class="col-sm-9 mb-4">
                                 <input type="text" class="form-control" id="software_version" name="software_version"
-                                    required>
+                                    required placeholder="Enter Software Version">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="functional_location_no" class="col-sm-3 col-form-label required">Functional
+                                Location No</label>
+                            <div class="col-sm-9 mb-4">
+                                <input type="text" class="form-control" id="functional_location_no" name="functional_location_no"
+                                    required placeholder="Enter Functional Location No">
                             </div>
                         </div>
                         <div class="form-group row">
@@ -67,20 +76,20 @@
                                 Date</label>
                             <div class="col-sm-9 mb-4">
                                 <input type="date" class="form-control" id="installation_date" name="installation_date"
-                                    required>
+                                    required placeholder="Enter Installation Date">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="contract" class="col-sm-3 col-form-label required">Contract</label>
                             <div class="col-sm-9 mb-4">
-                                <input type="text" class="form-control" id="contract" name="contract" required>
+                                <input type="text" class="form-control" id="contract" name="contract" required placeholder="Enter Contract">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="end_of_service" class="col-sm-3 col-form-label required">End of Service</label>
                             <div class="col-sm-9 mb-4">
                                 <input type="date" class="form-control" id="end_of_service" name="end_of_service"
-                                    required>
+                                    required placeholder="Enter End of Service">
                             </div>
                         </div>
                         <div class="form-group row">
@@ -119,6 +128,19 @@
         });
         var singleCancelButton = new Choices(document.getElementById('unit_id'), {
             removeItemButton: true,
+        });
+    </script>
+    <script src="{{ URL::asset('build/js/plugins/datepicker-full.min.js') }}"></script>
+    <script>
+        var datepicker = new Datepicker(document.getElementById('installation_date'), {
+            autohide: true,
+            buttonClass: 'btn',
+            format: 'yyyy-mm-dd',
+        });
+        var datepicker = new Datepicker(document.getElementById('end_of_service'), {
+            autohide: true,
+            buttonClass: 'btn',
+            format: 'yyyy-mm-dd',
         });
     </script>
 @endsection

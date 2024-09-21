@@ -139,7 +139,6 @@ class ItemsController extends Controller
         if ($item->delete()) {
             return response()->json(['success' => 'Item deleted successfully.']);
         }
-
         return response()->json(['error' => 'Item not deleted.']);
     }
 }
