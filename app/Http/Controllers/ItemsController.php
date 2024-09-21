@@ -6,7 +6,6 @@ use App\Models\Items;
 use App\Models\Units;
 use App\Models\Items_units;
 use Illuminate\Http\Request;
-use Yajra\DataTables\DataTables;
 
 class ItemsController extends Controller
 {
@@ -15,25 +14,10 @@ class ItemsController extends Controller
      */
     public function index()
     {
-        return view('items.index');
-    }
-
-    /**
-     * Get all items from the database.
-     */
-
-    public function getItems(Request $request)
-    {
-        $itemsUnits = Items_units::all();
-        if ($request->ajax()) {
-            return datatables()->of($itemsUnits)
+        if (request()->ajax()) {
+            $items = Items::all();
+            return datatables()->of($items)
                 ->addIndexColumn()
-                ->addColumn('item_name', function ($row) {
-                    return $row->items->item_name;
-                })
-                ->addColumn('customer_name', function ($row) {
-                    return $row->units->customer_name;
-                })
                 ->addColumn('action', function ($row) {
                     $btn = '<a href="' . route('items.show', $row->id) . '" class="view btn btn-info btn-sm me-2"><i class="ph-duotone ph-eye"></i></a>';
                     $btn = $btn . '<a href="' . route('items.edit', $row->id) . '" class="edit btn btn-warning btn-sm me-2"><i class="ph-duotone ph-pencil-line"></i></a>';
@@ -42,9 +26,9 @@ class ItemsController extends Controller
                 })
                 ->rawColumns(['action'])
                 ->make(true);
+        } else {
+            return view('items.index');
         }
-
-        return DataTables::queryBuilder($itemsUnits)->toJson();
     }
 
     /**

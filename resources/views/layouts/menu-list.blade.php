@@ -23,8 +23,9 @@
         <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
     </a>
     <ul class="pc-submenu">
-        <li class="pc-item"><a class="pc-link" href="/items">Items</a></li>
+        <li class="pc-item"><a class="pc-link" href="{{route('items.index')}}">Items</a></li>
         <li class="pc-item"><a class="pc-link" href="{{ route('units.index') }}">Units</a></li>
+        <li class="pc-item"><a class="pc-link" href="{{ route('items_units.index') }}">Assign Items</a></li>
     </ul>
 </li>
 {{-- <li class="pc-item pc-hasmenu">

@@ -1,9 +1,9 @@
 @extends('layouts.main')
 
-@section('title', 'Items')
+@section('title', 'Units Items')
 @section('breadcrumb-item', 'Data Master')
 
-@section('breadcrumb-item-active', 'Items')
+@section('breadcrumb-item-active', 'Units Items')
 
 @section('css')
 @endsection
@@ -14,16 +14,16 @@
         <div class="col-sm-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="card-title">Data Item</h4>
-                    <a href="{{ route('items.create') }}" class="btn btn-primary">Add Item</a>
+                    <h4 class="card-title">Data Units Items</h4>
+                    <a href="{{ route('items_units.create') }}" class="btn btn-primary">Assign Item</a>
                 </div>
                 <div class="card-body">
                     <table id="items_table" class="table table-bordered">
                         <thead>
                             <th>No</th>
                             <th>Item Name</th>
-                            <th>Downtime</th>
-                            <th>Modality</th>
+                            <th>Customer Name</th>
+                            <th>Contract</th>
                             <th>Action</th>
                         </thead>
                     </table>
@@ -41,22 +41,22 @@
             processing: true,
             serverSide: true,
             responsive: true,
-            ajax: "{{ route('items.index') }}",
+            ajax: "{{ route('items_units.index') }}",
             columns: [{
                     data: 'DT_RowIndex',
                     name: 'DT_RowIndex'
                 },
                 {
-                    data: 'item_name',
-                    name: 'item_name'
+                    data: 'items_name',
+                    name: 'items_name'
                 },
                 {
-                    data: 'downtime',
-                    name: 'downtime'
+                    data: 'units_name',
+                    name: 'units_name'
                 },
                 {
-                    data: 'modality',
-                    name: 'modality'
+                    data: 'contract',
+                    name: 'contract'
                 },
                 {
                     data: 'action',
@@ -83,7 +83,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     let CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
-                    let url = "{{ route('items.destroy', ':id') }}";
+                    let url = "{{ route('items_units.destroy', ':id') }}";
                     $.ajax({
                         url: url,
                         type: "DELETE",
