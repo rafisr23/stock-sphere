@@ -59,6 +59,7 @@ class ItemsUnitsController extends Controller
             'unit_id' => 'required',
             'serial_number' => 'required',
             'software_version' => 'required',
+            'functional_location_no' => 'required',
             'installation_date' => 'required',
             'contract' => 'required',
             'end_of_service' => 'required',
@@ -66,21 +67,21 @@ class ItemsUnitsController extends Controller
             'last_checked_date' => 'required',
         ]);
 
-        $itemUnits = Items_units::create([
-            'item_id' => $request['item_id'],
-            'unit_id' => $request['unit_id'],
-            'serial_number' => $request['serial_number'],
-            'software_version' => $request['software_version'],
-            'installation_date' => $request['installation_date'],
-            'contract' => $request['contract'],
-            'end_of_service' => $request['end_of_service'],
-            'srs_status' => $request['srs_status'],
-            'last_checked_date' => $request['last_checked_date'],
-        ]);
-        if ($itemUnits) {
-            return redirect()->route('items.index')->with('success', 'Item created successfully.');
+        foreach ($request['item_id'] as $key => $value) {
+            Items_units::create([
+                'item_id' => $value,
+                'unit_id' => $request['unit_id'],
+                'serial_number' => $request['serial_number'],
+                'software_version' => $request['software_version'],
+                'functional_location_no' => $request['functional_location_no'],
+                'installation_date' => $request['installation_date'],
+                'contract' => $request['contract'],
+                'end_of_service' => $request['end_of_service'],
+                'srs_status' => $request['srs_status'],
+                'last_checked_date' => $request['last_checked_date'],
+            ]);
         }
-        return redirect()->route('items.index')->with('error', 'Item not created.');
+        return redirect()->route('items_units.index')->with('success', 'Items added successfully.');
     }
 
     /**
@@ -97,9 +98,10 @@ class ItemsUnitsController extends Controller
      */
     public function edit($id)
     {
-        $item = Items_units::find($id);
+        $item_unit = Items_units::find($id);
+        $items = Items::all();
         $units = Units::all();
-        return view('items_units.edit', compact('item', 'units'));
+        return view('items_units.edit', compact('item_unit', 'units', 'items'));
     }
 
     /**
@@ -112,6 +114,7 @@ class ItemsUnitsController extends Controller
             'unit_id' => 'required',
             'serial_number' => 'required',
             'software_version' => 'required',
+            'functional_location_no' => 'required',
             'installation_date' => 'required',
             'contract' => 'required',
             'end_of_service' => 'required',
@@ -131,6 +134,7 @@ class ItemsUnitsController extends Controller
             'unit_id' => $request['unit_id'],
             'serial_number' => $request['serial_number'],
             'software_version' => $request['software_version'],
+            'functional_location_no' => $request['functional_location_no'],
             'installation_date' => $request['installation_date'],
             'contract' => $request['contract'],
             'end_of_service' => $request['end_of_service'],
@@ -148,6 +152,10 @@ class ItemsUnitsController extends Controller
      */
     public function destroy(Request $request)
     {
-        //
+        $item = Items_units::find(decrypt($request->id));
+        if ($item->delete()) {
+            return response()->json(['success' => 'Item deleted successfully.']);
+        }
+        return response()->json(['error' => 'Item not deleted.']);
     }
 }

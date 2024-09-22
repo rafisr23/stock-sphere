@@ -36,8 +36,7 @@ class ItemsController extends Controller
      */
     public function create()
     {
-        $units = Units::all();
-        return view('items.create', compact('units'));
+        return view('items.create');
     }
 
     /**
@@ -50,40 +49,27 @@ class ItemsController extends Controller
             'item_description' => 'required',
             'downtime' => 'required',
             'modality' => 'required',
-            'serial_number' => 'required',
-            'software_version' => 'required',
-            'installation_date' => 'required',
-            'contract' => 'required',
-            'end_of_service' => 'required',
-            'unit_id' => 'required',
-            'srs_status' => 'required',
-            'last_checked_date' => 'required',
+            'image' => 'required',
         ]);
 
-        $item = Items::create([
-            'item_name' => $request['item_name'],
-            'item_description' => $request['item_description'],
-            'downtime' => $request['downtime'],
-            'modality' => $request['modality'],
-        ]);
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $image_name = time() . '.' . $image->extension();
+            $image->move(public_path('images/items'), $image_name);
+
+            $item = Items::create([
+                'item_name' => $request['item_name'],
+                'item_description' => $request['item_description'],
+                'downtime' => $request['downtime'],
+                'modality' => $request['modality'],
+                'image' => $image_name,
+            ]);
+        }
 
         if ($item) {
-            $newItem = Items::latest()->first();
-            $itemUnits = Items_units::create([
-                'item_id' => $newItem->id,
-                'unit_id' => $request['unit_id'],
-                'serial_number' => $request['serial_number'],
-                'software_version' => $request['software_version'],
-                'installation_date' => $request['installation_date'],
-                'contract' => $request['contract'],
-                'end_of_service' => $request['end_of_service'],
-                'srs_status' => $request['srs_status'],
-                'last_checked_date' => $request['last_checked_date'],
-            ]);
-            if ($itemUnits) {
-                return redirect()->route('items.index')->with('success', 'Item created successfully.');
-            }
+            return redirect()->route('items.index')->with('success', 'Item created successfully.');
         }
+
         return redirect()->route('items.index')->with('error', 'Item not created.');
     }
 
@@ -92,7 +78,7 @@ class ItemsController extends Controller
      */
     public function show($id)
     {
-        $item = Items_units::find($id);
+        $item = Items::find($id);
         return view('items.show', compact('item'));
     }
 
@@ -101,9 +87,8 @@ class ItemsController extends Controller
      */
     public function edit($id)
     {
-        $item = Items_units::find($id);
-        $units = Units::all();
-        return view('items.edit', compact('item', 'units'));
+        $item = Items::find($id);
+        return view('items.edit', compact('item'));
     }
 
     /**
@@ -116,23 +101,9 @@ class ItemsController extends Controller
             'item_description' => 'required',
             'downtime' => 'required',
             'modality' => 'required',
-            'serial_number' => 'required',
-            'software_version' => 'required',
-            'installation_date' => 'required',
-            'contract' => 'required',
-            'end_of_service' => 'required',
-            'unit_id' => 'required',
-            'srs_status' => 'required',
-            'last_checked_date' => 'required',
         ]);
 
-        $itemUnits = Items_units::where('id', $id)->first();
-        if ($request['srs_status'] == $itemUnits->srs_status) {
-            $last_checked_date = $itemUnits->last_checked_date;
-        } else {
-            $last_checked_date = $request['last_checked_date'];
-        }
-        $item = Items::where('id', $itemUnits->item_id)->first();
+        $item = Items::where('id', $id)->first();
         $item->update([
             'item_name' => $request['item_name'],
             'item_description' => $request['item_description'],
@@ -140,20 +111,21 @@ class ItemsController extends Controller
             'modality' => $request['modality'],
         ]);
 
-        if ($item) {
-            $itemUnits->update([
-                'unit_id' => $request['unit_id'],
-                'serial_number' => $request['serial_number'],
-                'software_version' => $request['software_version'],
-                'installation_date' => $request['installation_date'],
-                'contract' => $request['contract'],
-                'end_of_service' => $request['end_of_service'],
-                'srs_status' => $request['srs_status'],
-                'last_checked_date' => $last_checked_date,
-            ]);
-            if ($itemUnits) {
-                return redirect()->route('items.index')->with('success', 'Item updated successfully.');
+        if ($request->hasFile('image')) {
+            $old_image = public_path('images/items/' . $item->image);
+            if (file_exists($old_image)) {
+                unlink($old_image);
             }
+            $image = $request->file('image');
+            $image_name = time() . '.' . $image->extension();
+            $image->move(public_path('images/items'), $image_name);
+            $item->update([
+                'image' => $image_name,
+            ]);
+        }
+
+        if ($item) {
+            return redirect()->route('items.index')->with('success', 'Item updated successfully.');
         }
         return redirect()->route('items.index')->with('error', 'Item not updated.');
     }
@@ -163,14 +135,10 @@ class ItemsController extends Controller
      */
     public function destroy(Request $request)
     {
-        $itemUnit = Items_units::where('id', $request['id'])->first();
-        $item = Items::where('id', $itemUnit->item_id)->first();
-        if ($itemUnit->delete()) {
-            if ($item->delete()) {
-                return response()->json(['success' => 'Item deleted successfully.']);
-            }
+        $item = Items::where('id', $request->id)->first();
+        if ($item->delete()) {
+            return response()->json(['success' => 'Item deleted successfully.']);
         }
-
         return response()->json(['error' => 'Item not deleted.']);
     }
 }
