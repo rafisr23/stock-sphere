@@ -115,7 +115,7 @@ class UnitsController extends Controller
         if ($checkUnit) {
             $return = response()->json(['error' => 'There are still items on the unit.']);
         } else {
-            $unit = Units::find(decrypt($id));
+            $unit = Units::find($id);
             $unit->delete();
 
             if ($unit) {

@@ -15,19 +15,19 @@ class RoleAccountSeeder extends Seeder
     public function run(): void
     {
         Role::create([
-            'name' => 'superadmin', 
+            'name' => 'superadmin',
             'guard_name' => 'web',
             'description' => 'Super Admin role is for the highest level of the application access',
         ]);
 
         Role::create([
-            'name' => 'unit', 
+            'name' => 'unit',
             'guard_name' => 'web',
             'description' => 'Unit role is for the admin of the company',
         ]);
 
         Role::create([
-            'name' => 'technician', 
+            'name' => 'technician',
             'guard_name' => 'web',
             'description' => 'Technician role is for the technician of the company',
         ]);
