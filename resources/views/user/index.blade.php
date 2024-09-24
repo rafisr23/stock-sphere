@@ -24,6 +24,7 @@
                             <th>Name</th>
                             <th>Email</th>
                             <th>Username</th>
+                            <th>Role</th>
                             <th>Action</th>
                         </thead>
                     </table>
@@ -59,6 +60,10 @@
                     name: 'username'
                 },
                 {
+                    data: 'role',
+                    name: 'role'
+                },
+                {
                     data: 'action',
                     name: 'action',
                     orderable: false,
@@ -83,7 +88,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     let CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
-                    let url = "{{ route('items.destroy', ':id') }}";
+                    let url = "{{ route('user.destroy', ':id') }}".replace(':id', id);
                     $.ajax({
                         url: url,
                         type: "DELETE",

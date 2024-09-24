@@ -21,6 +21,9 @@ class UserController extends Controller
                 ->addColumn('username', function ($row) {
                     return $row->username ?? '-';
                 })
+                ->addColumn('role', function ($row) {
+                    return $row->getRoleNames()->first() ?? '-';
+                })
                 ->addColumn('action', function ($row) {
                     $btn = '<a href="' . route('user.show', encrypt($row->id)) . '" class="view btn btn-info btn-sm me-2"><i class="ph-duotone ph-eye"></i></a>';
                     $btn = $btn . '<a href="' . route('user.edit', encrypt($row->id)) . '" class="edit btn btn-warning btn-sm me-2"><i class="ph-duotone ph-pencil-line"></i></a>';
@@ -140,6 +143,30 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $user = User::find(decrypt($id));
+
+        if ($user->id == auth()->id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You cannot delete yourself.',
+            ]);
+        }
+        
+        if ($user->unit) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User cannot be deleted as it is associated with a unit.',
+            ]);
+        }
+
+        // check if user is technician
+        
+        $user->delete();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'User deleted successfully.',
+        ]);
+        
     }
 }
