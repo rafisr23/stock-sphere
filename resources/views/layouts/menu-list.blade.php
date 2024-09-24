@@ -53,7 +53,7 @@
     <label>User Management</label>
 </li> --}}
 @role('superadmin')
-    <li class="pc-item pc-hasmenu">
+    <li class="pc-item pc-hasmenu {{ request()->routeIs('user.*') || request()->routeIs('user.role.*') ? 'active pc-trigger' : '' }}">
         <a href="#" class="pc-link">
             <span class="pc-micon">
                 <i class="ph-duotone ph-users-three"></i>
@@ -62,8 +62,8 @@
             <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
         </a>
         <ul class="pc-submenu">
-            <li class="pc-item"><a class="pc-link" href="#">Account</a></li>
-            <li class="pc-item"><a class="pc-link" href="#">Role & Permission</a></li>
+            <li class="pc-item {{ request()->routeIs('user.*') ? 'active' : '' }}"><a class="pc-link" href="{{ route('user.index') }}">Account</a></li>
+            <li class="pc-item {{ request()->routeIs('user.role') ? 'active' : '' }}"><a class="pc-link" href="{{ route('user.role') }}">Role & Permission</a></li>
         </ul>
     </li>
 @endrole
