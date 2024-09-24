@@ -25,8 +25,8 @@ class UserController extends Controller
                     return $row->getRoleNames()->first() ?? '-';
                 })
                 ->addColumn('action', function ($row) {
-                    $btn = '<a href="' . route('user.show', encrypt($row->id)) . '" class="view btn btn-info btn-sm me-2"><i class="ph-duotone ph-eye"></i></a>';
-                    $btn = $btn . '<a href="' . route('user.edit', encrypt($row->id)) . '" class="edit btn btn-warning btn-sm me-2"><i class="ph-duotone ph-pencil-line"></i></a>';
+                    // $btn = '<a href="' . route('user.show', encrypt($row->id)) . '" class="view btn btn-info btn-sm me-2"><i class="ph-duotone ph-eye"></i></a>';
+                    $btn = '<a href="' . route('user.edit', encrypt($row->id)) . '" class="edit btn btn-warning btn-sm me-2"><i class="ph-duotone ph-pencil-line"></i></a>';
                     $btn = $btn . '<a href="#" class="delete btn btn-danger btn-sm"  data-id="' . encrypt($row->id) . '"><i class="ph-duotone ph-trash"></i></a>';
                     return $btn;
                 })
