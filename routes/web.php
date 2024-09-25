@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ItemsController;
 use App\Http\Controllers\UnitsController;
+use App\Http\Controllers\TechnicianController;
 use App\Http\Controllers\ItemsUnitsController;
 
 /*
@@ -41,6 +42,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('items', ItemsController::class)->name('items','*');
     Route::resource('units', UnitsController::class);
+    Route::resource('technicians', TechnicianController::class)->name('technicians','*');
     Route::resource('items_units', ItemsUnitsController::class)->name('items_units','*');
 
 
