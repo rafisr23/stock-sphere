@@ -6,6 +6,7 @@ use App\Models\Items;
 use App\Models\Units;
 use App\Models\Items_units;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ItemsController extends Controller
 {
@@ -15,7 +16,12 @@ class ItemsController extends Controller
     public function index()
     {
         if (request()->ajax()) {
-            $items = Items::all();
+            if (auth()->user()->hasRole('unit')) {
+                $itemUnits = Items_units::where('unit_id', auth()->user()->unit->id)->get();
+                $items = Items::whereIn('id', $itemUnits->pluck('item_id'))->get();
+            } else {
+                $items = Items::all();
+            }
             return datatables()->of($items)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -136,8 +142,18 @@ class ItemsController extends Controller
     public function destroy(Request $request)
     {
         $item = Items::where('id', $request->id)->first();
-        if ($item->delete()) {
-            return response()->json(['success' => 'Item deleted successfully.']);
+        // check if item is used in items_units table
+        $checkItem = Items_units::where('item_id', $request->id)->exists();
+        if ($checkItem) {
+            return response()->json(['error' => 'Item is assign in Units Items table.']);
+        } else {
+            $old_image = public_path('images/items/' . $item->image);
+            if (file_exists($old_image)) {
+                unlink($old_image);
+            }
+            if ($item->delete()) {
+                return response()->json(['success' => 'Item deleted successfully.']);
+            }
         }
         return response()->json(['error' => 'Item not deleted.']);
     }

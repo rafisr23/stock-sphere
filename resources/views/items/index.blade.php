@@ -92,22 +92,27 @@
                             id: id
                         },
                         success: (response) => {
+                            console.log(response);
                             if (response.success) {
-                                new window.Swal({
+                                Swal.fire({
                                     title: 'Success!',
-                                    text: response.message,
+                                    text: response.success,
                                     icon: 'success',
-                                }).then((result) => {
-                                    if (result.isConfirmed) {
-                                        // table.ajax.reload();
-                                        $('#items_table').DataTable().ajax.reload();
-                                    }
+                                    showConfirmButton: false,
+                                    timer: 2000,
+                                    timerProgressBar: true,
+                                    allowOutsideClick: false,
                                 });
+                                table.ajax.reload();
                             } else {
-                                new window.Swal({
-                                    title: 'Failed!',
-                                    text: response.message,
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: response.error,
                                     icon: 'error',
+                                    showConfirmButton: false,
+                                    timer: 2000,
+                                    timerProgressBar: true,
+                                    allowOutsideClick: false,
                                 });
                             }
                         },
