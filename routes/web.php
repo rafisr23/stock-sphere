@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\ItemsController;
 use App\Http\Controllers\UnitsController;
 use App\Http\Controllers\TechnicianController;
@@ -45,6 +46,10 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('technicians', TechnicianController::class)->name('technicians','*');
     Route::resource('items_units', ItemsUnitsController::class)->name('items_units','*');
 
+    Route::controller(UserController::class)->prefix('user')->name('user.')->group(function() {
+        Route::get('/role', 'role')->name('role');
+    });
+    Route::resource('user', UserController::class);
 
 
     // Define a GET route with dynamic placeholders for route parameters

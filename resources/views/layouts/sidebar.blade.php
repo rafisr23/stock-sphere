@@ -25,7 +25,7 @@
                             <a href="#" class="arrow-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-offset="0,20">
                                 <div class="d-flex align-items-center">
                                     <div class="flex-grow-1 me-2">
-                                        <h6 class="mb-0">Jonh Smith</h6>
+                                        <h6 class="mb-0">{{ auth()->user()->name }}</h6>
                                         <span class="badge bg-secondary">{{ ucfirst(auth()->user()->getRoleNames()[0]) }}</span>
                                     </div>
                                 </div>
@@ -35,7 +35,6 @@
                 </div>
             </div>
         </div>
-    </div>
     </div>
 </nav>
 <!-- [ Sidebar Menu ] end -->
