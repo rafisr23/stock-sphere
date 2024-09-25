@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Units;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 
@@ -42,8 +44,11 @@ class UserController extends Controller
      */
     public function create()
     {
-        $roles = Role::all();
-        return view('user.create', compact('roles'));
+        $data = [
+            'roles' => Role::all(),
+            'units' => Units::where('user_id', null)->get(),
+        ];
+        return view('user.create', compact('data'));
     }
 
     /**
@@ -55,28 +60,33 @@ class UserController extends Controller
             'name' => 'required',
             'email' => 'required',
             'username' => 'required|unique:users,username',
-            'password' => 'required',
+            'password' => 'required|confirmed',
         ]);
 
-        if ($request->password != $request->password_confirmation) {
-            return redirect()->back()->with('error', 'Password and Confirm Password do not match.');
-        }
+        DB::beginTransaction();
+        try {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'username' => $request->username,
+                'password' => Hash::make($request->password),
+            ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'username' => $request->username,
-            'password' => Hash::make($request->password),
-        ]);
+            $role = Role::findById($request->role_id);
+            $user->assignRole($role);
 
-        $role = Role::findById($request->role_id);
+            if ($request->unit_id) {
+                $unit = Units::find($request->unit_id);
+                $unit->update([
+                    'user_id' => $user->id,
+                ]);
+            }
 
-        $user->assignRole($role);
-
-        if ($user) {
+            DB::commit();  
             return redirect()->route('user.index')->with('success', 'User created successfully.');
-        } else {
-            return redirect()->route('user.index')->with('error', 'User creation failed.');
+        } catch (\Exception $e) {
+            DB::rollBack();  
+            return redirect()->back()->with('error', 'User creation failed: ' . $e->getMessage());
         }
     }
 
@@ -94,9 +104,12 @@ class UserController extends Controller
     public function edit(string $id)
     {
         $user = User::find(decrypt($id));
-        $roles = Role::all();
+        $data = [
+            'roles' => Role::all(),
+            'units' => Units::where('user_id', null)->orWhere('user_id', 0)->orWhere('user_id', $user->id)->get(),
+        ];
 
-        return view('user.edit', compact('user', 'roles'));
+        return view('user.edit', compact('user', 'data'));
     }
 
     /**
@@ -104,38 +117,55 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $user = User::find(decrypt($id));
+        $user = User::findOrFail(decrypt($id));
 
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required',
-            'username' => 'required|unique:users,username,' . $user->id,
-        ]);
+        DB::beginTransaction();
+        try {
+            $request->validate([
+                'name' => 'required',
+                'email' => 'required',
+                'username' => 'required|unique:users,username,' . $user->id,
+            ]);
 
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'username' => $request->username,
-        ]);
+            $user->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'username' => $request->username,
+            ]);
 
-        $role = Role::findById($request->role_id);
-        $user->syncRoles($role);
+            $role = Role::findById($request->role_id);
+            $user->syncRoles($role);
 
-        if ($request->new_password) {
-            if (Hash::check($request->old_password, $user->password)) {
-                if ($request->new_password == $request->password_confirmation) {
-                    $user->update([
-                        'password' => Hash::make($request->new_password),
-                    ]);
-                } else {
-                    return redirect()->back()->with('error', 'New Password and Confirm New Password do not match.');
-                }
+            if ($request->unit_id) {
+                Units::where('id', $request->unit_id)->update([
+                    'user_id' => $user->id,
+                ]);
             } else {
-                return redirect()->back()->with('error', 'Old password is incorrect.');
+                Units::where('user_id', $user->id)->update([
+                    'user_id' => null,
+                ]);
             }
-        }
 
-        return redirect()->route('user.index')->with('success', 'User updated successfully.');
+            if ($request->new_password) {
+                if (Hash::check($request->old_password, $user->password)) {
+                    if ($request->new_password == $request->password_confirmation) {
+                        $user->update([
+                            'password' => Hash::make($request->new_password),
+                        ]);
+                    } else {
+                        return redirect()->back()->with('error', 'New Password and Confirm New Password do not match.');
+                    }
+                } else {
+                    return redirect()->back()->with('error', 'Old password is incorrect.');
+                }
+            }
+
+            DB::commit();
+            return redirect()->route('user.index')->with('success', 'User updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'User update failed: ' . $e->getMessage());
+        }
     }
 
     /**

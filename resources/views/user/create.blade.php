@@ -75,8 +75,24 @@
                             <div class="col-sm-9 mb-4">
                                 <select class="form-control" data-trigger name="role_id" id="role_id" required>
                                     <option value="">-- Select Role --</option>
-                                    @foreach ($roles as $role)
-                                        <option value="{{ $role->id }}">{{ $role->name }}</option>
+                                    @foreach ($data['roles'] as $role)
+                                        <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>{{ $role->name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('role')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="form-group row assign-unit {{ old('unit_id') ? '' : 'd-none' }}">
+                            <label for="role" class="col-sm-3 col-form-label required">Unit</label>
+                            <div class="col-sm-9 mb-4">
+                                <select class="form-control" data-trigger name="unit_id" id="unit_id" required>
+                                    <option value="">-- Select Unit --</option>
+                                    @foreach ($data['units'] as $unit)
+                                        <option value="{{ $unit->id }}" {{ old('unit_id') == $unit->id ? 'selected' : '' }}>{{ $unit->customer_name }}</option>
                                     @endforeach
                                 </select>
                                 @error('role')
@@ -104,8 +120,20 @@
 @section('scripts')
     <script src="{{ URL::asset('build/js/plugins/choices.min.js') }}"></script> 
     <script>
-        var multipleCancelButton = new Choices(document.getElementById('role_id'), {
+        new Choices(document.getElementById('role_id'), {
             removeItemButton: true,
+        });
+        new Choices(document.getElementById('unit_id'), {
+            removeItemButton: true,
+        });
+
+        $('#role_id').change(function() {
+            var role_id = $(this).val();
+            if (role_id == 2) {
+                $('.assign-unit').removeClass('d-none');
+            } else {
+                $('.assign-unit').addClass('d-none');
+            }
         });
     </script>
 @endsection

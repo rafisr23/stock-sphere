@@ -59,8 +59,24 @@
                             <div class="col-sm-9 mb-4">
                                 <select class="form-control" data-trigger name="role_id" id="role_id" required>
                                     <option value="">-- Select Role --</option>
-                                    @foreach ($roles as $role)
-                                        <option value="{{ $role->id }}" {{ $user->roles->first()->id == $role->id ? 'selected' : '' }}>{{ $role->name }}</option>
+                                    @foreach ($data['roles'] as $role)
+                                        <option value="{{ $role->id }}" {{ old('role_id', $user->roles->first()->id) == $role->id ? 'selected' : '' }}>{{ $role->name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('role')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="form-group row assign-unit {{ old('unit_id') ? '' : 'd-none' }}">
+                            <label for="role" class="col-sm-3 col-form-label required">Unit</label>
+                            <div class="col-sm-9 mb-4">
+                                <select class="form-control" data-trigger name="unit_id" id="unit_id" required>
+                                    <option value="">-- Select Unit --</option>
+                                    @foreach ($data['units'] as $unit)
+                                        <option value="{{ $unit->id }}" {{ old('unit_id', $user->unit->id ?? '') == $unit->id ? 'selected' : '' }}>{{ $unit->customer_name }}</option>
                                     @endforeach
                                 </select>
                                 @error('role')
@@ -73,7 +89,7 @@
                         <div class="form-group row">
                             <label for="old_password" class="col-sm-3 col-form-label required">Old Password</label>
                             <div class="col-sm-9 mb-4">
-                                <input type="password" class="form-control @error('old_password') is-invalid @enderror" id="old_password" name="old_password" required placeholder="Enter Old Password" >
+                                <input type="password" class="form-control @error('old_password') is-invalid @enderror" id="old_password" name="old_password" placeholder="Enter Old Password" >
                                 @error('old_password')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -82,9 +98,9 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="new_password" class="col-sm-3 col-form-label required">New Password</label>
+                            <label for="new_password" class="col-sm-3 col-form-label">New Password</label>
                             <div class="col-sm-9 mb-4">
-                                <input type="password" class="form-control @error('new_password') is-invalid @enderror" id="new_password" name="new_password" required placeholder="Enter New Password" >
+                                <input type="password" class="form-control @error('new_password') is-invalid @enderror" id="new_password" name="new_password" placeholder="Enter New Password" >
                                 @error('new_password')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -93,9 +109,9 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="password" class="col-sm-3 col-form-label required">Confirm Password</label>
+                            <label for="password" class="col-sm-3 col-form-label">Confirm Password</label>
                             <div class="col-sm-9 mb-4">
-                                <input type="password" class="form-control" name="password_confirmation" required autocomplete="new-password" placeholder="Enter Confirm Password">
+                                <input type="password" class="form-control" name="password_confirmation" autocomplete="new-password" placeholder="Enter Confirm Password">
                             </div>
                         </div>
                     </div>
@@ -116,8 +132,24 @@
 @section('scripts')
     <script src="{{ URL::asset('build/js/plugins/choices.min.js') }}"></script> 
     <script>
-        var multipleCancelButton = new Choices(document.getElementById('role_id'), {
+        new Choices(document.getElementById('role_id'), {
             removeItemButton: true,
         });
+        new Choices(document.getElementById('unit_id'), {
+            removeItemButton: true,
+        });
+
+        $('#role_id').change(function() {
+            var role_id = $(this).val();
+            if (role_id == 2) {
+                $('.assign-unit').removeClass('d-none');
+                $('#unit_id').removeAttr('disabled');
+            } else {
+                $('.assign-unit').addClass('d-none');
+                $('#unit_id').attr('disabled', 'disabled');
+                
+            }
+        });
+        $('#role_id').trigger('change');
     </script>
 @endsection

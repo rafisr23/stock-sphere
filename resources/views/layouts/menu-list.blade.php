@@ -63,7 +63,7 @@
         </a>
         <ul class="pc-submenu">
             <li class="pc-item {{ request()->routeIs('user.*') ? 'active' : '' }}"><a class="pc-link" href="{{ route('user.index') }}">Account</a></li>
-            <li class="pc-item {{ request()->routeIs('user.role') ? 'active' : '' }}"><a class="pc-link" href="{{ route('user.role') }}">Role & Permission</a></li>
+            {{-- <li class="pc-item {{ request()->routeIs('user.role') ? 'active' : '' }}"><a class="pc-link" href="{{ route('user.role') }}">Role & Permission</a></li> --}}
         </ul>
     </li>
 @endrole
