@@ -76,7 +76,8 @@
 @section('scripts')
     <!-- [Page Specific JS] start -->
     <!-- file-upload Js -->
-    <script src="{{ URL::asset('build/js/plugins/dropzone-amd-module.min.js') }}"></script>
+    {{-- <script src="{{ URL::asset('build/js/plugins/dropzone-amd-module.min.js') }}"></script> --}}
+    <script src="{{ asset('js/dropzone.js') }}"></script>
     {{-- <script>
         Dropzone.autoDiscover = false;
         $(document).ready(function() {

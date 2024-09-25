@@ -7,6 +7,7 @@
 @section('breadcrumb-item-active', 'Edit Item')
 
 @section('css')
+    <link rel="stylesheet" href="{{ URL::asset('build/css/plugins/dropzone.min.css') }}">
 @endsection
 
 @section('content')
@@ -52,12 +53,22 @@
                         </div>
                         <div class="form-group row">
                             <label for="image" class="col-sm-3 col-form-label">Image</label>
+                            {{-- show image if exist --}}
+                            @if ($item->image != null)
+                                <div class="col-sm-9 mb-4 d-flex justify-content-center">
+                                    <img src="{{ asset('images/items/' . $item->image) }}" alt="{{ $item->item_name }}"
+                                        class="img-fluid">
+                                </div>
+                            @endif
+                        </div>
+                        <div class="form-group row d-flex justify-content-end">
                             <div class="col-sm-9 mb-4 dropzone">
                                 <div class="fallback">
                                     <input type="file" id="image" name="image">
                                 </div>
                             </div>
                         </div>
+
                         <div class="form-group row">
                             <div class="col-sm-9 mt-4">
                                 <button type="submit" class="btn btn-primary">Save</button>
@@ -69,4 +80,7 @@
         </div>
     </div>
     <!-- [ Main Content ] end -->
+@endsection
+@section('scripts')
+    <script src="{{ asset('js/dropzone.js') }}"></script>
 @endsection

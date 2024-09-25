@@ -22,6 +22,8 @@ class DatabaseSeeder extends Seeder
             UnitsSeeder::class,
             ItemsSeeder::class,
             ItemsUnitsSeeder::class,
+            TechnicianSeeder::class,
+            RoleAccountSeeder::class,
         ]);
     }
 }

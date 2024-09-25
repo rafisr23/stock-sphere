@@ -15,7 +15,11 @@ class ItemsUnitsController extends Controller
     public function index()
     {
         if (request()->ajax()) {
-            $items_units = Items_units::all();
+            if (auth()->user()->hasRole('unit')) {
+                $items_units = Items_units::where('unit_id', auth()->user()->unit->id)->get();
+            } else {
+                $items_units = Items_units::all();
+            }
             return datatables()->of($items_units)
                 ->addIndexColumn()
                 ->addColumn('items_name', function ($row) {

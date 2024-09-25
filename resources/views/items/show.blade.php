@@ -19,8 +19,13 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-4">
-                            <img src="{{ asset('images/items/' . $item->image) }}" alt="{{ $item->item_name }}"
-                                class="img-fluid">
+                            @if ($item->image == null)
+                                <img src="{{ asset('images/img-profile-card.jpg') }}" alt="{{ $item->item_name }}"
+                                    class="img-fluid">
+                            @else
+                                <img src="{{ asset('images/items/' . $item->image) }}" alt="{{ $item->item_name }}"
+                                    class="img-fluid">
+                            @endif
                         </div>
                         <div class="col-md-8">
                             <div class="form-group row">

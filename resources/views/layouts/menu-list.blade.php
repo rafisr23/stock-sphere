@@ -25,9 +25,12 @@
     <ul class="pc-submenu">
         @role('superadmin')
             <li class="pc-item"><a class="pc-link" href="{{ route('units.index') }}">Units</a></li>
+            <li class="pc-item"><a class="pc-link" href="{{ route('technicians.index') }}">Technician</a></li>
         @endrole
-        <li class="pc-item"><a class="pc-link" href="{{route('items.index')}}">Items</a></li>
-        <li class="pc-item"><a class="pc-link" href="{{ route('items_units.index') }}">Assign Items</a></li>
+        @role('superadmin|unit')
+            <li class="pc-item"><a class="pc-link" href="{{ route('items.index') }}">Items</a></li>
+            <li class="pc-item"><a class="pc-link" href="{{ route('items_units.index') }}">Assign Items</a></li>
+        @endrole
     </ul>
 </li>
 {{-- <li class="pc-item pc-hasmenu">

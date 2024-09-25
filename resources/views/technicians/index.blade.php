@@ -1,9 +1,9 @@
 @extends('layouts.main')
 
-@section('title', 'Items')
+@section('title', 'Technicians')
 @section('breadcrumb-item', 'Data Master')
 
-@section('breadcrumb-item-active', 'Items')
+@section('breadcrumb-item-active', 'Technicians')
 
 @section('css')
 @endsection
@@ -14,16 +14,17 @@
         <div class="col-sm-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="card-title">Data Item</h4>
-                    <a href="{{ route('items.create') }}" class="btn btn-primary">Add Item</a>
+                    <h4 class="card-title">Data Technicians</h4>
+                    <a href="{{ route('technicians.create') }}" class="btn btn-primary">Add Technician</a>
                 </div>
                 <div class="card-body">
-                    <table id="items_table" class="table table-bordered">
+                    <table id="technicians_table" class="table table-bordered">
                         <thead>
                             <th>No</th>
-                            <th>Item Name</th>
-                            <th>Downtime</th>
-                            <th>Modality</th>
+                            <th>Name</th>
+                            <th>Phone</th>
+                            <th>City</th>
+                            <th>Status</th>
                             <th>Action</th>
                         </thead>
                     </table>
@@ -36,41 +37,44 @@
 
 @section('scripts')
     <script>
-        let table = $('#items_table').DataTable({
+        var table = $('#technicians_table').DataTable({
             fixedHeader: true,
             processing: true,
             serverSide: true,
             responsive: true,
-            ajax: "{{ route('items.index') }}",
+            ajax: "{{ route('technicians.index') }}",
             columns: [{
                     data: 'DT_RowIndex',
-                    name: 'DT_RowIndex'
+                    name: 'DT_RowIndex',
                 },
                 {
-                    data: 'item_name',
-                    name: 'item_name'
+                    data: 'name',
+                    name: 'name'
                 },
                 {
-                    data: 'downtime',
-                    name: 'downtime'
+                    data: 'phone',
+                    name: 'phone'
                 },
                 {
-                    data: 'modality',
-                    name: 'modality'
+                    data: 'city',
+                    name: 'city'
+                },
+                {
+                    data: 'status',
+                    name: 'status'
                 },
                 {
                     data: 'action',
                     name: 'action',
                     orderable: false,
                     searchable: false,
-                    className: 'text-center'
                 },
             ]
         });
 
-        $('#items_table').on('click', '.delete', function(e) {
+        $('#technicians_table').on('click', '.delete', function(e) {
             e.preventDefault();
-            let id = $(this).data('id');
+            var id = $(this).data('id');
             Swal.fire({
                 title: 'Are you sure?',
                 text: 'You will not be able to recover this data!',
@@ -83,13 +87,12 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     let CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
-                    let url = "{{ route('items.destroy', ':id') }}";
+                    let url = "{{ route('technicians.destroy', ':id') }}";
                     $.ajax({
-                        url: url,
+                        url: url.replace(':id', id),
                         type: "DELETE",
                         data: {
                             _token: CSRF_TOKEN,
-                            id: id
                         },
                         success: (response) => {
                             console.log(response);

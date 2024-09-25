@@ -47,45 +47,39 @@
                                 <i class="ph-duotone ph-info"></i>
                             </h1>
                             <div class="form-group row">
-                                <label for="serial_number" class="col-sm-3 col-form-label">Serial Number</label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control text-black" id="serial_number"
-                                        name="serial_number" value="{{ $item->serial_number }}" readonly>
+                                <label for="serial_number" class="col-sm-6 col-form-label">Serial Number :</label>
+                                <div class="col-sm-6">
+                                    <label for="serial_number" class="col-form-label">{{ $item->serial_number }}</label>
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="software_version" class="col-sm-3 col-form-label">Software Version</label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control text-black" id="software_version"
-                                        name="software_version" value="{{ $item->software_version }}" readonly>
+                                <label for="software_version" class="col-sm-6 col-form-label">Software Version :</label>
+                                <div class="col-sm-6">
+                                    <label for="software_version" class="col-form-label">{{ $item->software_version }}</label>
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="installation_date" class="col-sm-3 col-form-label">Instalation Date</label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control text-black" id="installation_date"
-                                        name="installation_date" value="{{ $item->installation_date }}" readonly>
+                                <label for="installation_date" class="col-sm-6 col-form-label">Instalation Date :</label>
+                                <div class="col-sm-6">
+                                    <label for="installation_date" class="col-form-label">{{ $item->installation_date }}</label>
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="contract" class="col-sm-3 col-form-label">Contract</label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control text-black" id="contract" name="contract"
-                                        value="{{ $item->contract }}" readonly>
+                                <label for="contract" class="col-sm-6 col-form-label">Contract :</label>
+                                <div class="col-sm-6">
+                                    <label for="contract" class="col-form-label">{{ $item->contract }}</label>
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="end_of_service" class="col-sm-3 col-form-label">End of Service</label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control text-black" id="end_of_service"
-                                        name="end_of_service" value="{{ $item->end_of_service }}" readonly>
+                                <label for="end_of_service" class="col-sm-6 col-form-label">End of Service :</label>
+                                <div class="col-sm-6">
+                                    <label for="end_of_service" class="col-form-label">{{ $item->end_of_service }}</label>
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="items->modality" class="col-sm-3 col-form-label">Modality</label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control text-black" id="items->modality"
-                                        name="items->modality" value="{{ $item->items->modality }}" readonly>
+                                <label for="items->modality" class="col-sm-6 col-form-label">Modality :</label>
+                                <div class="col-sm-6">
+                                    <label for="items->modality" class="col-form-label">{{ $item->items->modality }}</label>
                                 </div>
                             </div>
                         </div>
@@ -94,38 +88,33 @@
                                 <i class="ph-duotone ph-suitcase"></i>
                             </h1>
                             <div class="form-group row">
-                                <label for="serial_number" class="col-sm-3 col-form-label">Serial No.</label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control text-black" id="serial_number"
-                                        name="serial_number" value="{{ $item->serial_number }}" readonly>
+                                <label for="serial_number" class="col-sm-6 col-form-label">Serial No. :</label>
+                                <div class="col-sm-6">
+                                    <label for="serial_number" class="col-form-label">{{ $item->serial_number }}</label>
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="customer_name" class="col-sm-3 col-form-label">Customer Name</label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control text-black" id="customer_name"
-                                        name="customer_name" value="{{ $item->units->customer_name }}" readonly>
+                                <label for="customer_name" class="col-sm-6 col-form-label">Customer Name :</label>
+                                <div class="col-sm-6">
+                                    <label for="customer_name" class="col-form-label">{{ $item->units->customer_name }}</label>
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="street" class="col-sm-3 col-form-label">Street</label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control text-black" id="street" name="street"
-                                        value="{{ $item->units->street }}" readonly>
+                                <label for="street" class="col-sm-6 col-form-label">Street :</label>
+                                <div class="col-sm-6">
+                                    <label for="street" class="col-form-label">{{ $item->units->street }}</label>
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="city" class="col-sm-3 col-form-label">City</label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control text-black" id="city" name="city"
-                                        value="{{ $item->units->city }}" readonly>
+                                <label for="city" class="col-sm-6 col-form-label">City :</label>
+                                <div class="col-sm-6">
+                                    <label for="city" class="col-form-label">{{ $item->units->city }}</label>
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="postal_code" class="col-sm-3 col-form-label">Postal Code</label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control text-black" id="postal_code"
-                                        name="postal_code" value="{{ $item->units->postal_code }}" readonly>
+                                <label for="postal_code" class="col-sm-6 col-form-label">Postal Code :</label>
+                                <div class="col-sm-6">
+                                    <label for="postal_code" class="col-form-label">{{ $item->units->postal_code }}</label>
                                 </div>
                             </div>
                         </div>
@@ -134,22 +123,20 @@
                                 <i class="ph-duotone ph-headset"></i>
                             </h1>
                             <div class="form-group row">
-                                <label for="srs_status" class="col-sm-3 col-form-label">SRS Status</label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control text-black" id="srs_status"
-                                        name="srs_status" value="{{ $item->srs_status }}" readonly>
+                                <label for="srs_status" class="col-sm-6 col-form-label">SRS Status :</label>
+                                <div class="col-sm-6">
+                                    <label for="srs_status" class="col-form-label">{{ $item->srs_status }}</label>
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="last_checked_date" class="col-sm-3 col-form-label">Last Checked Date</label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control text-black" id="last_checked_date"
-                                        name="last_checked_date" value="{{ $item->last_checked_date }}" readonly>
+                                <label for="last_checked_date" class="col-sm-6 col-form-label">Last Checked Date :</label>
+                                <div class="col-sm-6">
+                                    <label for="last_checked_date" class="col-form-label">{{ $item->last_checked_date }}</label>
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="last_checked_date" class="col-sm-3 col-form-label">SRS Status</label>
-                                <div class="col-sm-9">
+                                <label for="last_checked_date" class="col-sm-6 col-form-label">SRS Status :</label>
+                                <div class="col-sm-6">
                                     <button type="button" class="btn btn-primary">Check</button>
                                 </div>
                             </div>
