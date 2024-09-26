@@ -19,7 +19,7 @@ class TechnicianSeeder extends Seeder
             'street' => '123 Main St',
             'city' => 'Anytown',
             'postal_code' => '12345',
-            'status' => 'Active',
+            'status' => 'active',
         ]);
             
 
