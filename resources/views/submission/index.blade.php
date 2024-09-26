@@ -27,7 +27,9 @@
                                 <th>No</th>
                                 <th>Item Name</th>
                                 <th>Customer Name</th>
-                                <th>Contract</th>
+                                <th>Serial Number</th>
+                                <th>Last Checked Date</th>
+                                <th>Last Serviced Date</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -72,8 +74,16 @@
                     name: 'units_name'
                 },
                 {
-                    data: 'contract',
-                    name: 'contract'
+                    data: 'serial_number',
+                    name: 'serial_number'
+                },
+                {
+                    data: 'last_checked_date',
+                    name: 'last_checked_date'
+                },
+                {
+                    data: 'last_serviced_date',
+                    name: 'last_serviced_date'
                 },
                 {
                     data: 'action',

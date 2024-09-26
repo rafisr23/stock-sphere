@@ -23,6 +23,18 @@ class SubmissionOfRepairController extends Controller
                 ->addColumn('units_name', function ($row) {
                     return $row->units->customer_name ?? '-';
                 })
+                ->addColumn('serial_number', function ($row) {
+                    return $row->serial_number;
+                })
+                ->addColumn('last_checked_date', function ($row) {
+                    return date('d M Y H:i:s', strtotime($row->last_checked_date));
+                })
+                ->addColumn('last_serviced_date', function ($row) {
+                    return $row->last_serviced_date != '' || $row->last_serviced_date != null ? date('d M Y H:i:s', strtotime($row->last_serviced_date)) : '-';
+                })
+                ->addColumn('contract', function ($row) {
+                    return $row->contract;
+                })
                 ->addColumn('action', function ($row) {
                     $btn = '<div class="d-flex justify-content-center align-items-center">';
                     $btn .= '<a href="' . route('items_units.show', $row->id) . '" class="view btn btn-info btn-sm me-2" title="See Details"><i class="ph-duotone ph-eye"></i></a>';
