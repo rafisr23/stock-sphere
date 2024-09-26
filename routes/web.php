@@ -6,8 +6,9 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ItemsController;
 use App\Http\Controllers\UnitsController;
-use App\Http\Controllers\TechnicianController;
 use App\Http\Controllers\ItemsUnitsController;
+use App\Http\Controllers\TechnicianController;
+use App\Http\Controllers\SubmissionOfRepairController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,30 +27,19 @@ Auth::routes();
 
 // Define a group of routes with 'auth' middleware applied
 Route::middleware(['auth'])->group(function () {
-    // Define a GET route for the root URL ('/')
     Route::get('/', function () {
-        // Return a view named 'index' when accessing the root URL
         return view('index');
     });
-
-    // Route::get('/items', [ItemsController::class, 'index'])->name('items.index');
-    // Route::get('/get-items', [ItemsController::class, 'getItems'])->name('items.getItems');
-    // Route::get('items/{id}/show', [ItemsController::class, 'show'])->name('items.show');
-    // Route::get('/items/create', [ItemsController::class, 'create'])->name('items.create');
-    // Route::post('/items', [ItemsController::class, 'store'])->name('items.store');
-    // Route::get('/items/{id}/edit', [ItemsController::class, 'edit'])->name('items.edit');
-    // Route::put('/items/{id}', [ItemsController::class, 'update'])->name('items.update');
-    // Route::delete('/items', [ItemsController::class, 'destroy'])->name('items.delete');
 
     Route::resource('items', ItemsController::class)->name('items','*');
     Route::resource('units', UnitsController::class);
     Route::resource('technicians', TechnicianController::class)->name('technicians','*');
     Route::resource('items_units', ItemsUnitsController::class)->name('items_units','*');
-
-    Route::controller(UserController::class)->prefix('user')->name('user.')->group(function() {
-        Route::get('/role', 'role')->name('role');
-    });
     Route::resource('user', UserController::class);
+
+    Route::controller(SubmissionOfRepairController::class)->middleware('role:superadmin|unit')->prefix('submission-of-repair')->name('submission-of-repair.')->group(function () {
+        Route::get('/', 'index')->name('index');
+    });
 
 
     // Define a GET route with dynamic placeholders for route parameters

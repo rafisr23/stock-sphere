@@ -70,3 +70,15 @@
         </ul>
     </li>
 @endrole
+
+<li class="pc-item pc-caption">
+    <label>Repairs</label>
+</li>
+<li class="pc-item {{ request()->routeIs('submission-of-repair.*') ? 'active' : '' }}">
+    <a href="{{ route('submission-of-repair.index') }}" class="pc-link">
+        <span class="pc-micon">
+            <i class="ph-duotone ph-wrench"></i>
+        </span>
+        <span class="pc-mtext">Submission Of Repairs</span>
+    </a>
+</li>
