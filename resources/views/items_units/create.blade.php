@@ -29,7 +29,7 @@
                     <form action="{{ route('items_units.store') }}" method="POST">
                         @csrf
                         <div class="form-group row">
-                            <label for="item_name" class="col-sm-3 col-form-label required">Item Name</label>
+                            <label for="item_id" class="col-sm-3 col-form-label required">Item Name</label>
                             <div class="col-sm-9 mb-4">
                                 <select class="form-control" data-trigger name="item_id[]" id="item_id" multiple required>
                                     <option value="">-- Select Item --</option>

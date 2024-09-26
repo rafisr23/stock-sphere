@@ -26,7 +26,7 @@
                     <a href="{{ route('technicians.index') }}" class="btn btn-secondary">Back</a>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('technicians.store') }}" method="POST">
+                    <form action="{{ route('technicians.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="form-group row">
                             <label for="name" class="col-sm-3 col-form-label required">Name</label>
@@ -37,7 +37,7 @@
                         <div class="form-group row">
                             <label for="phone" class="col-sm-3 col-form-label required">Phone</label>
                             <div class="col-sm-9 mb-4">
-                                <input type="text" class="form-control" id="phone" name="phone" required>
+                                <input type="numeric" class="form-control" id="phone" name="phone" required>
                             </div>
                         </div>
                         <div class="form-group row">
@@ -83,6 +83,17 @@
                             </div>
                         </div>
                         <div class="form-group row">
+                            <label for="user_id" class="col-sm-3 col-form-label">User</label>
+                            <div class="col-sm-9 mb-4">
+                                <select class="form-control" data-trigger id="user_id" name="user_id">
+                                    <option value="">-- Select Name --</option>
+                                    @foreach ($users as $user)
+                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
                             <div class="col-sm-9 mt-4">
                                 <button type="submit" class="btn btn-primary">Save</button>
                             </div>
@@ -100,6 +111,9 @@
     <script src="{{ URL::asset('build/js/plugins/choices.min.js') }}"></script>
     <script>
         var singleCancelButton = new Choices(document.getElementById('status'), {
+            removeItemButton: true,
+        });
+        var singleCancelButton = new Choices(document.getElementById('user_id'), {
             removeItemButton: true,
         });
     </script>

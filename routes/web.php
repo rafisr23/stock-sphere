@@ -32,18 +32,20 @@ Route::middleware(['auth'])->group(function () {
         return view('index');
     });
 
-    // Route::get('/items', [ItemsController::class, 'index'])->name('items.index');
-    // Route::get('/get-items', [ItemsController::class, 'getItems'])->name('items.getItems');
-    // Route::get('items/{id}/show', [ItemsController::class, 'show'])->name('items.show');
-    // Route::get('/items/create', [ItemsController::class, 'create'])->name('items.create');
-    // Route::post('/items', [ItemsController::class, 'store'])->name('items.store');
-    // Route::get('/items/{id}/edit', [ItemsController::class, 'edit'])->name('items.edit');
-    // Route::put('/items/{id}', [ItemsController::class, 'update'])->name('items.update');
-    // Route::delete('/items', [ItemsController::class, 'destroy'])->name('items.delete');
-
     Route::resource('items', ItemsController::class)->name('items','*');
+
     Route::resource('units', UnitsController::class);
-    Route::resource('technicians', TechnicianController::class)->name('technicians','*');
+    
+    Route::get('technicians', [TechnicianController::class, 'index'])->name('technicians.index');
+    Route::get('technicians/create', [TechnicianController::class, 'create'])->name('technicians.create');
+    Route::post('technicians/store', [TechnicianController::class, 'store'])->name('technicians.store');
+    Route::get('technicians/{id}/edit', [TechnicianController::class, 'edit'])->name('technicians.edit');
+    Route::put('technicians/{id}', [TechnicianController::class, 'update'])->name('technicians.update');
+    Route::delete('technicians/destroy', [TechnicianController::class, 'destroy'])->name('technicians.destroy');
+    Route::get('technicians/{id}/show', [TechnicianController::class, 'show'])->name('technicians.show');
+    Route::get('technicians/assign', [TechnicianController::class, 'assign'])->name('technicians.assign');
+    Route::post('technicians/assignTechnician', [TechnicianController::class, 'assignTechnician'])->name('technicians.assignTechnician');
+
     Route::resource('items_units', ItemsUnitsController::class)->name('items_units','*');
 
     Route::controller(UserController::class)->prefix('user')->name('user.')->group(function() {

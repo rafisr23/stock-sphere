@@ -15,7 +15,10 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4 class="card-title">Data Technicians</h4>
-                    <a href="{{ route('technicians.create') }}" class="btn btn-primary">Add Technician</a>
+                    <div>
+                        <a href="{{ route('technicians.assign') }}" class="btn btn-success">Assign Technician</a>
+                        <a href="{{ route('technicians.create') }}" class="btn btn-primary">Add Technician</a>
+                    </div>
                 </div>
                 <div class="card-body">
                     <table id="technicians_table" class="table table-bordered">

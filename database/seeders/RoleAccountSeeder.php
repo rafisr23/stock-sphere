@@ -52,5 +52,12 @@ class RoleAccountSeeder extends Seeder
             'username' => 'technician',
             'password' => bcrypt('technician'),
         ])->assignRole('technician');
+
+        $technician2 = User::create([
+            'name' => 'Technician 2',
+            'email' => 'technician2@stocksphere.com',
+            'username' => 'technician2',
+            'password' => bcrypt('technician2'),
+        ])->assignRole('technician');
     }
 }
