@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class EditProfileController extends Controller
 {
@@ -44,8 +46,8 @@ class EditProfileController extends Controller
      */
     public function edit(string $id)
     {
-        $user = User::find($id);
-        return view('users.edit', compact('user'));
+        $user = User::find(decrypt($id));
+        return view('profile.edit', compact('user'));
     }
 
     /**
@@ -53,7 +55,31 @@ class EditProfileController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        try {
+            // Temukan user berdasarkan ID yang sudah di-decrypt
+            $user = User::find(decrypt($id));
+
+            // Validasi pertama: pastikan semua field tidak kosong
+            $request->validate([
+                'name' => 'required',
+                'email' => 'required|email',
+                'username' => 'required|unique:users,username,' . $user->id,
+                'password' => 'required',
+            ]);
+
+            if (!Hash::check($request->password, $user->password)) {
+                return back()->withErrors(['password' => 'Password is incorrect.']);
+            }
+            $user->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'username' => $request->username,
+            ]);
+            return back()->with('success', 'User data updated successfully.');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'User data update failed: ' . $e->getMessage());
+        }
     }
 
     /**
