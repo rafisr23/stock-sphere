@@ -39,6 +39,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::controller(SubmissionOfRepairController::class)->middleware('role:superadmin|unit')->prefix('submission-of-repair')->name('submission-of-repair.')->group(function () {
         Route::get('/', 'index')->name('index');
+        Route::post('/getItems', 'getItems')->name('getItems');
     });
 
 

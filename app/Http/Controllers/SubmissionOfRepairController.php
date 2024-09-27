@@ -49,4 +49,9 @@ class SubmissionOfRepairController extends Controller
     
         return view('submission.index');
     }
+
+    public function getItems(Request $request) {
+        $items_units = Items_units::whereIn('id', $request->unit_id)->with('items')->get();
+        return response()->json($items_units);
+    }
 }
