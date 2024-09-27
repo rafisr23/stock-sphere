@@ -53,6 +53,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/role', 'role')->name('role');
     });
     Route::resource('user', UserController::class);
+    Route::get('profile/{id}/change_password', [EditProfileController::class, 'change_password'])->name('profile.change_password');
+    Route::put('profile/{id}/update_password', [EditProfileController::class, 'update_password'])->name('profile.update_password');
     Route::resource('profile', EditProfileController::class)->name('profile','*');
 
 
