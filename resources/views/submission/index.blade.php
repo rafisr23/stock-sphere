@@ -105,7 +105,6 @@
                                     </form>
                                 </div>
                                 <div class="d-flex wizard justify-content-between mt-3">
-                                    <!-- Tombol Previous dan Next di sebelah kiri -->
                                     <div class="d-flex">
                                         <div class="previous">
                                             <a href="javascript:void(0);" class="btn btn-secondary me-1" id="previousButton">Previous</a>
@@ -115,7 +114,6 @@
                                         </div>
                                     </div>
                                     
-                                    <!-- Tombol Submit di sebelah kanan -->
                                     <div class="submit">
                                         <a href="javascript:void(0);" class="btn btn-success" type="button" id="submitButton">Submit</a>
                                     </div>
@@ -133,7 +131,6 @@
     <script src="{{ URL::asset('build/js/plugins/wizard-custom.js') }}"></script>
     <script>
         new Wizard("#basicwizard", {
-            // validate: true,
             progress: true
         });
     </script>
