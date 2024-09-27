@@ -260,7 +260,7 @@
                                         </a>
                                     </li>
                                     <li class="list-group-item">
-                                        <a href="#" class="dropdown-item">
+                                        <a href="{{ route('profile.edit',  encrypt(auth()->user()->id)) }}" class="dropdown-item">
                                             <span class="d-flex align-items-center">
                                                 <i class="ph-duotone ph-user-circle"></i>
                                                 <span>Edit profile</span>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EditProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
@@ -52,6 +53,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/role', 'role')->name('role');
     });
     Route::resource('user', UserController::class);
+    Route::resource('profile', EditProfileController::class)->name('profile','*');
 
 
     // Define a GET route with dynamic placeholders for route parameters
