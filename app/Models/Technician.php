@@ -15,4 +15,9 @@ class Technician extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function unit()
+    {
+        return $this->belongsTo(Units::class, 'unit_id');
+    }
 }

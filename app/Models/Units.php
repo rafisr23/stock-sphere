@@ -19,4 +19,9 @@ class Units extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function technicians()
+    {
+        return $this->hasMany(Technician::class, 'unit_id');
+    }
 }
