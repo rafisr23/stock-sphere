@@ -12,6 +12,8 @@
 <script src="{{ URL::asset('build/js/plugins/dataTables.responsive.min.js') }}"></script>
 <script src="{{ URL::asset('build/js/plugins/responsive.bootstrap5.min.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ URL::asset('build/js/plugins/choices.min.js') }}"></script>
+<script src="{{ URL::asset('build/js/plugins/datepicker-full.min.js') }}"></script>
 
 @if (env('APP_DARK_LAYOUT') == 'default')
     <script>
@@ -125,3 +127,18 @@
     </script>
 @endif
 
+<script>
+    $('.choices-init').each(function() {
+        new Choices(this, {
+            removeItemButton: true,
+        });
+    });
+
+    $('.datepicker-init').each(function() {
+        new Datepicker(this, {
+            autohide: true,
+            buttonClass: 'btn',
+            format: 'yyyy-mm-dd',
+        });
+    });
+</script>
