@@ -19,14 +19,14 @@
     <!-- [ Main Content ] start -->
     <div class="row">
         <div class="col-sm-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="card-title">Add Unit</h4>
-                    <a href="{{ route('units.index') }}" class="btn btn-secondary">Back</a>
-                </div>
-                <div class="card-body">
-                    <form action="{{ route('units.store') }}" method="POST">
-                        @csrf
+            <form action="{{ route('units.store') }}" method="POST">
+                @csrf
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="card-title">Add Unit</h4>
+                        <a href="{{ route('units.index') }}" class="btn btn-secondary">Back</a>
+                    </div>
+                    <div class="card-body">
                         <div class="form-group row">
                             <label for="customer_name" class="col-sm-3 col-form-label required">Customer Name</label>
                             <div class="col-sm-9 mb-4">
@@ -91,14 +91,32 @@
                                     placeholder="Enter Postal Code" required>
                             </div>
                         </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="card-title">Assign Unit to User</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <label for="user_id" class="col-sm-3 col-form-label required">User</label>
+                            <div class="col-sm-9 mb-4">
+                                <select name="user_id" id="user_id" class="form-control choices-init">
+                                    <option value="" selected disabled>Select User</option>
+                                    @foreach ($user as $u)
+                                        <option value="{{ encrypt($u->id) }}">{{ $u->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                         <div class="form-group row">
                             <div class="col-sm-9 mt-4">
                                 <button type="submit" class="btn btn-primary">Submit</button>
                             </div>
                         </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
     <!-- [ Main Content ] end -->

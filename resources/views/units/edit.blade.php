@@ -17,24 +17,24 @@
     <!-- [ Main Content ] start -->
     <div class="row">
         <div class="col-sm-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <div class="col">
-                        <div class="row">
-                            <h4 class="card-title mb-4">{{ $unit->customer_name }}</h4>
+            <form action="{{ route('units.update', $id_enc) }}" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="col">
+                            <div class="row">
+                                <h4 class="card-title mb-4">{{ $unit->customer_name }}</h4>
+                            </div>
+                            <div class="row">
+                                <p class="col-sm-3 col-form-p">Serial No : -</p>
+                            </div>
                         </div>
-                        <div class="row">
-                            <p class="col-sm-3 col-form-p">Serial No : -</p>
-                        </div>
+                        <a href="{{ route('units.index') }}" class="btn btn-secondary">Back</a>
                     </div>
-                    <a href="{{ route('units.index') }}" class="btn btn-secondary">Back</a>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <h4 class="card-title">Edit Data</h4>
-                        <form action="{{ route('units.update', $id_enc) }}" method="POST">
-                            @csrf
-                            @method('PUT')
+                    <div class="card-body">
+                        <div class="row">
+                            <h4 class="card-title">Edit Data</h4>
                             <div class="form-group row">
                                 <label for="customer_name" class="col-sm-3 col-form-label required">Customer
                                     Name</label>
@@ -103,15 +103,37 @@
                                         value="{{ $unit->postal_code }}">
                                 </div>
                             </div>
-                            <div class="form-group row">
-                                <div class="col-sm-9 mt-4">
-                                    <button type="submit" class="btn btn-primary">Save</button>
-                                </div>
-                            </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
-            </div>
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="card-title">Assign Unit to User</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <label for="user_id" class="col-sm-3 col-form-label required">User</label>
+                            <div class="col-sm-9 mb-4">
+                                <select name="user_id" id="user_id" class="form-control choices-init">
+                                    <option value="" selected disabled>Select User</option>
+                                    @foreach ($user as $u)
+                                        <option value="{{ encrypt($u->id) }}"
+                                            {{ $unit->user_id == $u->id ? 'selected' : '' }}>{{ $u->name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('user_id')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-9 mt-4">
+                                <button type="submit" class="btn btn-primary">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
     <!-- [ Main Content ] end -->
