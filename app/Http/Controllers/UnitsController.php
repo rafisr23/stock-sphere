@@ -6,6 +6,7 @@ use App\Models\Units;
 use App\Http\Requests\StoreUnitsRequest;
 use App\Http\Requests\UpdateUnitsRequest;
 use App\Models\Items_units;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class UnitsController extends Controller
@@ -45,7 +46,11 @@ class UnitsController extends Controller
      */
     public function create()
     {
-        return view('units.create');
+        $user = User::whereHas('roles', function ($query) {
+            $query->where('name', 'unit');
+        })->get();
+
+        return view('units.create', compact('user'));
     }
 
     /**
@@ -79,6 +84,16 @@ class UnitsController extends Controller
         $village = json_decode($village->content());
         $request['village'] = $village->village->name;
 
+        if ($request->has('user_id') && $request->user_id != null) {
+            $request['user_id'] = decrypt($request->user_id);
+
+            $checkID = Units::where('user_id', $request->user_id)->exists();
+
+            if ($checkID) {
+                return redirect()->back()->with('error', 'The user has already been assigned to another unit.');
+            }
+        }
+
         $unit = Units::create($request->all());
 
         if ($unit) {
@@ -104,7 +119,12 @@ class UnitsController extends Controller
     {
         $unit = Units::find(decrypt($id));
         $id_enc = encrypt($unit->id);
-        return view('units.edit', compact('unit', 'id_enc'));
+
+        $user = User::whereHas('roles', function ($query) {
+            $query->where('name', 'unit');
+        })->get();
+
+        return view('units.edit', compact('unit', 'id_enc', 'user'));
     }
 
     /**
@@ -117,6 +137,16 @@ class UnitsController extends Controller
             'street' => 'required',
             'postal_code' => 'required',
         ]);
+
+        if ($request->has('user_id') && $request->user_id != null) {
+            $request['user_id'] = decrypt($request->user_id);
+
+            $checkID = Units::where('user_id', $request->user_id)->where('id', '!=', decrypt($id))->exists();
+
+            if ($checkID) {
+                return redirect()->back()->with('error', 'The user has already been assigned to another unit.');
+            }
+        }
 
         if ($request->province != null) {
             $request->validate([
