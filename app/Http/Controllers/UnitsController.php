@@ -10,6 +10,12 @@ use Illuminate\Http\Request;
 
 class UnitsController extends Controller
 {
+    protected $APIsController;
+
+    public function __construct(APIsController $APIsController)
+    {
+        $this->APIsController = $APIsController;
+    }
     /**
      * Display a listing of the resource.
      */
@@ -49,10 +55,29 @@ class UnitsController extends Controller
     {
         $request->validate([
             'customer_name' => 'required',
+            'province' => 'required',
             'city' => 'required',
+            'district' => 'required',
+            'village' => 'required',
             'street' => 'required',
             'postal_code' => 'required',
         ]);
+
+        $province = $this->APIsController->getProvince($request->province);
+        $province = json_decode($province->content());
+        $request['province'] = $province->province->name;
+
+        $city = $this->APIsController->getCity($request->city);
+        $city = json_decode($city->content());
+        $request['city'] = $city->city->name;
+
+        $district = $this->APIsController->getDistrict($request->district);
+        $district = json_decode($district->content());
+        $request['district'] = $district->district->name;
+
+        $village = $this->APIsController->getVillage($request->village);
+        $village = json_decode($village->content());
+        $request['village'] = $village->village->name;
 
         $unit = Units::create($request->all());
 
@@ -89,13 +114,39 @@ class UnitsController extends Controller
     {
         $request->validate([
             'customer_name' => 'required',
-            'city' => 'required',
             'street' => 'required',
             'postal_code' => 'required',
         ]);
 
+        if ($request->province != null) {
+            $request->validate([
+                'province' => 'required',
+                'city' => 'required',
+                'district' => 'required',
+                'village' => 'required',
+            ]);
+
+            $province = $this->APIsController->getProvince($request->province);
+            $province = json_decode($province->content());
+            $request['province'] = $province->province->name;
+
+            $city = $this->APIsController->getCity($request->city);
+            $city = json_decode($city->content());
+            $request['city'] = $city->city->name;
+
+            $district = $this->APIsController->getDistrict($request->district);
+            $district = json_decode($district->content());
+            $request['district'] = $district->district->name;
+
+            $village = $this->APIsController->getVillage($request->village);
+            $village = json_decode($village->content());
+            $request['village'] = $village->village->name;
+        }
+
+        $request = array_filter($request->all());
+
         $unit = Units::find(decrypt($id));
-        $unit->update($request->all());
+        $unit->update($request);
 
         if ($unit) {
             return redirect()->route('units.index')->with('success', 'Unit updated successfully.');

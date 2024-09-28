@@ -27,9 +27,27 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="form-group row">
+                                <label for="province" class="col-sm-3 col-form-label">Province</label>
+                                <div class="col-sm-9 d-flex align-items-center">
+                                    <p id="province" class="mb-0">{{ $unit->province }}</p>
+                                </div>
+                            </div>
+                            <div class="form-group row">
                                 <label for="city" class="col-sm-3 col-form-label">City</label>
                                 <div class="col-sm-9 d-flex align-items-center">
                                     <p id="city" class="mb-0">{{ $unit->city }}</p>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="district" class="col-sm-3 col-form-label">District</label>
+                                <div class="col-sm-9 d-flex align-items-center">
+                                    <p id="district" class="mb-0">{{ $unit->district }}</p>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="village" class="col-sm-3 col-form-label">Village</label>
+                                <div class="col-sm-9 d-flex align-items-center">
+                                    <p id="village" class="mb-0">{{ $unit->village }}</p>
                                 </div>
                             </div>
                             <div class="form-group row">
