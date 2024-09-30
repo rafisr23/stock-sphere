@@ -18,7 +18,7 @@ class SubmissionOfRepair extends Model
 
     public function details()
     {
-        return $this->hasMany(DetailOfRepairSubmission::class, 'submission_of_repair_id');
+        return $this->hasMany(DetailsOfRepairSubmission::class, 'submission_of_repair_id');
     }
 
     // public function getTechnicians()

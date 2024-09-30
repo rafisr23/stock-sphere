@@ -90,8 +90,8 @@ let repairItemTable = $("#repairItemTable").DataTable({
             name: "description",
         },
         {
-            data: "evidance",
-            name: "evidance",
+            data: "evidence",
+            name: "evidence",
         },
     ],
     drawCallback: function () {
@@ -175,7 +175,7 @@ function loadRepairDescription() {
 }
 
 function loadUploadedFiles() {
-    $('input[type="file"][id^="evidance"]').each(function () {
+    $('input[type="file"][id^="evidence"]').each(function () {
         let itemId = $(this).attr("id");
         let fileName = sessionStorage.getItem(itemId + "_file");
 
@@ -232,7 +232,7 @@ $("#submitButton").on("click", function () {
             let description = $(this).val();
             formRepairItem.append(itemId, description);
         });
-        $('input[type="file"][id^="evidance"]').each(function () {
+        $('input[type="file"][id^="evidence"]').each(function () {
             let itemId = $(this).attr("id");
             let fileName = sessionStorage.getItem(itemId + "_file");
             if (fileName) {
@@ -256,7 +256,7 @@ $("#submitButton").on("click", function () {
                         showConfirmButton: false,
                         timer: 3000,
                         timerProgressBar: true,
-                        allowOutsideClick: true,
+                        allowOutsideClick: false,
                     }).then((result) => {
                         if (result.dismiss === Swal.DismissReason.timer) {
                             window.location.href = "/submission-of-repair";
@@ -306,7 +306,7 @@ $(document).on("change", 'input[type="file"]', function () {
     let file = fileInput[0].files[0];
 
     let formData = new FormData();
-    formData.append("evidance", file);
+    formData.append("evidence", file);
     formData.append("item_id", itemId);
     formData.append("_token", CSRF_TOKEN);
 

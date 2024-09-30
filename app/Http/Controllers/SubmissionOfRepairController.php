@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Items_units;
+use Illuminate\Http\Request;
+use App\Models\SubmissionOfRepair;
+use App\Models\DetailsOfRepairSubmission;
+use Illuminate\Support\Facades\DB;
 
 class SubmissionOfRepairController extends Controller
 {
@@ -73,21 +76,21 @@ class SubmissionOfRepairController extends Controller
                 
                 return $desc;
             })
-            ->addColumn('evidance', function ($row) {
-                $evidance = '
-                    <input type="file" name="evidance[' . $row->id . ']" class="form-control" id="evidance[' . $row->id . ']" placeholder="Upload evidance for ' . $row->items->item_name . '">
+            ->addColumn('evidence', function ($row) {
+                $evidence = '
+                    <input type="file" name="evidence[' . $row->id . ']" class="form-control" id="evidence[' . $row->id . ']" placeholder="Upload evidence for ' . $row->items->item_name . '">
                 ';
 
-                return $evidance;
+                return $evidence;
             })
-            ->rawColumns(['description', 'evidance'])
+            ->rawColumns(['description', 'evidence'])
             ->make(true);
     }
 
     
     public function storeTemporaryFile(Request $request) {
-        if ($request->hasFile('evidance')) {
-            $file = $request->file('evidance');
+        if ($request->hasFile('evidence')) {
+            $file = $request->file('evidence');
             $fileName = time() . '_temp_' . $file->getClientOriginalName();
             $file->move(public_path('temp'), $fileName);
             
@@ -101,8 +104,45 @@ class SubmissionOfRepairController extends Controller
     }
     
     public function store(Request $request) {
-        return $request->all();
+        // return $request->all();
 
-        return response()->json(['success' => 'Data has been saved successfully!']);
+        DB::beginTransaction();
+
+        try {
+            $submissionOfRepair = SubmissionOfRepair::create([
+                'unit_id' => auth()->user()->unit->id ?? 1,
+                'status' => 0,
+                'description' => '',
+                'date_submitted' => date('Y-m-d H:i:s')
+            ]);
+    
+            $itemUnitId = explode(',', $request->items);
+    
+            foreach ($itemUnitId as $key => $value) {
+                // if ($key == 0) continue;
+                // return $request->evidence[$value] . ' - ' . $request->description[$value];
+    
+                $item = Items_units::find($value);
+                $evidence = str_replace('_temp_', '_', $request->evidence[$value]);
+                $submissionOfRepair->details()->create([
+                    'submission_of_repair_id' => $submissionOfRepair->id,
+                    'item_unit_id' => $item->id,
+                    'description' => $request->description[$value],
+                    'evidence' => $evidence,
+                ]);
+            }
+
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => 'Your submission has been saved successfully!',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
     }
 }
