@@ -53,7 +53,8 @@
                         <div class="form-group row">
                             <label for="serial_number" class="col-sm-3 col-form-label required">Serial Number</label>
                             <div class="col-sm-9 mb-4">
-                                <input type="text" class="form-control" id="serial_number" name="serial_number" required placeholder="Enter Serial Number">
+                                <input type="text" class="form-control" id="serial_number" name="serial_number" required
+                                    placeholder="Enter Serial Number">
                             </div>
                         </div>
                         <div class="form-group row">
@@ -67,8 +68,8 @@
                             <label for="functional_location_no" class="col-sm-3 col-form-label required">Functional
                                 Location No</label>
                             <div class="col-sm-9 mb-4">
-                                <input type="text" class="form-control" id="functional_location_no" name="functional_location_no"
-                                    required placeholder="Enter Functional Location No">
+                                <input type="text" class="form-control" id="functional_location_no"
+                                    name="functional_location_no" required placeholder="Enter Functional Location No">
                             </div>
                         </div>
                         <div class="form-group row">
@@ -82,7 +83,8 @@
                         <div class="form-group row">
                             <label for="contract" class="col-sm-3 col-form-label required">Contract</label>
                             <div class="col-sm-9 mb-4">
-                                <input type="text" class="form-control" id="contract" name="contract" required placeholder="Enter Contract">
+                                <input type="text" class="form-control" id="contract" name="contract" required
+                                    placeholder="Enter Contract">
                             </div>
                         </div>
                         <div class="form-group row">
@@ -121,7 +123,6 @@
 @endsection
 
 @section('scripts')
-    <script src="{{ URL::asset('build/js/plugins/choices.min.js') }}"></script>
     <script>
         var multipleCancelButton = new Choices(document.getElementById('item_id'), {
             removeItemButton: true,
@@ -130,7 +131,6 @@
             removeItemButton: true,
         });
     </script>
-    <script src="{{ URL::asset('build/js/plugins/datepicker-full.min.js') }}"></script>
     <script>
         var datepicker = new Datepicker(document.getElementById('installation_date'), {
             autohide: true,
