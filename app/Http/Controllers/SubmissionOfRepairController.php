@@ -15,7 +15,7 @@ class SubmissionOfRepairController extends Controller
             return datatables()->of($items_units)
                 ->addIndexColumn()
                 ->addColumn('checkbox', function ($row) {
-                    return '<input type="checkbox" class="select-row form-check-input" value="' . $row->id . '">';
+                    return '<input type="checkbox" class="select-row form-check-input" value="' . $row->id . '" name="itemId[]">';
                 })
                 ->addColumn('items_name', function ($row) {
                     return $row->items->item_name;
@@ -51,7 +51,58 @@ class SubmissionOfRepairController extends Controller
     }
 
     public function getItems(Request $request) {
-        $items_units = Items_units::whereIn('id', $request->unit_id)->with('items')->get();
-        return response()->json($items_units);
+        if ($request->get('id') == null || $request->get('id') == '') {
+            $items_units = [];
+        } else {
+            $items_units = Items_units::whereIn('id', $request->get('id'))->with('items')->get();
+        }
+
+
+        return datatables()->of($items_units)
+            ->addIndexColumn()
+            ->addColumn('items_name', function ($row) {
+                return $row->items->item_name;
+            })
+            ->addColumn('serial_number', function ($row) {
+                return $row->serial_number;
+            })
+            ->addColumn('description', function ($row) {
+                $desc = '
+                    <textarea type="text" name="description[]" rows="4" class="form-control" id="description[' . $row->id . ']" placeholder="Enter repair description for ' . $row->items->item_name . '"></textarea>
+                ';
+                
+                return $desc;
+            })
+            ->addColumn('evidance', function ($row) {
+                $evidance = '
+                    <input type="file" name="evidance[' . $row->id . ']" class="form-control" id="evidance[' . $row->id . ']" placeholder="Upload evidance for ' . $row->items->item_name . '">
+                ';
+
+                return $evidance;
+            })
+            ->rawColumns(['description', 'evidance'])
+            ->make(true);
+    }
+
+    
+    public function storeTemporaryFile(Request $request) {
+        if ($request->hasFile('evidance')) {
+            $file = $request->file('evidance');
+            $fileName = time() . '_temp_' . $file->getClientOriginalName();
+            $file->move(public_path('temp'), $fileName);
+            
+            return response()->json([
+                'success' => true,
+                'code' => 200,
+                'message' => 'File has been uploaded successfully!', 
+                'fileName' => $fileName
+            ]);
+        }
+    }
+    
+    public function store(Request $request) {
+        return $request->all();
+
+        return response()->json(['success' => 'Data has been saved successfully!']);
     }
 }

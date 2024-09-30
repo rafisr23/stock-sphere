@@ -36,13 +36,13 @@
                                         <span class="d-none d-sm-inline">Repair Detail</span>
                                     </a>
                                 </li>
-                                <li class="nav-item" data-target-form="#summarySubmissionForm" onclick="getSummary()">
+                                {{-- <li class="nav-item" data-target-form="#summarySubmissionForm" onclick="getSummary()">
                                     <a href="#summarySubmission" data-bs-toggle="tab" data-toggle="tab"
                                         class="nav-link icon-btn">
                                         <i class="ph-duotone ph-clipboard-text"></i>
                                         <span class="d-none d-sm-inline">Summary</span>
                                     </a>
-                                </li>
+                                </li> --}}
                             </ul>
                         </div>
                     </div>
@@ -54,24 +54,47 @@
                                     </div>
                                 </div>
                                 <div class="tab-pane show active" id="itemList">
-                                    <form id="contactForm" method="post" action="#">
-                                        <div class="text-center">
-                                            <h3 class="mb-2">Step 1: Choose Your Items</h3>
-                                            <small class="text-muted">Pick the items you’d like us to repair for you</small>
+                                    <div class="text-center">
+                                        <h3 class="mb-2">Step 1: Choose Your Items</h3>
+                                        <small class="text-muted">Pick the items you’d like us to repair for you</small>
+                                    </div>
+                                    <div class="row mt-4">
+                                        <div class="col">
+                                            <button id="toggle-check" class="btn btn-secondary mb-3">Check All</button>
+                                            <table id="items_table" class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Select</th>
+                                                        <th>No</th>
+                                                        <th>Item Name</th>
+                                                        <th>Customer Name</th>
+                                                        <th>Serial Number</th>
+                                                        <th>Last Checked Date</th>
+                                                        <th>Last Serviced Date</th>
+                                                    </tr>
+                                                </thead>
+                                            </table>
                                         </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane" id="repairDescription">
+                                    <div class="text-center">
+                                        <h3 class="mb-2">Step 2: Provide Details for Your Repair Request</h3>
+                                        <small class="text-muted">Describe the issue so we can assist you better</small>
+                                    </div>
+                                    <form action="{{ route('submission-of-repair.store') }}" method="POST" id="repairSubmissionForm">
+                                        @csrf
+                                        <input type="hidden" name="selectedId" id="selectedId">
                                         <div class="row mt-4">
-                                            <div class="col">
-                                                <button id="toggle-check" class="btn btn-secondary mb-3">Check All</button>
-                                                <table id="items_table" class="table table-bordered">
+                                            <div class="col-sm-12">
+                                                <table class="table table-bordered" id="repairItemTable">
                                                     <thead>
                                                         <tr>
-                                                            <th>Select</th>
                                                             <th>No</th>
                                                             <th>Item Name</th>
-                                                            <th>Customer Name</th>
                                                             <th>Serial Number</th>
-                                                            <th>Last Checked Date</th>
-                                                            <th>Last Serviced Date</th>
+                                                            <th>Description</th>
+                                                            <th>Evidence</th>
                                                         </tr>
                                                     </thead>
                                                 </table>
@@ -79,31 +102,22 @@
                                         </div>
                                     </form>
                                 </div>
-                                <div class="tab-pane" id="repairDescription">
+                                {{-- <div class="tab-pane" id="summarySubmission">
                                     <div class="text-center">
-                                        <h3 class="mb-2">Step 2: Provide Details for Your Repair Request</h3>
-                                        <small class="text-muted">Describe the issue so we can assist you better</small>
+                                        <h3 class="mb-2">Final Step: Review Your Details</h3>
+                                        <small class="text-muted">Confirm your items and description. Make sure everything is correct before submitting.</small>
                                     </div>
                                     <div class="row mt-4">
-                                        <div class="col-sm-12">
-                                            <div id="repairItemDescription"></div>
+                                        <div class="col-md-12">
+                                            <div id="summarySubmissionForm"></div>
                                         </div>
-                                        
                                     </div>
-                                </div>
-                                <div class="tab-pane" id="summarySubmission">
-                                    <form id="educationForm" method="post" action="#">
-                                        <div class="text-center">
-                                            <h3 class="mb-2">Final Step: Review Your Details</h3>
-                                            <small class="text-muted">Confirm your items and description. Make sure everything is correct before submitting.</small>
+                                    <div class="row mt-4">
+                                        <div class="col-md-12">
+                                            <div id="summaryDescription"></div>
                                         </div>
-                                        <div class="row">
-                                            <div class="col-md-12">
-                                                <div id="summarySubmissionForm"></div>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
+                                    </div>
+                                </div> --}}
                                 <div class="d-flex wizard justify-content-between mt-3">
                                     <div class="d-flex">
                                         <div class="previous">

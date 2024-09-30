@@ -70,7 +70,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::controller(SubmissionOfRepairController::class)->middleware('role:superadmin|unit')->prefix('submission-of-repair')->name('submission-of-repair.')->group(function () {
         Route::get('/', 'index')->name('index');
-        Route::post('/getItems', 'getItems')->name('getItems');
+        Route::get('/getItems', 'getItems')->name('getItems');
+        Route::post('/store', 'store')->name('store');
+        Route::post('/store/temporary-file', 'storeTemporaryFile')->name('store.temporary-file');
     });
 
 
