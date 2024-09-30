@@ -21,7 +21,7 @@
                             @if ($technician->unit)
                                 <p class="text-success">Unit : {{ $technician->unit->customer_name }}</p>
                             @else
-                                <p class="text-danger">No Unit</p>
+                                <p class="text-danger">This Technician Doesn't Have Unit</p>
                             @endif
                         </div>
                     </div>
@@ -86,12 +86,12 @@
                             </div>
                             {{-- user --}}
                             <div class="form-group row">
-                                <label for="user" class="col-sm-3 col-form-label">User :</label>
+                                <label for="user" class="col-sm-3 col-form-label">Account :</label>
                                 <div class="col-sm-9 d-flex align-items-center">
                                     @if ($technician->user)
                                         <p id="user" class="mb-0">{{ $technician->user->name }}</p>
                                     @else
-                                        <p id="user" class="mb-0">No User</p>
+                                        <p id="user" class="mb-0 text-danger">This Technician Doesn't Have Account</p>
                                     @endif
                                 </div>
                             </div>

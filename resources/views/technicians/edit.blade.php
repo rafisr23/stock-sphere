@@ -87,7 +87,7 @@
                                 @if ($technician->image != null)
                                     <div class="col-sm-9 mb-4 d-flex justify-content-center">
                                         <img src="{{ asset('images/technicians/' . $technician->image) }}"
-                                            alt="{{ $technician->name }}" class="img-fluid">
+                                            alt="{{ $technician->name }}" class="img-fluid" style="height: 200px;">
                                     </div>
                                 @endif
                             </div>
@@ -111,10 +111,10 @@
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="user_id" class="col-sm-3 col-form-label">User</label>
+                                <label for="user_id" class="col-sm-3 col-form-label">Account</label>
                                 <div class="col-sm-9 mb-4">
-                                    <select class="form-control" data-trigger id="user_id" name="user_id">
-                                        <option value="">-- Select Name --</option>
+                                    <select class="form-control choices-init" data-trigger id="user_id" name="user_id">
+                                        <option value="">-- Select Account --</option>
                                         @if ($selected_user)
                                             <option value="{{ $selected_user->id }}" selected>
                                                 {{ $selected_user->name }}</option>
