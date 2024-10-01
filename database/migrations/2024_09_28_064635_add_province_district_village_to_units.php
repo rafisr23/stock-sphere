@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('units', function (Blueprint $table) {
-            $table->string('province');
-            $table->string('district');
-            $table->string('village');
+            $table->string('province')->nullable();
+            $table->string('district')->nullable();
+            $table->string('village')->nullable();
         });
     }
 

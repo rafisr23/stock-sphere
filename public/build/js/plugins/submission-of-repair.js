@@ -12,6 +12,7 @@ let table = $("#items_table").DataTable({
     processing: true,
     serverSide: true,
     responsive: true,
+    deferLoading: 0,
     ajax: getItemsTableUrl,
     order: [[1, "asc"]],
     columns: [

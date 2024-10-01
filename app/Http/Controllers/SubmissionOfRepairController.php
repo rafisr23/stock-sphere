@@ -145,4 +145,54 @@ class SubmissionOfRepairController extends Controller
             ]);
         }
     }
+
+    public function history() {
+        if (request()->ajax()) {
+            $submission = auth()->user()->hasRole('unit') 
+                ? SubmissionOfRepair::where('unit_id', auth()->user()->unit->id)->get() 
+                : SubmissionOfRepair::all();
+            return datatables()->of($submission)
+                ->addIndexColumn()  
+                ->addColumn('count', function ($row) {
+                    $count = $row->details->count();
+                    return $count;
+                })
+                ->addColumn('date_submitted', function ($row) {
+                    return date('d M Y H:i:s', strtotime($row->date_submitted));
+                })
+                ->addColumn('estimated_date_completed', function ($row) {
+                    if ($row->estimated_date_completed != '' || $row->estimated_date_completed != null) {
+                        $diffForHumans = \Carbon\Carbon::parse($row->estimated_date_completed)->diffForHumans();
+                        return date('d M Y', strtotime($row->estimated_date_completed)) . ' (' . $diffForHumans . ')';
+                    } else {
+                        return '-';
+                    }
+                })
+                ->addColumn('status', function ($row) {
+                    if ($row->status == 0) {
+                        return '<span class="badge bg-warning">Pending</span>';
+                    } elseif ($row->status == 1) {
+                        return '<span class="badge bg-secondary">In Progress</span>';
+                    } elseif ($row->status == 2) {
+                        return '<span class="badge bg-primary">Work On Delay</span>';
+                    } elseif ($row->status == 3) {
+                        return '<span class="badge bg-success">Completed</span>';
+                    } else {
+                        return '<span class="badge bg-danger">Cancelled</span>';
+                    }
+                })
+                ->addColumn('action', function ($row) {
+                    $btn = '<div class="d-flex justify-content-center align-items-center">';
+                    $btn .= '<a href="#" class="view btn btn-info btn-sm me-2" title="See Details"><i class="ph-duotone ph-eye"></i></a>';
+                    // $btn .= '<a href="' . route('items_units.edit', $row->id) . '" class="edit btn btn-warning btn-sm me-2" title="Edit Data"><i class="ph-duotone ph-pencil-line"></i></a>';
+                    // $btn .= '<a href="#" class="delete btn btn-danger btn-sm" data-id="' . encrypt($row->id) . '" title="Delete Data"><i class="ph-duotone ph-trash"></i></a>';
+                    $btn .= '</div>';
+                    return $btn;
+                })
+                ->rawColumns(['status', 'action'])
+                ->make(true);
+        }
+        
+        return view('submission.history');
+    }
 }

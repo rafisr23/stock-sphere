@@ -73,6 +73,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/getItems', 'getItems')->name('getItems');
         Route::post('/store', 'store')->name('store');
         Route::post('/store/temporary-file', 'storeTemporaryFile')->name('store.temporary-file');
+        Route::get('/history', 'history')->name('history');
     });
 
 
