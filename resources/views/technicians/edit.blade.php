@@ -19,28 +19,28 @@
     <!-- [ Main Content ] start -->
     <div class="row">
         <div class="col-sm-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <div class="col">
-                        <div class="row">
-                            <h4 class="card-title mb-4">{{ $technician->name }}</h4>
+            <form action="{{ route('technicians.update', $technician->id) }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                @method('PUT')
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="col">
+                            <div class="row">
+                                <h4 class="card-title mb-4">{{ $technician->name }}</h4>
+                            </div>
+                            <div class="row">
+                                @if ($technician->unit)
+                                    <p class="text-success">Unit : {{ $technician->unit->name }}</p>
+                                @else
+                                    <p class="text-danger">No Unit</p>
+                                @endif
+                            </div>
                         </div>
-                        <div class="row">
-                            @if ($technician->unit)
-                                <p class="text-success">Unit : {{ $technician->unit->name }}</p>
-                            @else
-                                <p class="text-danger">No Unit</p>
-                            @endif
-                        </div>
+                        <a href="{{ route('technicians.index') }}" class="btn btn-secondary">Back</a>
                     </div>
-                    <a href="{{ route('technicians.index') }}" class="btn btn-secondary">Back</a>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <h4 class="card-title">Edit Data</h4>
-                        <form action="{{ route('technicians.update', $technician->id) }}" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            @method('PUT')
+                    <div class="card-body">
+                        <div class="row">
+                            <h4 class="card-title">Edit Data</h4>
                             <div class="form-group row">
                                 <label for="name" class="col-sm-3 col-form-label required">Name</label>
                                 <div class="col-sm-9 mb-4">
@@ -110,31 +110,39 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="form-group row">
-                                <label for="user_id" class="col-sm-3 col-form-label">Account</label>
-                                <div class="col-sm-9 mb-4">
-                                    <select class="form-control choices-init" data-trigger id="user_id" name="user_id">
-                                        <option value="">-- Select Account --</option>
-                                        @if ($selected_user)
-                                            <option value="{{ $selected_user->id }}" selected>
-                                                {{ $selected_user->name }}</option>
-                                        @endif
-                                        @foreach ($users as $user)
-                                            <option value="{{ $user->id }}" {{ $technician->user_id == $user->id ? 'selected' : '' }}>
-                                                {{ $user->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <div class="col-sm-9 mt-4">
-                                    <button type="submit" class="btn btn-primary">Save</button>
-                                </div>
-                            </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
-            </div>
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="card-title">Assign Technician Account</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <label for="user_id" class="col-sm-3 col-form-label">Account</label>
+                            <div class="col-sm-9 mb-4">
+                                <select class="form-control choices-init" data-trigger id="user_id" name="user_id">
+                                    <option value="">-- Select Account --</option>
+                                    @if ($selected_user)
+                                        <option value="{{ $selected_user->id }}" selected>
+                                            {{ $selected_user->name }}</option>
+                                    @endif
+                                    @foreach ($users as $user)
+                                        <option value="{{ $user->id }}"
+                                            {{ $technician->user_id == $user->id ? 'selected' : '' }}>
+                                            {{ $user->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-9 mt-4">
+                                <button type="submit" class="btn btn-primary">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
     <!-- [ Main Content ] end -->

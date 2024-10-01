@@ -132,7 +132,7 @@ class TechnicianController extends Controller
         if ($technician->user_id) {
             $users = User::whereHas('roles', function ($query) {$query->where('name', 'technician');})->where('id', '!=', $technician->user_id)->get();
         } else {
-            $users = User::whereHas('roles', function ($query) {$query->where('name', 'technician');})->get();
+            $users = User::whereHas('roles', function ($query) {$query->where('name', 'technician');})->whereNotIn('id', Technician::where('user_id', '!=', null)->pluck('user_id'))->get();
         }
         return view('technicians.edit', compact('technician', 'users', 'selected_user'));
     }

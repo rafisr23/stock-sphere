@@ -20,14 +20,14 @@
     <!-- [ Main Content ] start -->
     <div class="row">
         <div class="col-sm-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="card-title mb-0">Add Technician</h4>
-                    <a href="{{ route('technicians.index') }}" class="btn btn-secondary">Back</a>
-                </div>
-                <div class="card-body">
-                    <form action="{{ route('technicians.store') }}" method="POST" enctype="multipart/form-data">
-                        @csrf
+            <form action="{{ route('technicians.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="card-title mb-0">Add Technician</h4>
+                        <a href="{{ route('technicians.index') }}" class="btn btn-secondary">Back</a>
+                    </div>
+                    <div class="card-body">
                         <div class="form-group row">
                             <label for="name" class="col-sm-3 col-form-label required">Name</label>
                             <div class="col-sm-9 mb-4">
@@ -82,11 +82,18 @@
                                 </select>
                             </div>
                         </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="card-title">Assign Technician Account</h4>
+                    </div>
+                    <div class="card-body">
                         <div class="form-group row">
-                            <label for="user_id" class="col-sm-3 col-form-label">User</label>
+                            <label for="user_id" class="col-sm-3 col-form-label">Account</label>
                             <div class="col-sm-9 mb-4">
                                 <select class="form-control" data-trigger id="user_id" name="user_id">
-                                    <option value="">-- Select Name --</option>
+                                    <option value="">-- Select Account --</option>
                                     @foreach ($users as $user)
                                         <option value="{{ $user->id }}">{{ $user->name }}</option>
                                     @endforeach
@@ -95,12 +102,12 @@
                         </div>
                         <div class="form-group row">
                             <div class="col-sm-9 mt-4">
-                                <button type="submit" class="btn btn-primary">Save</button>
+                                <button type="submit" class="btn btn-primary">Submit</button>
                             </div>
                         </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
     <!-- [ Main Content ] end -->
