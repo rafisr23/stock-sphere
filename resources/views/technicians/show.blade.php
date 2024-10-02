@@ -38,38 +38,61 @@
                                     alt="{{ $technician->name }}" class="img-fluid">
                             @endif
                         </div>
-                        <div class="col-md-8">
+                        <div class="col-md-4">
                             <div class="form-group row">
-                                <label for="city" class="col-sm-3 col-form-label">Phone :</label>
-                                <div class="col-sm-9 d-flex align-items-center">
+                                <label for="city" class="col-sm-5 col-form-label">Phone :</label>
+                                <div class="col-sm-7 d-flex align-items-center">
                                     <p id="city" class="mb-0">{{ $technician->phone }}</p>
                                 </div>
                             </div>
-                            {{-- street --}}
+                            {{-- province --}}
                             <div class="form-group row">
-                                <label for="street" class="col-sm-3 col-form-label">Street :</label>
-                                <div class="col-sm-9 d-flex align-items-center">
-                                    <p id="street" class="mb-0">{{ $technician->street }}</p>
+                                <label for="province" class="col-sm-5 col-form-label">Province :</label>
+                                <div class="col-sm-7 d-flex align-items-center">
+                                    <p id="province" class="mb-0">{{ $technician->province }}</p>
                                 </div>
                             </div>
                             {{-- city --}}
                             <div class="form-group row">
-                                <label for="city" class="col-sm-3 col-form-label">City :</label>
-                                <div class="col-sm-9 d-flex align-items-center">
+                                <label for="city" class="col-sm-5 col-form-label">City :</label>
+                                <div class="col-sm-7 d-flex align-items-center">
                                     <p id="city" class="mb-0">{{ $technician->city }}</p>
+                                </div>
+                            </div>
+                            {{-- district --}}
+                            <div class="form-group row">
+                                <label for="district" class="col-sm-5 col-form-label">District :</label>
+                                <div class="col-sm-7 d-flex align-items-center">
+                                    <p id="district" class="mb-0">{{ $technician->district }}</p>
+                                </div>
+                            </div>
+                            {{-- village --}}
+                            <div class="form-group row">
+                                <label for="village" class="col-sm-5 col-form-label">Village :</label>
+                                <div class="col-sm-7 d-flex align-items-center">
+                                    <p id="village" class="mb-0">{{ $technician->village }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            {{-- street --}}
+                            <div class="form-group row">
+                                <label for="street" class="col-sm-5 col-form-label">Street :</label>
+                                <div class="col-sm-7 d-flex align-items-center">
+                                    <p id="street" class="mb-0">{{ $technician->street }}</p>
                                 </div>
                             </div>
                             {{-- postal_code --}}
                             <div class="form-group row">
-                                <label for="postal_code" class="col-sm-3 col-form-label">Postal Code :</label>
-                                <div class="col-sm-9 d-flex align-items-center">
+                                <label for="postal_code" class="col-sm-5 col-form-label">Postal Code :</label>
+                                <div class="col-sm-7 d-flex align-items-center">
                                     <p id="postal_code" class="mb-0">{{ $technician->postal_code }}</p>
                                 </div>
                             </div>
                             {{-- notes --}}
                             <div class="form-group row">
-                                <label for="notes" class="col-sm-3 col-form-label">Notes :</label>
-                                <div class="col-sm-9 d-flex align-items-center">
+                                <label for="notes" class="col-sm-5 col-form-label">Notes :</label>
+                                <div class="col-sm-7 d-flex align-items-center">
                                     @if ($technician->notes == null)
                                         <p id="notes" class="mb-0">No Notes</p>
                                     @else
@@ -79,15 +102,15 @@
                             </div>
                             {{-- status --}}
                             <div class="form-group row">
-                                <label for="status" class="col-sm-3 col-form-label">Status :</label>
-                                <div class="col-sm-9 d-flex align-items-center">
+                                <label for="status" class="col-sm-5 col-form-label">Status :</label>
+                                <div class="col-sm-7 d-flex align-items-center">
                                     <p id="status" class="mb-0">{{ ucfirst($technician->status) }}</p>
                                 </div>
                             </div>
                             {{-- user --}}
                             <div class="form-group row">
-                                <label for="user" class="col-sm-3 col-form-label">Account :</label>
-                                <div class="col-sm-9 d-flex align-items-center">
+                                <label for="user" class="col-sm-5 col-form-label">Account :</label>
+                                <div class="col-sm-7 d-flex align-items-center">
                                     @if ($technician->user)
                                         <p id="user" class="mb-0">{{ $technician->user->name }}</p>
                                     @else
