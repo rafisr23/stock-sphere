@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('units', function (Blueprint $table) {
+        Schema::table('technicians', function (Blueprint $table) {
             $table->string('province')->nullable();
             $table->string('district')->nullable();
             $table->string('village')->nullable();
@@ -23,7 +23,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('units', function (Blueprint $table) {
+        Schema::table('technicians', function (Blueprint $table) {
             //
         });
     }

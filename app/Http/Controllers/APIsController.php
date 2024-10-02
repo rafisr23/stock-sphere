@@ -81,6 +81,60 @@ class APIsController extends Controller
         }
     }
 
+    public function getAllCity2($provinceId)
+    {
+
+        $apiUrl = 'https://dzaki-abd.github.io/api-wilayah-indonesia/api/regencies/' . $provinceId . '.json';
+
+        $response = Http::get($apiUrl);
+
+        if ($response->successful()) {
+            $data = $response->json();
+
+            return response()->json([
+                'city' => $data,
+            ]);
+        } else {
+            return response()->json(['error' => 'Failed to fetch data from API'], 500);
+        }
+    }
+
+    public function getAllDistrict2($cityId)
+    {
+
+        $apiUrl = 'https://dzaki-abd.github.io/api-wilayah-indonesia/api/districts/' . $cityId . '.json';
+
+        $response = Http::get($apiUrl);
+
+        if ($response->successful()) {
+            $data = $response->json();
+
+            return response()->json([
+                'district' => $data,
+            ]);
+        } else {
+            return response()->json(['error' => 'Failed to fetch data from API'], 500);
+        }
+    }
+
+    public function getAllVillage2($districtId)
+    {
+
+        $apiUrl = 'https://dzaki-abd.github.io/api-wilayah-indonesia/api/villages/' . $districtId . '.json';
+
+        $response = Http::get($apiUrl);
+
+        if ($response->successful()) {
+            $data = $response->json();
+
+            return response()->json([
+                'village' => $data,
+            ]);
+        } else {
+            return response()->json(['error' => 'Failed to fetch data from API'], 500);
+        }
+    }
+
     public function getProvince($province_id)
     {
         $apiUrl = 'https://dzaki-abd.github.io/api-wilayah-indonesia/api/province/' . $province_id . '.json';
