@@ -1,0 +1,42 @@
+{
+  "resources/fonts/phosphor/duotone/Phosphor-Duotone.svg": {
+    "file": "icons/Phosphor-Duotone.svg",
+    "src": "resources/fonts/phosphor/duotone/Phosphor-Duotone.svg"
+  },
+  "resources/fonts/phosphor/duotone/Phosphor-Duotone.ttf": {
+    "file": "icons/Phosphor-Duotone.ttf",
+    "src": "resources/fonts/phosphor/duotone/Phosphor-Duotone.ttf"
+  },
+  "resources/fonts/phosphor/duotone/Phosphor-Duotone.woff": {
+    "file": "icons/Phosphor-Duotone.woff",
+    "src": "resources/fonts/phosphor/duotone/Phosphor-Duotone.woff"
+  },
+  "resources/images/authentication/img-auth-bg.jpg": {
+    "file": "icons/img-auth-bg.jpg",
+    "src": "resources/images/authentication/img-auth-bg.jpg"
+  },
+  "resources/images/landing/widget-bg.png": {
+    "file": "icons/widget-bg.png",
+    "src": "resources/images/landing/widget-bg.png"
+  },
+  "resources/scss/landing.scss": {
+    "file": "css/landing.css",
+    "src": "resources/scss/landing.scss",
+    "isEntry": true
+  },
+  "resources/scss/style-preset.scss": {
+    "file": "css/style-preset.css",
+    "src": "resources/scss/style-preset.scss",
+    "isEntry": true
+  },
+  "resources/scss/style.scss": {
+    "file": "css/style.css",
+    "src": "resources/scss/style.scss",
+    "isEntry": true
+  },
+  "resources/scss/uikit.scss": {
+    "file": "css/uikit.css",
+    "src": "resources/scss/uikit.scss",
+    "isEntry": true
+  }
+}

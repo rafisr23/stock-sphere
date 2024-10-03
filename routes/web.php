@@ -8,8 +8,9 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ItemsController;
 use App\Http\Controllers\UnitsController;
-use App\Http\Controllers\TechnicianController;
 use App\Http\Controllers\ItemsUnitsController;
+use App\Http\Controllers\TechnicianController;
+use App\Http\Controllers\SubmissionOfRepairController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,9 +29,7 @@ Auth::routes();
 
 // Define a group of routes with 'auth' middleware applied
 Route::middleware(['auth'])->group(function () {
-    // Define a GET route for the root URL ('/')
     Route::get('/', function () {
-        // Return a view named 'index' when accessing the root URL
         return view('index');
     });
 
@@ -67,6 +66,14 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/get-city/{id}', 'getCity')->name('get-city');
         Route::post('/get-district/{id}', 'getDistrict')->name('get-district');
         Route::post('/get-village/{id}', 'getVillage')->name('get-village');
+    });
+
+    Route::controller(SubmissionOfRepairController::class)->middleware('role:superadmin|unit')->prefix('submission-of-repair')->name('submission-of-repair.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/getItems', 'getItems')->name('getItems');
+        Route::post('/store', 'store')->name('store');
+        Route::post('/store/temporary-file', 'storeTemporaryFile')->name('store.temporary-file');
+        Route::get('/history', 'history')->name('history');
     });
 
 
