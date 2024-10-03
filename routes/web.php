@@ -1,15 +1,16 @@
 <?php
 
-use App\Http\Controllers\APIsController;
-use App\Http\Controllers\EditProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\APIsController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ItemsController;
 use App\Http\Controllers\UnitsController;
+use App\Http\Controllers\VendorController;
 use App\Http\Controllers\ItemsUnitsController;
 use App\Http\Controllers\TechnicianController;
+use App\Http\Controllers\EditProfileController;
 use App\Http\Controllers\SubmissionOfRepairController;
 
 /*
@@ -75,6 +76,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/store/temporary-file', 'storeTemporaryFile')->name('store.temporary-file');
         Route::get('/history', 'history')->name('history');
     });
+
+    Route::resource('vendor', VendorController::class)->middleware('role:superadmin')->name('vendor', '*');
 
 
     // Define a GET route with dynamic placeholders for route parameters
