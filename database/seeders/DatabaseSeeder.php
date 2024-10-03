@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             ItemsUnitsSeeder::class,
             TechnicianSeeder::class,
             RoleAccountSeeder::class,
+            VendorSeeder::class,
         ]);
     }
 }

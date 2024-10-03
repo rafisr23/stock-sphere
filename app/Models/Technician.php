@@ -20,4 +20,9 @@ class Technician extends Model
     {
         return $this->belongsTo(Units::class, 'unit_id');
     }
+
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class);
+    }
 }
