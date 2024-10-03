@@ -142,11 +142,11 @@
 @endsection
 
 @section('scripts')
-    <script src="{{ URL::asset('build/js/plugins/wizard-custom.js') }}"></script>
+    <script src="{{ URL::asset('js/wizard-custom.js') }}"></script>
     <script>
         new Wizard("#basicwizard", {
             progress: true
         });
     </script>
-    <script src="{{ URL::asset('build/js/plugins/submission-of-repair.js') }}"></script>
+    <script src="{{ URL::asset('js/submission-of-repair.js') }}"></script>
 @endsection
