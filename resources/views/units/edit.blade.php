@@ -4,15 +4,6 @@
 @section('breadcrumb-item', 'Data Master')
 @section('breadcrumb-item-active', 'Edit Unit')
 
-@section('css')
-    <style>
-        .required:after {
-            content: " *";
-            color: red;
-        }
-    </style>
-@endsection
-
 @section('content')
     <!-- [ Main Content ] start -->
     <div class="row">

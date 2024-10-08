@@ -6,15 +6,6 @@
 
 @section('breadcrumb-item-active', 'Add Unit')
 
-@section('css')
-    <style>
-        .required:after {
-            content: " *";
-            color: red;
-        }
-    </style>
-@endsection
-
 @section('content')
     <!-- [ Main Content ] start -->
     <div class="row">
