@@ -4,15 +4,6 @@
 @section('breadcrumb-item', 'Profile')
 @section('breadcrumb-item-active', 'Edit Profile')
 
-@section('css')
-    <style>
-        .required:after {
-            content: " *";
-            color: red;
-        }
-    </style>
-@endsection
-
 @section('content')
     <!-- [ Main Content ] start -->
     <div class="row">
