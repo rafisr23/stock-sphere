@@ -32,6 +32,12 @@ class RoleAccountSeeder extends Seeder
             'description' => 'Technician role is for the technician of the company',
         ]);
 
+        Role::create([
+            'name' => 'room',
+            'guard_name' => 'web',
+            'description' => 'Room role is for the admin of each room in the company',
+        ]);
+
         $superadmin = User::create([
             'name' => 'Super Admin',
             'email' => 'superadmin@stocksphere.com',
@@ -59,5 +65,26 @@ class RoleAccountSeeder extends Seeder
             'username' => 'technician2',
             'password' => bcrypt('technician2'),
         ])->assignRole('technician');
+
+        $icu = User::create([
+            'name' => 'ICU',
+            'email' => 'icu@stocksphere.com',
+            'username' => 'icu',
+            'password' => bcrypt('icu'),
+        ])->assignRole('room');
+
+        $radiology = User::create([
+            'name' => 'Radiology',
+            'email' => 'radiology@stocksphere.com',
+            'username' => 'radiology',
+            'password' => bcrypt('radiology'),
+        ])->assignRole('room');
+
+        $laboratory = User::create([
+            'name' => 'Laboratory',
+            'email' => 'laboratory@stocksphere.com',
+            'username' => 'laboratory',
+            'password' => bcrypt('laboratory'),
+        ])->assignRole('room');
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\RoomController;
+use App\Models\Room;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\APIsController;
@@ -37,6 +39,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('items', ItemsController::class)->name('items', '*');
 
     Route::resource('units', UnitsController::class);
+
+    Route::resource('rooms', RoomController::class)->name('rooms', '*');
 
     Route::get('technicians', [TechnicianController::class, 'index'])->name('technicians.index');
     Route::get('technicians/create', [TechnicianController::class, 'create'])->name('technicians.create');

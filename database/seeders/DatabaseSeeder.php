@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             TechnicianSeeder::class,
             RoleAccountSeeder::class,
             VendorSeeder::class,
+            RoomSeeder::class
         ]);
     }
 }

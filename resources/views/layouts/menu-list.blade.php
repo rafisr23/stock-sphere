@@ -31,6 +31,7 @@
         @role('superadmin|unit')
             <li class="pc-item"><a class="pc-link" href="{{ route('items.index') }}">Items</a></li>
             <li class="pc-item"><a class="pc-link" href="{{ route('items_units.index') }}">Assign Items</a></li>
+            <li class="pc-item"><a class="pc-link" href="{{ route('rooms.index') }}">Rooms</a></li>
         @endrole
     </ul>
 </li>
