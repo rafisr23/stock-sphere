@@ -97,7 +97,11 @@ class EditProfileController extends Controller
 
             $request->validate([
                 'old_password' => 'required',
-                'new_password' => 'required|confirmed',
+                'new_password' => ['required', 'confirmed', function ($attribute, $value, $fail) use ($request, $user) {
+                    if (Hash::check($value, $user->password)) {
+                        return $fail('New password must be different from the old password.');
+                    }
+                }],
             ]);
 
             if (!Hash::check($request->old_password, $user->password)) {

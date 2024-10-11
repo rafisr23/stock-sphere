@@ -4,6 +4,7 @@
 @section('breadcrumb-item', 'Profile')
 @section('breadcrumb-item-active', 'Change Password')
 
+<<<<<<< Updated upstream
 @section('css')
     <style>
         .required:after {
@@ -13,6 +14,8 @@
     </style>
 @endsection
 
+=======
+>>>>>>> Stashed changes
 @section('content')
     <!-- [ Main Content ] start -->
     <div class="row">
