@@ -59,8 +59,8 @@
                         <div class="form-group row">
                             <label for="unit_id" class="col-sm-3 col-form-label required">Hospital</label>
                             <div class="col-sm-9 mb-4">
-                                <select name="unit_id" id="unit_id" class="form-control choices-init">
-                                    <option value="" selected disabled>Select Hospital</option>
+                                <select name="unit_id[]" id="unit_id" class="form-control choices-init" multiple required>
+                                    <option value="" selected disabled>-- Select Hospital --</option>
                                     @foreach ($hospital as $h)
                                         <option value="{{ encrypt($h->id) }}">{{ $h->customer_name }}</option>
                                     @endforeach
@@ -78,4 +78,15 @@
         </div>
     </div>
     <!-- [ Main Content ] end -->
+@endsection
+
+@section('scripts')
+    <script>
+        var unit = new Choices(document.getElementById('unit_id'), {
+            removeItemButton: true,
+        });
+        var user = new Choices(document.getElementById('user_id'), {
+            removeItemButton: true,
+        });
+    </script>
 @endsection
