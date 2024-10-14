@@ -68,7 +68,7 @@
             ]
         });
 
-        $('#units_table').on('click', '.delete', function(e) {
+        $('#rooms_table').on('click', '.delete', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
             Swal.fire({
@@ -91,7 +91,6 @@
                             _token: CSRF_TOKEN,
                         },
                         success: (response) => {
-                            console.log(response);
                             if (response.success) {
                                 Swal.fire({
                                     title: 'Success!',
