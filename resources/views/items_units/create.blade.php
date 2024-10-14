@@ -102,6 +102,17 @@
                             </div>
                         </div>
                         <div class="form-group row">
+                            <label for="status" class="col-sm-3 col-form-label required">Status</label>
+                            <div class="col-sm-9 mb-4">
+                                <select class="form-control" data-trigger name="status" id="status" required>
+                                    <option value="">-- Select Status --</option>
+                                    <option value="Running">Running</option>
+                                    <option value="System Down">System Down</option>
+                                    <option value="Restricted">Restricted</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
                             <label for="last_checked_date" class="col-sm-3 col-form-label required">Last Checked
                                 Date</label>
                             <div class="col-sm-9">
@@ -128,6 +139,11 @@
             removeItemButton: true,
         });
         var singleCancelButton = new Choices(document.getElementById('unit_id'), {
+            removeItemButton: true,
+        });
+    </script>
+    <script>
+        var statuses = new Choices(document.getElementById('status'), {
             removeItemButton: true,
         });
     </script>

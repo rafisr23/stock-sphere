@@ -68,6 +68,7 @@ class ItemsUnitsController extends Controller
             'contract' => 'required',
             'end_of_service' => 'required',
             'srs_status' => 'required',
+            'status' => 'required|in:Running,System Down,Restricted',
             'last_checked_date' => 'required',
         ]);
 
@@ -82,6 +83,7 @@ class ItemsUnitsController extends Controller
                 'contract' => $request['contract'],
                 'end_of_service' => $request['end_of_service'],
                 'srs_status' => $request['srs_status'],
+                'status' => $request['status'],
                 'last_checked_date' => $request['last_checked_date'],
             ]);
         }
@@ -123,6 +125,7 @@ class ItemsUnitsController extends Controller
             'contract' => 'required',
             'end_of_service' => 'required',
             'srs_status' => 'required',
+            'status' => 'required|in:Running,System Down,Restricted',
             'last_checked_date' => 'required',
         ]);
 
@@ -143,6 +146,7 @@ class ItemsUnitsController extends Controller
             'contract' => $request['contract'],
             'end_of_service' => $request['end_of_service'],
             'srs_status' => $request['srs_status'],
+            'status' => $request['status'],
             'last_checked_date' => $last_checked_date,
         ]);
         if ($itemUnits) {
