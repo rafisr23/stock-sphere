@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DropzoneController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
@@ -69,12 +70,10 @@ Route::middleware(['auth'])->group(function () {
         })->name('get-village');
     });
 
-    Route::post('/delete-uploaded-file-image', function (Request $request) {
-        $fileName = $request->input('filename');
-        $folder = $request->input('folder');
-
-        return response()->json(deleteUploadedFileImage($fileName, $folder));
-    })->name('delete-image');
+    Route::controller(DropzoneController::class)->name('dropzone.')->group(function () {
+        Route::post('/upload-file', 'uploadFile')->name('upload');
+        Route::post('/delete-uploaded-file', 'deleteUploadedFile')->name('delete');
+    });
 
     Route::resource('items', ItemsController::class)->name('items', '*');
 

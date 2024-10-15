@@ -250,18 +250,20 @@
         });
 
         var dropzone = new Dropzone("#dropzone", {
-            url: "{{ route('units.store') }}",
+            url: "{{ route('dropzone.upload') }}",
             method: "POST",
             headers: {
-                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                'type': "units",
             },
             paramName: "file",
             maxFilesize: 2,
-            acceptedFiles: "image/*",
+            acceptedFiles: "image/jpeg, image/jpg, image/png",
             addRemoveLinks: true,
             dictDefaultMessage: "Drop your image here or click to upload",
             maxFiles: 1,
             success: function(file, response) {
+                console.log(response);
                 file.uploadedFileName = response.success;
             },
             error: function(file, response) {
@@ -278,14 +280,14 @@
             removedfile: function(file) {
                 if (file.uploadedFileName) {
                     $.ajax({
-                        url: "{{ route('delete-image') }}",
+                        url: "{{ route('dropzone.delete') }}",
                         method: "POST",
                         headers: {
                             'X-CSRF-TOKEN': "{{ csrf_token() }}",
                         },
                         data: {
                             filename: file.uploadedFileName,
-                            folder: "units"
+                            path: "images/units"
                         },
                         success: function(response) {
                             Swal.fire({

@@ -59,18 +59,6 @@ class UnitsController extends Controller
     {
         $fileName = null;
 
-        if ($request->hasFile('file')) {
-            $request->validate([
-                'file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            ]);
-
-            $file = $request->file('file');
-            $fileName = 'Unit_' . time() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('images/units'), $fileName);
-
-            return response()->json(['success' => $fileName]);
-        }
-
         $request->validate([
             'customer_name' => 'required',
             'province' => 'required',
