@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('contract');
             $table->string('end_of_service');
             $table->string('srs_status');
+            $table->enum('status', ['Running', 'System Down', 'Restricted']);
             $table->string('last_checked_date');
             $table->timestamps();
         });

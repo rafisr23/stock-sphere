@@ -106,6 +106,17 @@
                             </div>
                         </div>
                         <div class="form-group row">
+                            <label for="status" class="col-sm-3 col-form-label required">Status</label>
+                            <div class="col-sm-9 mb-4">
+                                <select name="status" id="status" class="form-control" required>
+                                    <option value="">-- Select Status --</option>
+                                    <option value="Running" {{ $item_unit->status == "Running" ? 'selected' : ''}}>Running</option>
+                                    <option value="System Down" {{ $item_unit->status == "System Down" ? 'selected' : ''}}>System Down</option>
+                                    <option value="Restricted" {{ $item_unit->status == "Restricted" ? 'selected' : ''}}>Restricted</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
                             <label for="last_checked_date" class="col-sm-3 col-form-label">Last Checked
                                 Date</label>
                             <div class="col-sm-9">
@@ -133,6 +144,11 @@
             removeItemButton: true,
         });
         var singleCancelButton = new Choices(document.getElementById('unit_id'), {
+            removeItemButton: true,
+        });
+    </script>
+    <script>
+        var statuses = new Choices(document.getElementById('status'), {
             removeItemButton: true,
         });
     </script>
