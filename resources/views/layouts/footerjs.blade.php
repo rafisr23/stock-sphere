@@ -15,6 +15,7 @@
 <script src="{{ URL::asset('build/js/plugins/choices.min.js') }}"></script>
 <script src="{{ URL::asset('build/js/plugins/datepicker-full.min.js') }}"></script>
 <script src="{{ URL::asset('build/js/plugins/dropzone-amd-module.min.js') }}"></script>
+<script src="{{ URL::asset('build/js/plugins/index.js') }}"></script>
 
 @if (env('APP_DARK_LAYOUT') == 'default')
     <script>

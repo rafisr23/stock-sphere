@@ -13,15 +13,32 @@
         <div class="col-sm-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <div class="col">
-                        <div class="row">
-                            <h4 class="card-title mb-4">{{ $unit->customer_name }}</h4>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="col-xl-3 col-md-4 col-sm-6">
+                                <a class="card-gallery" data-fslightbox="gallery"
+                                    href="{{ asset('images/units/' . $unit->image) }}">
+                                    <img class="img-fluid" src="{{ asset('images/units/' . $unit->image) }}"
+                                        alt="Card image">
+                                    <div class="gallery-hover-data card-body justify-content-end">
+                                        <div>
+                                            <p class="text-white mb-0 text-truncate w-100">Picture
+                                                {{ $unit->customer_name }}</p>
+                                            <span
+                                                class="text-white text-opacity-75 mb-0 text-sm text-truncate w-100">12-Aug-2023</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
                         </div>
-                        <div class="row">
-                            <p class="col-sm-3 col-form-p">Serial No : -</p>
+                        <div class="col">
+                            <h4 class="card-title mb-4">{{ $unit->customer_name }}</h4>
+                            <p class="col-sm-3 col-form-p">Serial No : {{ $unit->serial_no }}</p>
+                        </div>
+                        <div class="col">
+                            <a href="{{ route('units.index') }}" class="btn btn-secondary">Back</a>
                         </div>
                     </div>
-                    <a href="{{ route('units.index') }}" class="btn btn-secondary">Back</a>
                 </div>
                 <div class="card-body">
                     <div class="row">

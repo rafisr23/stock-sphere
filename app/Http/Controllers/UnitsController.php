@@ -9,6 +9,7 @@ use App\Models\Items_units;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Validator;
 
 class UnitsController extends Controller
 {
@@ -43,7 +44,9 @@ class UnitsController extends Controller
     {
         $user = User::whereHas('roles', function ($query) {
             $query->where('name', 'unit');
-        })->get();
+        })
+            ->whereDoesntHave('unit')
+            ->get();
 
         $province = getAllProvince();
         $province = json_decode($province->content());
@@ -57,9 +60,7 @@ class UnitsController extends Controller
      */
     public function store(Request $request)
     {
-        $fileName = null;
-
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'customer_name' => 'required',
             'province' => 'required',
             'city' => 'required',
@@ -67,7 +68,31 @@ class UnitsController extends Controller
             'village' => 'required',
             'street' => 'required',
             'postal_code' => 'required',
+            'image' => 'required',
         ]);
+
+        if ($validator->fails()) {
+            if (File::exists(public_path('images/units/' . $request->image))) {
+                File::delete(public_path('images/units/' . $request->image));
+            }
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        if ($request->has('user_id') && $request->user_id != null) {
+            $decryptedUserId = decrypt($request->user_id);
+            $request->merge(['user_id' => $decryptedUserId]);
+
+            $validator = Validator::make($request->all(), [
+                'user_id' => 'required|unique:units,user_id',
+            ]);
+
+            if ($validator->fails()) {
+                if (File::exists(public_path('images/units/' . $request->image))) {
+                    File::delete(public_path('images/units/' . $request->image));
+                }
+                return redirect()->back()->withErrors($validator)->withInput();
+            }
+        }
 
         $province = getProvince($request->province);
         $province = json_decode($province->content());
@@ -85,27 +110,15 @@ class UnitsController extends Controller
         $village = json_decode($village->content());
         $request['village'] = $village->village->name;
 
-        if ($request->has('user_id') && $request->user_id != null) {
-            $request['user_id'] = decrypt($request->user_id);
-
-            $checkID = Units::where('user_id', $request->user_id)->exists();
-            if ($checkID) {
-                return redirect()->back()->with('error', 'The user has already been assigned to another unit.');
-            }
-        }
+        $request['serial_no'] = rand(100000, 999999);
 
         $unit = Units::create($request->all());
-
-        $unit->update([
-            'serial_no' => rand(100000, 999999),
-            'image' => $fileName,
-        ]);
 
         if ($unit) {
             return redirect()->route('units.index')->with('success', 'Unit created successfully.');
         } else {
-            if ($fileName && File::exists(public_path('images/units/' . $fileName))) {
-                File::delete(public_path('images/units/' . $fileName));
+            if (File::exists(public_path('images/units/' . $request->image))) {
+                File::delete(public_path('images/units/' . $request->image));
             }
             return redirect()->route('units.index')->with('error', 'Unit creation failed.');
         }
