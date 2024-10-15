@@ -6,6 +6,7 @@ use App\Models\Units;
 use App\Http\Requests\StoreUnitsRequest;
 use App\Http\Requests\UpdateUnitsRequest;
 use App\Models\Items_units;
+use App\Models\Rooms;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -213,21 +214,24 @@ class UnitsController extends Controller
     public function destroy($id)
     {
         $id = decrypt($id);
-        $checkUnit = Items_units::where('unit_id', $id)->exists();
+        $checkItems = Items_units::where('unit_id', $id)->exists();
+        $checkRooms = Rooms::where('unit_id', $id)->exists();
 
-        if ($checkUnit) {
-            $return = response()->json(['error' => 'There are still items on the unit.']);
-        } else {
-            $unit = Units::find($id);
-            $unit->delete();
-
-            if ($unit) {
-                $return = response()->json(['success' => 'Unit deleted successfully.']);
-            } else {
-                $return = response()->json(['error' => 'Unit deletion failed.']);
-            }
+        if ($checkItems) {
+            return response()->json(['error' => 'There are still items on the unit.']);
         }
 
-        return $return;
+        if ($checkRooms) {
+            return response()->json(['error' => 'There are still rooms on the unit.']);
+        }
+
+        $unit = Units::find($id);
+        $unit->delete();
+
+        if ($unit) {
+            return response()->json(['success' => 'Unit deleted successfully.']);
+        } else {
+            return response()->json(['error' => 'Unit deletion failed.']);
+        }
     }
 }
