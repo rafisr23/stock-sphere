@@ -27,6 +27,7 @@
             <li class="pc-item"><a class="pc-link" href="{{ route('units.index') }}">Units</a></li>
             <li class="pc-item"><a class="pc-link" href="{{ route('vendor.index') }}">Vendors</a></li>
             <li class="pc-item"><a class="pc-link" href="{{ route('technicians.index') }}">Technicians</a></li>
+            <li class="pc-item"><a class="pc-link" href="{{ route('spareparts.index') }}">Spareparts</a></li>
         @endrole
         @role('superadmin|unit')
             <li class="pc-item"><a class="pc-link" href="{{ route('items.index') }}">Items</a></li>

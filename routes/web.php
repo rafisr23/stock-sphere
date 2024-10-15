@@ -1,7 +1,5 @@
 <?php
 
-use App\Http\Controllers\RoomController;
-use App\Models\Room;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
@@ -13,6 +11,8 @@ use App\Http\Controllers\ItemsUnitsController;
 use App\Http\Controllers\TechnicianController;
 use App\Http\Controllers\EditProfileController;
 use App\Http\Controllers\SubmissionOfRepairController;
+use App\Http\Controllers\RoomsController;
+use App\Http\Controllers\SparepartsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,7 +39,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('units', UnitsController::class);
 
-    Route::resource('rooms', RoomController::class)->name('rooms', '*');
+    Route::resource('rooms', RoomsController::class)->name('rooms', '*');
+
+    Route::resource('spareparts', SparepartsController::class)->name('spareparts', '*');
 
     Route::get('technicians', [TechnicianController::class, 'index'])->name('technicians.index');
     Route::get('technicians/create', [TechnicianController::class, 'create'])->name('technicians.create');

@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Room;
-use App\Http\Requests\StoreRoomRequest;
-use App\Http\Requests\UpdateRoomRequest;
+use App\Models\Rooms;
+use App\Http\Requests\StoreRoomsRequest;
+use App\Http\Requests\UpdateRoomsRequest;
 use App\Models\User;
 use App\Models\Units;
 
-class RoomController extends Controller
+class RoomsController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,7 +16,7 @@ class RoomController extends Controller
     public function index()
     {
         if (request()->ajax()) {
-            $room = Room::all();
+            $room = Rooms::all();
             return datatables()->of($room)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -49,7 +49,7 @@ class RoomController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreRoomRequest $request)
+    public function store(StoreRoomsRequest $request)
     {
         $request->validate([
             'name'=>'required',
@@ -58,9 +58,8 @@ class RoomController extends Controller
             'unit_id'=>'required',
             'user_id'=>'required',
         ]);
-        dd($request->all());
 
-        $rooms = Room::create([
+        $rooms = Rooms::create([
             'name' => $request->name,
             'description' => $request->description,
             'serial_no' => $request->serial_no,
@@ -79,7 +78,7 @@ class RoomController extends Controller
      */
     public function show($id)
     {
-        $room = Room::find(decrypt($id));
+        $room = Rooms::find(decrypt($id));
         $hospital = Units::all();
         return view('rooms.show', compact('room', 'hospital'));
     }
@@ -89,7 +88,7 @@ class RoomController extends Controller
      */
     public function edit($id)
     {
-        $room = Room::find(decrypt($id));
+        $room = Rooms::find(decrypt($id));
         $id_enc = encrypt($room->id);
 
         $user = User::whereHas('roles', function ($query) {
@@ -103,7 +102,7 @@ class RoomController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateRoomRequest $request, $id)
+    public function update(UpdateRoomsRequest $request, $id)
     {
         $request->validate([
             'name'=>'required',
@@ -115,7 +114,7 @@ class RoomController extends Controller
 
         $request = array_filter($request->all());
 
-        $room = Room::find(decrypt($id));
+        $room = Rooms::find(decrypt($id));
         $room->update([
             'name' => $request['name'],
             'description' => $request['description'],
@@ -138,7 +137,7 @@ class RoomController extends Controller
     {
         $id = decrypt($id);
 
-        $room = Room::find($id);
+        $room = Rooms::find($id);
         $room->delete();
 
         if ($room) {
