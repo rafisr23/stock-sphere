@@ -337,11 +337,5 @@
                     void 0;
             }
         });
-
-        //event listener for submit button
-        // document.querySelector('button[type="submit"]').addEventListener('click', function() {
-        //     //choice js != null
-        //     $('')
-        // });
     </script>
 @endsection
