@@ -6,7 +6,7 @@ use App\Models\Room;
 use App\Http\Requests\StoreRoomRequest;
 use App\Http\Requests\UpdateRoomRequest;
 use App\Models\User;
-use App\Models\Items_units;
+use App\Models\Units;
 
 class RoomController extends Controller
 {
@@ -42,7 +42,8 @@ class RoomController extends Controller
         $user = User::whereHas('roles', function ($query) {
             $query->where('name', 'room');
         })->get();
-        return view('rooms.create', compact('user'));
+        $hospital = Units::all();
+        return view('rooms.create', compact('user', 'hospital'));
     }
 
     /**
@@ -53,22 +54,20 @@ class RoomController extends Controller
         $request->validate([
             'name'=>'required',
             'description'=>'required',
+            'serial_no'=>'required',
             'unit_id'=>'required',
+            'user_id'=>'required',
         ]);
+        dd($request->all());
 
-        if ($request->has('user_id') && $request->user_id != null){
-            $request['user_id'] = decrypt($request->user_id);
-
-            $checkID = Room::where('user_id', $request->user_id)->exists();
-
-            if ($checkID) {
-                return redirect()->back()->with('error', 'The user has already been assigned to another unit.');
-            }
-        }
-
-        $unit = Room::create($request->all());
-
-        if ($unit) {
+        $rooms = Room::create([
+            'name' => $request->name,
+            'description' => $request->description,
+            'serial_no' => $request->serial_no,
+            'unit_id' => decrypt($request->unit_id),
+            'user_id' => decrypt($request->user_id),
+        ]);
+        if ($rooms) {
             return redirect()->route('rooms.index')->with('success', 'Room created successfully.');
         } else {
             return redirect()->route('rooms.index')->with('error', 'Room creation failed.');
@@ -81,7 +80,8 @@ class RoomController extends Controller
     public function show($id)
     {
         $room = Room::find(decrypt($id));
-        return view('rooms.show', compact('room'));
+        $hospital = Units::all();
+        return view('rooms.show', compact('room', 'hospital'));
     }
 
     /**
@@ -95,8 +95,9 @@ class RoomController extends Controller
         $user = User::whereHas('roles', function ($query) {
             $query->where('name', 'room');
         })->get();
+        $hospital = Units::all();
 
-        return view('rooms.edit', compact('room', 'id_enc', 'user'));
+        return view('rooms.edit', compact('room', 'id_enc', 'user', 'hospital'));
     }
 
     /**
@@ -107,23 +108,21 @@ class RoomController extends Controller
         $request->validate([
             'name'=>'required',
             'description'=>'required',
+            'serial_no'=>'required',
             'unit_id'=>'required',
+            'user_id'=>'required',
         ]);
-
-        if ($request->has('user_id') && $request->user_id != null){
-            $request['user_id'] = decrypt($request->user_id);
-
-            $checkID = Room::where('user_id', $request->user_id)->exists();
-
-            if ($checkID) {
-                return redirect()->back()->with('error', 'The user has already been assigned to another unit.');
-            }
-        }
 
         $request = array_filter($request->all());
 
         $room = Room::find(decrypt($id));
-        $room->update($request);
+        $room->update([
+            'name' => $request['name'],
+            'description' => $request['description'],
+            'serial_no' => $request['serial_no'],
+            'unit_id' => decrypt($request['unit_id']),
+            'user_id' => decrypt($request['user_id']),
+        ]);
 
         if ($room) {
             return redirect()->route('rooms.index')->with('success', 'Room updated successfully.');

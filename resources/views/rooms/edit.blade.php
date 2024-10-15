@@ -58,7 +58,7 @@
                 </div>
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h4 class="card-title">Assign room to User</h4>
+                        <h4 class="card-title">Assign room to User and Hospital</h4>
                     </div>
                     <div class="card-body">
                         <div class="form-group row">
@@ -77,6 +77,21 @@
                             </div>
                         </div>
                         <div class="form-group row">
+                            <label for="unit_id" class="col-sm-3 col-form-label required">Hospital</label>
+                            <div class="col-sm-9 mb-4">
+                                <select name="unit_id[]" id="unit_id" class="form-control choices-init" multiple required>
+                                    <option value="" disabled>-- Select Hospital --</option>
+                                    @foreach ($hospital as $h)
+                                        <option value="{{ encrypt($h->id) }}"
+                                            {{ $room->unit_id == $h->id ? 'selected' : '' }}>{{ $h->customer_name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('unit_id')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="form-group row">
                             <div class="col-sm-9 mt-4">
                                 <button type="submit" class="btn btn-primary">Save</button>
                             </div>
@@ -87,4 +102,15 @@
         </div>
     </div>
     <!-- [ Main Content ] end -->
+@endsection
+
+@section('scripts')
+    <script>
+        var unit = new Choices(document.getElementById('unit_id'), {
+            removeItemButton: true,
+        });
+        var user = new Choices(document.getElementById('user_id'), {
+            removeItemButton: true,
+        });
+    </script>
 @endsection
