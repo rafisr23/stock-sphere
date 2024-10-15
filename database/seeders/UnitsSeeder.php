@@ -18,8 +18,12 @@ class UnitsSeeder extends Seeder
             'user_id' => 1,
             'customer_name' => 'Oetomo Hospital',
             'street' => 'Jl. Raya Bojongsoang, Lengkong',
-            'city' => 'Bandung',
+            'city' => 'KABUPATEN BANDUNG',
             'postal_code' => '40287',
+            'province' => 'JAWA BARAT',
+            'district' => 'BOJONGSOANG',
+            'village' => 'LENGKONG',
+            'serial_no' => '123456',
         ]);
     }
 }

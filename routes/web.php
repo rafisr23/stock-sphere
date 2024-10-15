@@ -1,9 +1,9 @@
 <?php
 
-use App\Http\Controllers\RoomController;
-use App\Models\Room;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+use App\Http\Controllers\RoomController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ItemsController;
@@ -34,6 +34,47 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/', function () {
         return view('index');
     });
+
+    Route::prefix('api')->name('api.')->group(function () {
+        Route::get('/get-all-province', function () {
+            return response()->json(getAllProvince());
+        })->name('get-all-province');
+
+        Route::post('/get-all-city/{id}', function ($provinceId) {
+            return response()->json(getAllCity($provinceId));
+        })->name('get-all-city');
+
+        Route::post('/get-all-district/{id}', function ($cityId) {
+            return response()->json(getAllDistrict($cityId));
+        })->name('get-all-district');
+
+        Route::post('/get-all-village/{id}', function ($districtId) {
+            return response()->json(getAllVillage($districtId));
+        })->name('get-all-village');
+
+        Route::post('/get-province/{id}', function ($province_id) {
+            return response()->json(getProvince($province_id));
+        })->name('get-province');
+
+        Route::post('/get-city/{id}', function ($city_id) {
+            return response()->json(getCity($city_id));
+        })->name('get-city');
+
+        Route::post('/get-district/{id}', function ($district_id) {
+            return response()->json(getDistrict($district_id));
+        })->name('get-district');
+
+        Route::post('/get-village/{id}', function ($village_id) {
+            return response()->json(getVillage($village_id));
+        })->name('get-village');
+    });
+
+    Route::post('/delete-uploaded-file-image', function (Request $request) {
+        $fileName = $request->input('filename');
+        $folder = $request->input('folder');
+
+        return response()->json(deleteUploadedFileImage($fileName, $folder));
+    })->name('delete-image');
 
     Route::resource('items', ItemsController::class)->name('items', '*');
 

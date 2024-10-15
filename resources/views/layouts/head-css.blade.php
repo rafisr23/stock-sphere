@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="{{ URL::asset('build/css/style-preset.css') }}">
     <link rel="stylesheet" href="{{ URL::asset('build/css/plugins/dataTables.bootstrap5.min.css') }}">
     <link rel="stylesheet" href="{{ URL::asset('build/css/plugins/buttons.bootstrap5.min.css') }}">
+    <link rel="stylesheet" href="{{ URL::asset('build/css/plugins/dropzone.min.css') }}">
 
     <style>
         .required:after {

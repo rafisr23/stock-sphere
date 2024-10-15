@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateUnitsRequest;
 use App\Models\Items_units;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 
 class UnitsController extends Controller
 {
@@ -56,6 +57,20 @@ class UnitsController extends Controller
      */
     public function store(Request $request)
     {
+        $fileName = null;
+
+        if ($request->hasFile('file')) {
+            $request->validate([
+                'file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            ]);
+
+            $file = $request->file('file');
+            $fileName = 'Unit_' . time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('images/units'), $fileName);
+
+            return response()->json(['success' => $fileName]);
+        }
+
         $request->validate([
             'customer_name' => 'required',
             'province' => 'required',
@@ -86,7 +101,6 @@ class UnitsController extends Controller
             $request['user_id'] = decrypt($request->user_id);
 
             $checkID = Units::where('user_id', $request->user_id)->exists();
-
             if ($checkID) {
                 return redirect()->back()->with('error', 'The user has already been assigned to another unit.');
             }
@@ -94,9 +108,17 @@ class UnitsController extends Controller
 
         $unit = Units::create($request->all());
 
+        $unit->update([
+            'serial_no' => rand(100000, 999999),
+            'image' => $fileName,
+        ]);
+
         if ($unit) {
             return redirect()->route('units.index')->with('success', 'Unit created successfully.');
         } else {
+            if ($fileName && File::exists(public_path('images/units/' . $fileName))) {
+                File::delete(public_path('images/units/' . $fileName));
+            }
             return redirect()->route('units.index')->with('error', 'Unit creation failed.');
         }
     }
@@ -155,19 +177,19 @@ class UnitsController extends Controller
                 'village' => 'required',
             ]);
 
-            $province = $this->APIsController->getProvince($request->province);
+            $province = getProvince($request->province);
             $province = json_decode($province->content());
             $request['province'] = $province->province->name;
 
-            $city = $this->APIsController->getCity($request->city);
+            $city = getCity($request->city);
             $city = json_decode($city->content());
             $request['city'] = $city->city->name;
 
-            $district = $this->APIsController->getDistrict($request->district);
+            $district = getDistrict($request->district);
             $district = json_decode($district->content());
             $request['district'] = $district->district->name;
 
-            $village = $this->APIsController->getVillage($request->village);
+            $village = getVillage($request->village);
             $village = json_decode($village->content());
             $request['village'] = $village->village->name;
         }

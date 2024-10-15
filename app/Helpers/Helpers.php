@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 
 if (! function_exists('getAllProvince')) {
@@ -79,63 +80,63 @@ if (! function_exists('getAllVillage')) {
     }
 }
 
-if (! function_exists('getAllCity2')) {
-    function getAllCity2($provinceId)
-    {
-        $apiUrl = 'https://dzaki-abd.github.io/api-wilayah-indonesia/api/regencies/' . $provinceId . '.json';
+// if (! function_exists('getAllCity2')) {
+//     function getAllCity2($provinceId)
+//     {
+//         $apiUrl = 'https://dzaki-abd.github.io/api-wilayah-indonesia/api/regencies/' . $provinceId . '.json';
 
-        $response = Http::get($apiUrl);
+//         $response = Http::get($apiUrl);
 
-        if ($response->successful()) {
-            $data = $response->json();
+//         if ($response->successful()) {
+//             $data = $response->json();
 
-            return response()->json([
-                'city' => $data,
-            ]);
-        } else {
-            return response()->json(['error' => 'Failed to fetch data from API'], 500);
-        }
-    }
-}
+//             return response()->json([
+//                 'city' => $data,
+//             ]);
+//         } else {
+//             return response()->json(['error' => 'Failed to fetch data from API'], 500);
+//         }
+//     }
+// }
 
-if (! function_exists('getAllDistrict2')) {
-    function getAllDistrict2($cityId)
-    {
-        $apiUrl = 'https://dzaki-abd.github.io/api-wilayah-indonesia/api/districts/' . $cityId . '.json';
+// if (! function_exists('getAllDistrict2')) {
+//     function getAllDistrict2($cityId)
+//     {
+//         $apiUrl = 'https://dzaki-abd.github.io/api-wilayah-indonesia/api/districts/' . $cityId . '.json';
 
-        $response = Http::get($apiUrl);
+//         $response = Http::get($apiUrl);
 
-        if ($response->successful()) {
-            $data = $response->json();
+//         if ($response->successful()) {
+//             $data = $response->json();
 
-            return response()->json([
-                'district' => $data,
-            ]);
-        } else {
-            return response()->json(['error' => 'Failed to fetch data from API'], 500);
-        }
-    }
-}
+//             return response()->json([
+//                 'district' => $data,
+//             ]);
+//         } else {
+//             return response()->json(['error' => 'Failed to fetch data from API'], 500);
+//         }
+//     }
+// }
 
-if (! function_exists('getAllVillage2')) {
-    function getAllVillage2($districtId)
-    {
+// if (! function_exists('getAllVillage2')) {
+//     function getAllVillage2($districtId)
+//     {
 
-        $apiUrl = 'https://dzaki-abd.github.io/api-wilayah-indonesia/api/villages/' . $districtId . '.json';
+//         $apiUrl = 'https://dzaki-abd.github.io/api-wilayah-indonesia/api/villages/' . $districtId . '.json';
 
-        $response = Http::get($apiUrl);
+//         $response = Http::get($apiUrl);
 
-        if ($response->successful()) {
-            $data = $response->json();
+//         if ($response->successful()) {
+//             $data = $response->json();
 
-            return response()->json([
-                'village' => $data,
-            ]);
-        } else {
-            return response()->json(['error' => 'Failed to fetch data from API'], 500);
-        }
-    }
-}
+//             return response()->json([
+//                 'village' => $data,
+//             ]);
+//         } else {
+//             return response()->json(['error' => 'Failed to fetch data from API'], 500);
+//         }
+//     }
+// }
 
 if (! function_exists('getProvince')) {
     function getProvince($province_id)
@@ -210,5 +211,19 @@ if (! function_exists('getVillage')) {
         } else {
             return response()->json(['error' => 'Failed to fetch data from API'], 500);
         }
+    }
+}
+
+if (! function_exists('deleteUploadedFileImage')) {
+    function deleteUploadedFileImage($fileName, $path)
+    {
+        $filePath = public_path($path . '/' . $fileName);
+
+        if (File::exists($filePath)) {
+            File::delete($filePath);
+            return response()->json(['success' => 'File removed successfully.']);
+        }
+
+        return response()->json(['error' => 'File not found.'], 404);
     }
 }

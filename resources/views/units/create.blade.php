@@ -10,7 +10,7 @@
     <!-- [ Main Content ] start -->
     <div class="row">
         <div class="col-sm-12">
-            <form action="{{ route('units.store') }}" method="POST">
+            <form action="{{ route('units.store') }}" method="POST" enctype="multipart/form-data" id="">
                 @csrf
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -19,17 +19,26 @@
                     </div>
                     <div class="card-body">
                         <div class="form-group row">
-                            <label for="customer_name" class="col-sm-3 col-form-label required">Customer Name</label>
+                            <label for="unit_name" class="col-sm-3 col-form-label required">Unit Name</label>
                             <div class="col-sm-9 mb-4">
-                                <input type="text" class="form-control" id="customer_name" name="customer_name"
-                                    placeholder="Enter Customer Name" required>
+                                <input type="text" class="form-control" id="unit_name" name="unit_name"
+                                    placeholder="Enter Unit Name" required>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="unit_photo" class="col-sm-3 col-form-label required">Unit Photo</label>
+                            <div class="col-sm-9 mb-4">
+                                <div id="dropzone" class="dropzone"></div>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="province" class="col-sm-3 col-form-label required">Province</label>
                             <div class="col-sm-9 mb-4">
-                                <select name="province" id="province" class="form-control">
+                                <select name="province" id="province" class="form-control choices-init">
                                     <option value="" selected disabled>Select Province</option>
+                                    @foreach ($province as $p)
+                                        <option value="{{ $p->id }}">{{ $p->name }}</option>
+                                    @endforeach
                                 </select>
                                 @error('province')
                                     <span class="text-danger">{{ $message }}</span>
@@ -86,14 +95,14 @@
                 </div>
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h4 class="card-title">Assign Unit to User</h4>
+                        <h4 class="card-title">Assign Unit to Account</h4>
                     </div>
                     <div class="card-body">
                         <div class="form-group row">
-                            <label for="user_id" class="col-sm-3 col-form-label required">User</label>
+                            <label for="user_id" class="col-sm-3 col-form-label required">Account</label>
                             <div class="col-sm-9 mb-4">
                                 <select name="user_id" id="user_id" class="form-control choices-init">
-                                    <option value="" selected disabled>Select User</option>
+                                    <option value="" selected disabled>Select Account</option>
                                     @foreach ($user as $u)
                                         <option value="{{ encrypt($u->id) }}">{{ $u->name }}</option>
                                     @endforeach
@@ -116,170 +125,197 @@
 @section('scripts')
     <script>
         $(document).ready(function() {
-            var provinceDropdown = new Choices('#province', {
-                removeItemButton: true,
-            });
+            var cityDropdown = new Choices('#city', {});
 
-            var cityDropdown = new Choices('#city', {
-                removeItemButton: true,
-            });
+            var districtDropdown = new Choices('#district', {});
 
-            var districtDropdown = new Choices('#district', {
-                removeItemButton: true,
-            });
-
-            var villageDropdown = new Choices('#village', {
-                removeItemButton: true,
-            });
-
-            $.ajax({
-                url: "{{ route('api.get-all-province') }}",
-                type: "GET",
-                success: function(data) {
-                    provinceDropdown.clearChoices();
-
-                    provinceDropdown.setChoices(
-                        data.province.map(function(province) {
-                            return {
-                                value: province.id,
-                                label: province.name,
-                                selected: false,
-                                disabled: false
-                            };
-                        }),
-                        'value', 'label', false
-                    );
-                },
-                error: function() {
-                    console.error("Failed to fetch province data.");
-                }
-            });
+            var villageDropdown = new Choices('#village', {});
 
             $('#province').on('change', function() {
                 var province_id = $(this).val();
 
-                if (province_id == null) {
-                    cityDropdown.clearChoices();
-                    cityDropdown.removeActiveItems();
-                    cityDropdown.destroy();
-                    cityDropdown.init();
+                cityDropdown.clearChoices();
+                cityDropdown.removeActiveItems();
+                cityDropdown.destroy();
+                cityDropdown.init();
 
-                    districtDropdown.clearChoices();
-                    districtDropdown.removeActiveItems();
-                    districtDropdown.destroy();
-                    districtDropdown.init();
+                districtDropdown.clearChoices();
+                districtDropdown.removeActiveItems();
+                districtDropdown.destroy();
+                districtDropdown.init();
 
-                    villageDropdown.clearChoices();
-                    villageDropdown.removeActiveItems();
-                    villageDropdown.destroy();
-                    villageDropdown.init();
-                } else {
-                    $.ajax({
-                        url: "{{ route('api.get-all-city') }}",
-                        type: "POST",
-                        data: {
-                            province_id: province_id,
-                            _token: "{{ csrf_token() }}"
-                        },
-                        success: function(data) {
-                            cityDropdown.clearChoices();
-                            cityDropdown.setChoices(
-                                data.city.map(function(city) {
-                                    return {
-                                        value: city.id,
-                                        label: city.name,
-                                        selected: false,
-                                        disabled: false
-                                    };
-                                }),
-                                'value', 'label', false
-                            );
-                        },
-                        error: function() {
-                            console.error("Failed to fetch city data.");
-                        }
-                    });
-                }
+                villageDropdown.clearChoices();
+                villageDropdown.removeActiveItems();
+                villageDropdown.destroy();
+                villageDropdown.init();
+
+                $.ajax({
+                    url: "{{ route('api.get-all-city', '') }}" + '/' + province_id,
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function(response) {
+                        cityDropdown.clearChoices();
+                        cityDropdown.setChoices(
+                            response.original.city.map(function(city) {
+                                return {
+                                    value: city.id,
+                                    label: city.name,
+                                    selected: false,
+                                    disabled: false
+                                };
+                            }),
+                            'value', 'label', false
+                        );
+                    },
+                    error: function() {
+                        console.error("Failed to fetch city data.");
+                    }
+                });
             });
 
             $('#city').on('change', function() {
                 var city_id = $(this).val();
 
-                if (city_id == null) {
-                    districtDropdown.clearChoices();
-                    districtDropdown.removeActiveItems();
-                    districtDropdown.destroy();
-                    districtDropdown.init();
+                districtDropdown.clearChoices();
+                districtDropdown.removeActiveItems();
+                districtDropdown.destroy();
+                districtDropdown.init();
 
-                    villageDropdown.clearChoices();
-                    villageDropdown.removeActiveItems();
-                    villageDropdown.destroy();
-                    villageDropdown.init();
-                } else {
-                    $.ajax({
-                        url: "{{ route('api.get-all-district') }}",
-                        type: "POST",
-                        data: {
-                            city_id: city_id,
-                            _token: "{{ csrf_token() }}"
-                        },
-                        success: function(data) {
-                            districtDropdown.clearChoices();
-                            districtDropdown.setChoices(
-                                data.district.map(function(district) {
-                                    return {
-                                        value: district.id,
-                                        label: district.name,
-                                        selected: false,
-                                        disabled: false
-                                    };
-                                }),
-                                'value', 'label', false
-                            );
-                        },
-                        error: function() {
-                            console.error("Failed to fetch district data.");
-                        }
-                    });
-                }
+                villageDropdown.clearChoices();
+                villageDropdown.removeActiveItems();
+                villageDropdown.destroy();
+                villageDropdown.init();
+
+                $.ajax({
+                    url: "{{ route('api.get-all-district', '') }}" + '/' + city_id,
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function(response) {
+                        districtDropdown.clearChoices();
+                        districtDropdown.setChoices(
+                            response.original.district.map(function(district) {
+                                return {
+                                    value: district.id,
+                                    label: district.name,
+                                    selected: false,
+                                    disabled: false
+                                };
+                            }),
+                            'value', 'label', false
+                        );
+                    },
+                    error: function() {
+                        console.error("Failed to fetch district data.");
+                    }
+                });
             });
 
             $('#district').on('change', function() {
                 var district_id = $(this).val();
 
-                if (district_id == null) {
-                    villageDropdown.clearChoices();
-                    villageDropdown.removeActiveItems();
-                    villageDropdown.destroy();
-                    villageDropdown.init();
-                } else {
+                villageDropdown.clearChoices();
+                villageDropdown.removeActiveItems();
+                villageDropdown.destroy();
+                villageDropdown.init();
+
+                $.ajax({
+                    url: "{{ route('api.get-all-village', '') }}" + '/' + district_id,
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function(response) {
+                        villageDropdown.clearChoices();
+                        villageDropdown.setChoices(
+                            response.original.village.map(function(village) {
+                                return {
+                                    value: village.id,
+                                    label: village.name,
+                                    selected: false,
+                                    disabled: false
+                                };
+                            }),
+                            'value', 'label', false
+                        );
+                    },
+                    error: function() {
+                        console.error("Failed to fetch village data.");
+                    }
+                });
+            });
+        });
+
+        var dropzone = new Dropzone("#dropzone", {
+            url: "{{ route('units.store') }}",
+            method: "POST",
+            headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            },
+            paramName: "file",
+            maxFilesize: 2,
+            acceptedFiles: "image/*",
+            addRemoveLinks: true,
+            dictDefaultMessage: "Drop your image here or click to upload",
+            maxFiles: 1,
+            success: function(file, response) {
+                file.uploadedFileName = response.success;
+            },
+            error: function(file, response) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'File upload failed',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    allowOutsideClick: false,
+                });
+            },
+            removedfile: function(file) {
+                if (file.uploadedFileName) {
                     $.ajax({
-                        url: "{{ route('api.get-all-village') }}",
-                        type: "POST",
+                        url: "{{ route('delete-image') }}",
+                        method: "POST",
+                        headers: {
+                            'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                        },
                         data: {
-                            district_id: district_id,
-                            _token: "{{ csrf_token() }}"
+                            filename: file.uploadedFileName,
+                            folder: "units"
                         },
-                        success: function(data) {
-                            villageDropdown.clearChoices();
-                            villageDropdown.setChoices(
-                                data.village.map(function(village) {
-                                    return {
-                                        value: village.id,
-                                        label: village.name,
-                                        selected: false,
-                                        disabled: false
-                                    };
-                                }),
-                                'value', 'label', false
-                            );
+                        success: function(response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: 'File removed successfully',
+                                showConfirmButton: false,
+                                timer: 1500,
+                                timerProgressBar: true,
+                                allowOutsideClick: false,
+                            });
                         },
-                        error: function() {
-                            console.error("Failed to fetch village data.");
+                        error: function(response) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Failed to remove file',
+                                showConfirmButton: false,
+                                timer: 1500,
+                                timerProgressBar: true,
+                                allowOutsideClick: false,
+                            });
                         }
                     });
                 }
-            });
+
+                var _ref;
+                return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) :
+                    void 0;
+            }
         });
     </script>
 @endsection
