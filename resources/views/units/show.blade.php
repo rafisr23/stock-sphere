@@ -14,7 +14,7 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <div class="row">
-                        <div class="col">
+                        <div class="col-6">
                             <div class="col-xl-3 col-md-4 col-sm-6">
                                 <a class="card-gallery" data-fslightbox="gallery"
                                     href="{{ asset('images/units/' . $unit->image) }}">
