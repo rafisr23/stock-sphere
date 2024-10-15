@@ -18,7 +18,7 @@
                             <h4 class="card-title mb-4">{{ $unit->customer_name }}</h4>
                         </div>
                         <div class="row">
-                            <p class="col-sm-3 col-form-p">Serial No : -</p>
+                            <p class="col-sm-3 col-form-p">Serial No : {{ $unit->serial_no }}</p>
                         </div>
                     </div>
                     <a href="{{ route('units.index') }}" class="btn btn-secondary">Back</a>

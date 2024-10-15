@@ -19,17 +19,24 @@
                     </div>
                     <div class="card-body">
                         <div class="form-group row">
-                            <label for="unit_name" class="col-sm-3 col-form-label required">Unit Name</label>
+                            <label for="customer_name" class="col-sm-3 col-form-label required">Customer/Unit Name</label>
                             <div class="col-sm-9 mb-4">
-                                <input type="text" class="form-control" id="unit_name" name="unit_name"
+                                <input type="text" class="form-control" id="customer_name" name="customer_name"
                                     placeholder="Enter Unit Name" required>
+                                @error('customer_name')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="unit_photo" class="col-sm-3 col-form-label required">Unit Photo</label>
                             <div class="col-sm-9 mb-4">
                                 <div id="dropzone" class="dropzone"></div>
+                                @error('image')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
                             </div>
+                            <input type="text" id="image" name="image" hidden>
                         </div>
                         <div class="form-group row">
                             <label for="province" class="col-sm-3 col-form-label required">Province</label>
@@ -82,6 +89,9 @@
                             <label for="street" class="col-sm-3 col-form-label required">Street</label>
                             <div class="col-sm-9 mb-4">
                                 <textarea type="text" class="form-control" id="street" name="street" placeholder="Enter Street" required></textarea>
+                                @error('street')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
                         <div class="form-group row">
@@ -89,6 +99,9 @@
                             <div class="col-sm-9 mb-4">
                                 <input type="number" class="form-control" id="postal_code" name="postal_code"
                                     placeholder="Enter Postal Code" required>
+                                @error('postal_code')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -99,7 +112,7 @@
                     </div>
                     <div class="card-body">
                         <div class="form-group row">
-                            <label for="user_id" class="col-sm-3 col-form-label required">Account</label>
+                            <label for="user_id" class="col-sm-3 col-form-label">Account</label>
                             <div class="col-sm-9 mb-4">
                                 <select name="user_id" id="user_id" class="form-control choices-init">
                                     <option value="" selected disabled>Select Account</option>
@@ -107,6 +120,11 @@
                                         <option value="{{ encrypt($u->id) }}">{{ $u->name }}</option>
                                     @endforeach
                                 </select>
+                                @error('user_id')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                                <span><i> If the select option for account is empty, it means all accounts have been taken.
+                                        You can continue or create a new one first.</i></span>
                             </div>
                         </div>
                         <div class="form-group row">
@@ -263,8 +281,8 @@
             dictDefaultMessage: "Drop your image here or click to upload",
             maxFiles: 1,
             success: function(file, response) {
-                console.log(response);
                 file.uploadedFileName = response.success;
+                $('#image').val(response.success);
             },
             error: function(file, response) {
                 Swal.fire({
@@ -313,11 +331,17 @@
                         }
                     });
                 }
-
+                $('#image').val('');
                 var _ref;
                 return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) :
                     void 0;
             }
         });
+
+        //event listener for submit button
+        // document.querySelector('button[type="submit"]').addEventListener('click', function() {
+        //     //choice js != null
+        //     $('')
+        // });
     </script>
 @endsection
