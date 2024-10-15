@@ -124,13 +124,14 @@ class SparepartsController extends Controller
      */
     public function destroy($id)
     {
-        $spareparts = Spareparts::find(decrypt($id));
+        $id = decrypt($id);
+        $spareparts = Spareparts::find($id);
         $spareparts->delete();
 
         if ($spareparts) {
-            return redirect()->route('spareparts.index')->with('success', 'Sparepart deleted successfully');
+            return response()->json(['success' => 'Sparepart deleted successfully',]);
         } else {
-            return redirect()->route('spareparts.index')->with('error', 'Failed to delete sparepart');
+            return response()->json(['success' => 'Failed to delete sparepart',]);
         }
     }
 }
