@@ -14,6 +14,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{{ URL::asset('build/js/plugins/choices.min.js') }}"></script>
 <script src="{{ URL::asset('build/js/plugins/datepicker-full.min.js') }}"></script>
+<script src="{{ URL::asset('build/js/plugins/dropzone-amd-module.min.js') }}"></script>
 
 @if (env('APP_DARK_LAYOUT') == 'default')
     <script>
@@ -129,9 +130,7 @@
 
 <script>
     $('.choices-init').each(function() {
-        new Choices(this, {
-            removeItemButton: true,
-        });
+        new Choices(this, {});
     });
 
     $('.datepicker-init').each(function() {
@@ -141,4 +140,6 @@
             format: 'yyyy-mm-dd',
         });
     });
+
+    Dropzone.autoDiscover = false;
 </script>
