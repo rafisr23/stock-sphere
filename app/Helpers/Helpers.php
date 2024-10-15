@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 
 if (! function_exists('getAllProvince')) {
@@ -63,64 +64,6 @@ if (! function_exists('getAllDistrict')) {
 if (! function_exists('getAllVillage')) {
     function getAllVillage($districtId)
     {
-        $apiUrl = 'https://dzaki-abd.github.io/api-wilayah-indonesia/api/villages/' . $districtId . '.json';
-
-        $response = Http::get($apiUrl);
-
-        if ($response->successful()) {
-            $data = $response->json();
-
-            return response()->json([
-                'village' => $data,
-            ]);
-        } else {
-            return response()->json(['error' => 'Failed to fetch data from API'], 500);
-        }
-    }
-}
-
-if (! function_exists('getAllCity2')) {
-    function getAllCity2($provinceId)
-    {
-        $apiUrl = 'https://dzaki-abd.github.io/api-wilayah-indonesia/api/regencies/' . $provinceId . '.json';
-
-        $response = Http::get($apiUrl);
-
-        if ($response->successful()) {
-            $data = $response->json();
-
-            return response()->json([
-                'city' => $data,
-            ]);
-        } else {
-            return response()->json(['error' => 'Failed to fetch data from API'], 500);
-        }
-    }
-}
-
-if (! function_exists('getAllDistrict2')) {
-    function getAllDistrict2($cityId)
-    {
-        $apiUrl = 'https://dzaki-abd.github.io/api-wilayah-indonesia/api/districts/' . $cityId . '.json';
-
-        $response = Http::get($apiUrl);
-
-        if ($response->successful()) {
-            $data = $response->json();
-
-            return response()->json([
-                'district' => $data,
-            ]);
-        } else {
-            return response()->json(['error' => 'Failed to fetch data from API'], 500);
-        }
-    }
-}
-
-if (! function_exists('getAllVillage2')) {
-    function getAllVillage2($districtId)
-    {
-
         $apiUrl = 'https://dzaki-abd.github.io/api-wilayah-indonesia/api/villages/' . $districtId . '.json';
 
         $response = Http::get($apiUrl);

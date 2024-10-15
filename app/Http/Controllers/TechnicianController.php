@@ -9,12 +9,12 @@ use Illuminate\Http\Request;
 
 class TechnicianController extends Controller
 {
-    protected $APIsController;
+    // protected $APIsController;
 
-    public function __construct(APIsController $APIsController)
-    {
-        $this->APIsController = $APIsController;
-    }
+    // public function __construct(APIsController $APIsController)
+    // {
+    //     $this->APIsController = $APIsController;
+    // }
 
     /**
      * Display a listing of the resource.
@@ -54,9 +54,13 @@ class TechnicianController extends Controller
     {
         $technician = Technician::where('user_id', '!=', null)->get();
         if ($technician->count() > 0) {
-            $users = User::whereHas('roles', function ($query) {$query->where('name', 'technician');})->where('id', '!=', $technician->pluck('user_id'))->get();
+            $users = User::whereHas('roles', function ($query) {
+                $query->where('name', 'technician');
+            })->where('id', '!=', $technician->pluck('user_id'))->get();
         } else {
-            $users = User::whereHas('roles', function ($query) {$query->where('name', 'technician');})->get();
+            $users = User::whereHas('roles', function ($query) {
+                $query->where('name', 'technician');
+            })->get();
         }
         return view('technicians.create', compact('users', 'technician'));
     }
@@ -116,7 +120,6 @@ class TechnicianController extends Controller
         $technician->save();
 
         return redirect()->route('technicians.index')->with('success', 'Technician created successfully.');
-
     }
 
     public function assign()
@@ -159,9 +162,13 @@ class TechnicianController extends Controller
         $technician = Technician::find(decrypt($id));
         $selected_user = User::find($technician->user_id);
         if ($technician->user_id) {
-            $users = User::whereHas('roles', function ($query) {$query->where('name', 'technician');})->where('id', '!=', $technician->user_id)->get();
+            $users = User::whereHas('roles', function ($query) {
+                $query->where('name', 'technician');
+            })->where('id', '!=', $technician->user_id)->get();
         } else {
-            $users = User::whereHas('roles', function ($query) {$query->where('name', 'technician');})->whereNotIn('id', Technician::where('user_id', '!=', null)->pluck('user_id'))->get();
+            $users = User::whereHas('roles', function ($query) {
+                $query->where('name', 'technician');
+            })->whereNotIn('id', Technician::where('user_id', '!=', null)->pluck('user_id'))->get();
         }
         $province_id = null;
         $city_id = null;
@@ -196,8 +203,8 @@ class TechnicianController extends Controller
                 $village_id = $vil->id;
             }
         }
-        
-    
+
+
         return view('technicians.edit', compact('technician', 'users', 'selected_user', 'province_id', 'city_id', 'district_id', 'village_id'));
     }
 
