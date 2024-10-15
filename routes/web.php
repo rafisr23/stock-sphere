@@ -4,7 +4,6 @@ use App\Http\Controllers\RoomController;
 use App\Models\Room;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\APIsController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ItemsController;
@@ -61,17 +60,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('profile/{id}/change_password', [EditProfileController::class, 'change_password'])->name('profile.change_password');
     Route::put('profile/{id}/update_password', [EditProfileController::class, 'update_password'])->name('profile.update_password');
     Route::resource('profile', EditProfileController::class)->name('profile', '*');
-
-    Route::controller(APIsController::class)->prefix('api')->name('api.')->group(function () {
-        Route::get('/get-all-province', 'getAllProvince')->name('get-all-province');
-        Route::post('/get-all-city', 'getAllCity')->name('get-all-city');
-        Route::post('/get-all-district', 'getAllDistrict')->name('get-all-district');
-        Route::post('/get-all-village', 'getAllVillage')->name('get-all-village');
-        Route::post('/get-province/{id}', 'getProvince')->name('get-province');
-        Route::post('/get-city/{id}', 'getCity')->name('get-city');
-        Route::post('/get-district/{id}', 'getDistrict')->name('get-district');
-        Route::post('/get-village/{id}', 'getVillage')->name('get-village');
-    });
 
     Route::controller(SubmissionOfRepairController::class)->middleware('role:superadmin|unit')->prefix('submission-of-repair')->name('submission-of-repair.')->group(function () {
         Route::get('/', 'index')->name('index');
