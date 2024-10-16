@@ -40,12 +40,12 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="unit_id" class="col-sm-3 col-form-label required">Unit</label>
+                            <label for="room_id" class="col-sm-3 col-form-label required">Room</label>
                             <div class="col-sm-9 mb-4">
-                                <select class="form-control" data-trigger name="unit_id" id="unit_id" required>
-                                    <option value="">-- Select Unit --</option>
-                                    @foreach ($units as $unit)
-                                        <option value="{{ $unit->id }}">{{ $unit->customer_name }}</option>
+                                <select class="form-control" data-trigger name="room_id" id="room_id" required>
+                                    <option value="">-- Select Room --</option>
+                                    @foreach ($rooms as $room)
+                                        <option value="{{ $room->id }}">{{ $room->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -138,7 +138,7 @@
         var multipleCancelButton = new Choices(document.getElementById('item_id'), {
             removeItemButton: true,
         });
-        var singleCancelButton = new Choices(document.getElementById('unit_id'), {
+        var singleCancelButton = new Choices(document.getElementById('room_id'), {
             removeItemButton: true,
         });
     </script>

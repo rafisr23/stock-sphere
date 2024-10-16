@@ -13,11 +13,12 @@ class Rooms extends Model
 
     public function units()
     {
-        return $this->belongsTo(Units::class);
+        return $this->belongsTo(Units::class, 'unit_id');
     }
 
-    public function items()
+    public function items_units()
     {
-        return $this->hasMany(Items::class);
+        return $this->hasMany(Items_units::class, 'room_id');
     }
+    
 }

@@ -43,13 +43,13 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="unit_id" class="col-sm-3 col-form-label required">Unit</label>
+                            <label for="room_id" class="col-sm-3 col-form-label required">Room</label>
                             <div class="col-sm-9 mb-4">
-                                <select name="unit_id" id="unit_id" class="form-control" required>
+                                <select name="room_id" id="room_id" class="form-control" required>
                                     <option value="">-- Select Unit --</option>
-                                    @foreach ($units as $unit)
-                                        <option value="{{ $unit->id }}"
-                                            {{ $unit->id == $item_unit->unit_id ? 'selected' : '' }}>{{ $unit->customer_name }}
+                                    @foreach ($rooms as $room)
+                                        <option value="{{ $room->id }}"
+                                            {{ $room->id == $item_unit->room_id ? 'selected' : '' }}>{{ $room->name }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -80,7 +80,7 @@
                         <div class="form-group row">
                             <label for="installation_date" class="col-sm-3 col-form-label">Installation Date</label>
                             <div class="col-sm-9 mb-4">
-                                <input type="date" class="form-control" id="installation_date" name="installation_date"
+                                <input type="text" class="form-control" id="installation_date" name="installation_date"
                                     value="{{ $item_unit->installation_date }}" required>
                             </div>
                         </div>
@@ -94,7 +94,7 @@
                         <div class="form-group row">
                             <label for="end_of_service" class="col-sm-3 col-form-label">End of Service</label>
                             <div class="col-sm-9 mb-4">
-                                <input type="date" class="form-control" id="end_of_service" name="end_of_service"
+                                <input type="text" class="form-control" id="end_of_service" name="end_of_service"
                                     value="{{ $item_unit->end_of_service }}" required>
                             </div>
                         </div>

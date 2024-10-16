@@ -22,7 +22,7 @@
                         <thead>
                             <th>No</th>
                             <th>Item Name</th>
-                            <th>Customer Name</th>
+                            <th>Room Name</th>
                             <th>Contract</th>
                             <th>Action</th>
                         </thead>
@@ -51,8 +51,8 @@
                     name: 'items_name'
                 },
                 {
-                    data: 'units_name',
-                    name: 'units_name'
+                    data: 'rooms_name',
+                    name: 'rooms_name'
                 },
                 {
                     data: 'contract',

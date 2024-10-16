@@ -14,12 +14,15 @@ class TechnicianSeeder extends Seeder
     public function run(): void
     {
         DB::table('technicians')->insert([
-            'name' => 'John Doe',
+            'name' => 'Asep Suandi',
             'phone' => '1234567890',
             'street' => '123 Main St',
-            'city' => 'Anytown',
+            'city' => 'KOTA BANDUNG',
             'postal_code' => '12345',
             'status' => 'active',
+            'province' => 'JAWA BARAT',
+            'district' => 'COBLONG',
+            'village' => 'DAGO',
         ]);
             
 

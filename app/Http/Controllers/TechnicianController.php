@@ -6,16 +6,11 @@ use App\Models\Technician;
 use App\Models\Units;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Validator;
 
 class TechnicianController extends Controller
 {
-    // protected $APIsController;
-
-    // public function __construct(APIsController $APIsController)
-    // {
-    //     $this->APIsController = $APIsController;
-    // }
-
     /**
      * Display a listing of the resource.
      */
@@ -62,7 +57,12 @@ class TechnicianController extends Controller
                 $query->where('name', 'technician');
             })->get();
         }
-        return view('technicians.create', compact('users', 'technician'));
+
+        $province = getAllProvince();
+        $province = json_decode($province->content());
+        $province = $province->province;
+
+        return view('technicians.create', compact('users', 'technician', 'province'));
     }
 
     /**
@@ -70,7 +70,7 @@ class TechnicianController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => 'required',
             'phone' => 'required',
             'province' => 'required',
@@ -80,46 +80,58 @@ class TechnicianController extends Controller
             'street' => 'required',
             'postal_code' => 'required',
             'status' => 'required',
+            'image' => 'required',
         ]);
 
-        $province = $this->APIsController->getProvince($request->province);
+        if ($validator->fails()) {
+            if (File::exists(public_path('images/technicians/' . $request->image))) {
+                File::delete(public_path('images/technicians/' . $request->image));
+            }
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        if ($request->has('user_id') && $request->user_id != null) {
+            $decryptedUserId = decrypt($request->user_id);
+            $request->merge(['user_id' => $decryptedUserId]);
+
+            $validator = Validator::make($request->all(), [
+                'user_id' => 'required|unique:technicians,user_id',
+            ]);
+
+            if ($validator->fails()) {
+                if (File::exists(public_path('images/technicians/' . $request->image))) {
+                    File::delete(public_path('images/technicians/' . $request->image));
+                }
+                return redirect()->back()->withErrors($validator)->withInput();
+            }
+        }
+
+        $province = getProvince($request->province);
         $province = json_decode($province->content());
         $request['province'] = $province->province->name;
 
-        $city = $this->APIsController->getCity($request->city);
+        $city = getCity($request->city);
         $city = json_decode($city->content());
         $request['city'] = $city->city->name;
 
-        $district = $this->APIsController->getDistrict($request->district);
+        $district = getDistrict($request->district);
         $district = json_decode($district->content());
         $request['district'] = $district->district->name;
 
-        $village = $this->APIsController->getVillage($request->village);
+        $village = getVillage($request->village);
         $village = json_decode($village->content());
         $request['village'] = $village->village->name;
 
-        $technician = new Technician();
-        $technician->name = $request->name;
-        $technician->phone = $request->phone;
-        $technician->province = $request->province;
-        $technician->city = $request->city;
-        $technician->district = $request->district;
-        $technician->village = $request->village;
-        $technician->street = $request->street;
-        $technician->postal_code = $request->postal_code;
-        $technician->status = $request->status;
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $image_name = time() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('images/technicians'), $image_name);
-            $technician->image = $image_name;
-        }
-        if ($request->user_id) {
-            $technician->user_id = $request->user_id;
-        }
-        $technician->save();
+        $technician = Technician::create($request->all());
 
-        return redirect()->route('technicians.index')->with('success', 'Technician created successfully.');
+        if ($technician) {
+            return redirect()->route('technicians.index')->with('success', 'Technician created successfully.');
+        } else {
+            if (File::exists(public_path('images/technicians/' . $request->image))) {
+                File::delete(public_path('images/technicians/' . $request->image));
+            }
+            return redirect()->route('technicians.index')->with('error', 'Technician creation failed.');
+        }
     }
 
     public function assign()
@@ -175,28 +187,32 @@ class TechnicianController extends Controller
         $district_id = null;
         $village_id = null;
 
-        $get_province = $this->APIsController->getAllProvince();
+        $province_all = getAllProvince();
+        $province_all = json_decode($province_all->content());
+        $province_all = $province_all->province;
+
+        $get_province = getAllProvince();
         $province = json_decode($get_province->content());
         foreach ($province->province as $prov) {
             if ($prov->name == $technician->province) {
                 $province_id = $prov->id;
             }
         }
-        $get_city = $this->APIsController->getAllCity2($province_id);
+        $get_city = getAllCity($province_id);
         $city = json_decode($get_city->content());
         foreach ($city->city as $cit) {
             if ($cit->name == $technician->city) {
                 $city_id = $cit->id;
             }
         }
-        $get_district = $this->APIsController->getAllDistrict2($city_id);
+        $get_district = getAllDistrict($city_id);
         $district = json_decode($get_district->content());
         foreach ($district->district as $dist) {
             if ($dist->name == $technician->district) {
                 $district_id = $dist->id;
             }
         }
-        $get_village = $this->APIsController->getAllVillage2($district_id);
+        $get_village = getAllVillage($district_id);
         $village = json_decode($get_village->content());
         foreach ($village->village as $vil) {
             if ($vil->name == $technician->village) {
@@ -205,7 +221,7 @@ class TechnicianController extends Controller
         }
 
 
-        return view('technicians.edit', compact('technician', 'users', 'selected_user', 'province_id', 'city_id', 'district_id', 'village_id'));
+        return view('technicians.edit', compact('technician', 'users', 'selected_user', 'province_id', 'city_id', 'district_id', 'village_id', 'province_all'));
     }
 
     /**
@@ -223,49 +239,41 @@ class TechnicianController extends Controller
             'street' => 'required',
             'postal_code' => 'required',
             'status' => 'required',
+            'image' => 'required',
         ]);
 
-        $province = $this->APIsController->getProvince($request->province);
+        $province = getProvince($request->province);
         $province = json_decode($province->content());
         $request['province'] = $province->province->name;
 
-        $city = $this->APIsController->getCity($request->city);
+        $city = getCity($request->city);
         $city = json_decode($city->content());
         $request['city'] = $city->city->name;
 
-        $district = $this->APIsController->getDistrict($request->district);
+        $district = getDistrict($request->district);
         $district = json_decode($district->content());
         $request['district'] = $district->district->name;
 
-        $village = $this->APIsController->getVillage($request->village);
+        $village = getVillage($request->village);
         $village = json_decode($village->content());
         $request['village'] = $village->village->name;
 
-        $technician = Technician::find($id);
-        $technician->name = $request->name;
-        $technician->phone = $request->phone;
-        $technician->province = $request->province;
-        $technician->city = $request->city;
-        $technician->district = $request->district;
-        $technician->village = $request->village;
-        $technician->street = $request->street;
-        $technician->postal_code = $request->postal_code;
-        $technician->status = $request->status;
-
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $image_name = time() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('images/technicians'), $image_name);
-            $technician->image = $image_name;
-        }
-
         if ($request->user_id) {
-            $technician->user_id = $request->user_id;
+            $request['user_id'] = $request->user_id;
         }
 
-        $technician->save();
+        $technician = Technician::find($id);
+        $technician->update($request->all());
 
-        return redirect()->route('technicians.index')->with('success', 'Technician updated successfully.');
+        if ($technician) {
+            return redirect()->route('technicians.index')->with('success', 'Technician updated successfully.');
+        } else {
+            if (File::exists(public_path('images/technicians/' . $request->image))) {
+                File::delete(public_path('images/technicians/' . $request->image));
+            }
+            return redirect()->route('technicians.index')->with('error', 'Technician update failed.');
+        }
+
     }
 
     /**

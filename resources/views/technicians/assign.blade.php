@@ -37,6 +37,11 @@
                                         <option value="{{ $technician->id }}">{{ $technician->name }}</option>
                                     @endforeach
                                 </select>
+                                @error('technician_id')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                                <span><i> If the select option for technician is empty, it means all technician have been assigned.
+                                    You can continue or create a new one first.</i></span>
                             </div>
                         </div>
                         <div class="form-group row">

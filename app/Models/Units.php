@@ -24,4 +24,9 @@ class Units extends Model
     {
         return $this->hasMany(Technician::class, 'unit_id');
     }
+
+    public function rooms()
+    {
+        return $this->hasMany(Rooms::class, 'unit_id');
+    }
 }
