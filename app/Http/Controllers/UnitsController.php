@@ -144,9 +144,32 @@ class UnitsController extends Controller
 
         $user = User::whereHas('roles', function ($query) {
             $query->where('name', 'unit');
-        })->get();
+        })
+            ->get();
 
-        return view('units.edit', compact('unit', 'id_enc', 'user'));
+        $province = getAllProvince();
+        $province = json_decode($province->content());
+        $province = $province->province;
+
+        $provinceID = collect($province)->where('name', $unit->province)->first()->id;
+
+        $city = getAllCity($provinceID);
+        $city = json_decode($city->content());
+        $city = $city->city;
+
+        $cityID = collect($city)->where('name', $unit->city)->first()->id;
+
+        $district = getAllDistrict($cityID);
+        $district = json_decode($district->content());
+        $district = $district->district;
+
+        $districtID = collect($district)->where('name', $unit->district)->first()->id;
+
+        $village = getAllVillage($districtID);
+        $village = json_decode($village->content());
+        $village = $village->village;
+
+        return view('units.edit', compact('unit', 'id_enc', 'user', 'province', 'provinceID', 'city', 'cityID', 'district', 'districtID', 'village'));
     }
 
     /**
@@ -154,47 +177,57 @@ class UnitsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'customer_name' => 'required',
+            'province' => 'required',
+            'city' => 'required',
+            'district' => 'required',
+            'village' => 'required',
             'street' => 'required',
             'postal_code' => 'required',
-            'user_id' => 'unique:units,user_id,' . decrypt($id),
+            'image' => 'required',
         ]);
 
-        if ($request->has('user_id') && $request->user_id != null) {
-            $request['user_id'] = decrypt($request->user_id);
+        if ($validator->fails()) {
+            if (File::exists(public_path('images/units/' . $request->image))) {
+                File::delete(public_path('images/units/' . $request->image));
+            }
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
 
-            $checkID = Units::where('user_id', $request->user_id)->where('id', '!=', decrypt($id))->exists();
+        $decryptedUserId = decrypt($request->user_id);
+        $request->merge(['user_id' => $decryptedUserId]);
 
-            if ($checkID) {
-                return redirect()->back()->with('error', 'The user has already been assigned to another unit.');
+        $extUserID = Units::where('id', decrypt($id))->first()->user_id;
+
+        if ($extUserID != $request->user_id) {
+            $validator = Validator::make($request->all(), [
+                'user_id' => 'required|unique:units,user_id',
+            ]);
+
+            if ($validator->fails()) {
+                if (File::exists(public_path('images/units/' . $request->image))) {
+                    File::delete(public_path('images/units/' . $request->image));
+                }
+                return redirect()->back()->withErrors($validator)->withInput();
             }
         }
 
-        if ($request->province != null) {
-            $request->validate([
-                'province' => 'required',
-                'city' => 'required',
-                'district' => 'required',
-                'village' => 'required',
-            ]);
+        $province = getProvince($request->province);
+        $province = json_decode($province->content());
+        $request['province'] = $province->province->name;
 
-            $province = getProvince($request->province);
-            $province = json_decode($province->content());
-            $request['province'] = $province->province->name;
+        $city = getCity($request->city);
+        $city = json_decode($city->content());
+        $request['city'] = $city->city->name;
 
-            $city = getCity($request->city);
-            $city = json_decode($city->content());
-            $request['city'] = $city->city->name;
+        $district = getDistrict($request->district);
+        $district = json_decode($district->content());
+        $request['district'] = $district->district->name;
 
-            $district = getDistrict($request->district);
-            $district = json_decode($district->content());
-            $request['district'] = $district->district->name;
-
-            $village = getVillage($request->village);
-            $village = json_decode($village->content());
-            $request['village'] = $village->village->name;
-        }
+        $village = getVillage($request->village);
+        $village = json_decode($village->content());
+        $request['village'] = $village->village->name;
 
         $request = array_filter($request->all());
 
