@@ -18,7 +18,7 @@
                             <img src="{{ asset('images/img-profile-card.jpg') }}" alt="image" class="img-thumbnail"
                                 style="width: 200px; height: 200px;">
                         @else
-                            <img src="{{ asset('images/items' . $item->items->image) }}" alt="image" class="img-thumbnail"
+                            <img src="{{ asset('images/items/' . $item->items->image) }}" alt="image" class="img-thumbnail"
                                 style="width: 200px; height: 200px;">
                         @endif
                     </div>
@@ -27,7 +27,7 @@
                             <h4 class="card-title mb-4">{{ $item->items->item_name }}</h4>
                         </div>
                         <div class="row">
-                            <p for="item_name" class="col-sm-3 col-form-p">Nickname : {{ $item->units->customer_name }}</p>
+                            <p for="item_name" class="col-sm-3 col-form-p">Nickname : {{ $item->rooms->name }}</p>
                         </div>
                         <div class="row">
                             <p for="item_name" class="col-sm-3 col-form-p">Description :
@@ -94,27 +94,27 @@
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="customer_name" class="col-sm-6 col-form-label">Customer Name :</label>
+                                <label for="customer_name" class="col-sm-6 col-form-label">Description Room :</label>
                                 <div class="col-sm-6">
-                                    <label for="customer_name" class="col-form-label">{{ $item->units->customer_name }}</label>
+                                    <label for="customer_name" class="col-form-label">{{ $item->rooms->description }}</label>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="street" class="col-sm-6 col-form-label">Street :</label>
                                 <div class="col-sm-6">
-                                    <label for="street" class="col-form-label">{{ $item->units->street }}</label>
+                                    <label for="street" class="col-form-label">{{ $item->rooms->units->street }}</label>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="city" class="col-sm-6 col-form-label">City :</label>
                                 <div class="col-sm-6">
-                                    <label for="city" class="col-form-label">{{ $item->units->city }}</label>
+                                    <label for="city" class="col-form-label">{{ $item->rooms->units->city }}</label>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="postal_code" class="col-sm-6 col-form-label">Postal Code :</label>
                                 <div class="col-sm-6">
-                                    <label for="postal_code" class="col-form-label">{{ $item->units->postal_code }}</label>
+                                    <label for="postal_code" class="col-form-label">{{ $item->rooms->units->postal_code }}</label>
                                 </div>
                             </div>
                         </div>

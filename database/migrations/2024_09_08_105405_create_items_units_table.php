@@ -13,10 +13,8 @@ return new class extends Migration
     {
         Schema::create('items_units', function (Blueprint $table) {
             $table->id();
-            // $table->foreignId('item_id')->constrained('items');
-            // $table->foreignId('unit_id')->constrained('units');
             $table->bigInteger('item_id');
-            $table->bigInteger('unit_id');
+            $table->bigInteger('room_id');
             $table->string('serial_number');
             $table->string('software_version');
             $table->string('installation_date');

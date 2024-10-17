@@ -16,11 +16,6 @@ class Items extends Model
         return $this->hasMany(Items_units::class, 'item_id');
     }
 
-    public function room()
-    {
-        return $this->belongsTo(Rooms::class);
-    }
-
     public function sparepart()
     {
         return $this->belongsTo(Spareparts::class);

@@ -16,8 +16,8 @@ class Items_units extends Model
         return $this->belongsTo(Items::class, 'item_id');
     }
 
-    public function units()
+    public function rooms()
     {
-        return $this->belongsTo(Units::class, 'unit_id');
+        return $this->belongsTo(Rooms::class, 'room_id');
     }
 }

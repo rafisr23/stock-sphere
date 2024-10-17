@@ -15,7 +15,7 @@ class ItemsUnitsSeeder extends Seeder
     {
         DB::table('items_units')->insert([
             'item_id' => '1',
-            'unit_id' => '1',
+            'room_id' => '1',
             'serial_number' => '101076',
             'software_version' => 'VA46A',
             'installation_date' => '2005-05-20 23:00:00',
@@ -28,7 +28,7 @@ class ItemsUnitsSeeder extends Seeder
         ]);
         DB::table('items_units')->insert([
             'item_id' => '2',
-            'unit_id' => '1',
+            'room_id' => '1',
             'serial_number' => '181543',
             'software_version' => 'VA40A-SP03',
             'installation_date' => '2005-05-20 23:00:00',
@@ -41,7 +41,7 @@ class ItemsUnitsSeeder extends Seeder
         ]);
         DB::table('items_units')->insert([
             'item_id' => '3',
-            'unit_id' => '1',
+            'room_id' => '1',
             'serial_number' => '179979',
             'software_version' => 'VA50M-SP01',
             'installation_date' => '2005-05-20 23:00:00',

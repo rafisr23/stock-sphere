@@ -6,7 +6,9 @@ use App\Models\Items;
 use App\Models\Units;
 use App\Models\Items_units;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Validator;
+
 
 class ItemsController extends Controller
 {
@@ -50,7 +52,7 @@ class ItemsController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'item_name' => 'required',
             'item_description' => 'required',
             'downtime' => 'required',
@@ -58,25 +60,21 @@ class ItemsController extends Controller
             'image' => 'required',
         ]);
 
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $image_name = time() . '.' . $image->extension();
-            $image->move(public_path('images/items'), $image_name);
-
-            $item = Items::create([
-                'item_name' => $request['item_name'],
-                'item_description' => $request['item_description'],
-                'downtime' => $request['downtime'],
-                'modality' => $request['modality'],
-                'image' => $image_name,
-            ]);
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
         }
+
+        $item = Items::create($request->all());
 
         if ($item) {
             return redirect()->route('items.index')->with('success', 'Item created successfully.');
+        } else {
+            if (File::exists(public_path('images/items/' . $request->image))) {
+                File::delete(public_path('images/items/' . $request->image));
+            }
+            return redirect()->route('items.index')->with('error', 'Item creation failed.');
         }
 
-        return redirect()->route('items.index')->with('error', 'Item not created.');
     }
 
     /**
@@ -102,38 +100,29 @@ class ItemsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'item_name' => 'required',
             'item_description' => 'required',
             'downtime' => 'required',
             'modality' => 'required',
+            'image' => 'required',
         ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
 
         $item = Items::where('id', $id)->first();
-        $item->update([
-            'item_name' => $request['item_name'],
-            'item_description' => $request['item_description'],
-            'downtime' => $request['downtime'],
-            'modality' => $request['modality'],
-        ]);
-
-        if ($request->hasFile('image')) {
-            $old_image = public_path('images/items/' . $item->image);
-            if (file_exists($old_image)) {
-                unlink($old_image);
-            }
-            $image = $request->file('image');
-            $image_name = time() . '.' . $image->extension();
-            $image->move(public_path('images/items'), $image_name);
-            $item->update([
-                'image' => $image_name,
-            ]);
-        }
+        $item->update($request->all());
 
         if ($item) {
             return redirect()->route('items.index')->with('success', 'Item updated successfully.');
+        } else {
+            if (File::exists(public_path('images/items/' . $request->image))) {
+                File::delete(public_path('images/items/' . $request->image));
+            }
+            return redirect()->route('items.index')->with('error', 'Item update failed.');
         }
-        return redirect()->route('items.index')->with('error', 'Item not updated.');
     }
 
     /**
