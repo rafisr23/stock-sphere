@@ -1,21 +1,22 @@
 <?php
 
-use App\Http\Controllers\DropzoneController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
-use App\Http\Controllers\RoomController;
+use App\Http\Controllers\LogController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\RoomController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ItemsController;
+use App\Http\Controllers\RoomsController;
 use App\Http\Controllers\UnitsController;
 use App\Http\Controllers\VendorController;
+use App\Http\Controllers\DropzoneController;
 use App\Http\Controllers\ItemsUnitsController;
+use App\Http\Controllers\SparepartsController;
 use App\Http\Controllers\TechnicianController;
 use App\Http\Controllers\EditProfileController;
 use App\Http\Controllers\SubmissionOfRepairController;
-use App\Http\Controllers\RoomsController;
-use App\Http\Controllers\SparepartsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -114,6 +115,11 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::resource('vendor', VendorController::class)->middleware('role:superadmin')->name('vendor', '*');
+
+    Route::controller(LogController::class)->name('log.')->prefix('log')->middleware('role:superadmin')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/getLog/{moduleId}', 'getLog')->name('getLog');
+    });
 
 
     // Define a GET route with dynamic placeholders for route parameters

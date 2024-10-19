@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
@@ -153,5 +154,23 @@ if (! function_exists('getVillage')) {
         } else {
             return response()->json(['error' => 'Failed to fetch data from API'], 500);
         }
+    }
+}
+
+if (! function_exists('createLog')) {
+    function createLog($module, $module_id = null, $action = null, $extra = null, $data = null)
+    {
+        $ipAddr = \Request::ip();
+        $log = [
+            'module' => $module,
+            'module_id' => $module_id,
+            'action' => $action,
+            'extra' => $extra,
+            'data' => $data,
+            'ip' => $ipAddr,
+            'user_id' => auth()->user()->id,
+        ];
+
+        Log::create($log);
     }
 }

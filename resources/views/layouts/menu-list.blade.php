@@ -93,3 +93,15 @@
         <span class="pc-mtext">History Of Submission</span>
     </a>
 </li>
+
+<li class="pc-item pc-caption">
+    <label>System</label>
+</li>
+<li class="pc-item {{ request()->routeIs('log.*') ? 'active' : '' }}">
+    <a href="{{ route('log.index') }}" class="pc-link">
+        <span class="pc-micon">
+            <i class="ph-duotone ph-list-dashes"></i>
+        </span>
+        <span class="pc-mtext">Logs</span>
+    </a>
+</li>

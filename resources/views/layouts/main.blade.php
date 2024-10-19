@@ -32,6 +32,22 @@
                 <!-- [ Main Content ] start -->
                 @yield('content')
                 <!-- [ Main Content ] end -->
+
+                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel"></h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="p-5"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <!-- [ Main Content ] end -->
@@ -42,6 +58,18 @@
         @include('layouts.footerjs')
 
         @yield('scripts')
+
+        <script>
+            jQuery(document).ready(function($) {
+                $('#exampleModal').on('shown.bs.modal', function(e) {
+                    var button = $(e.relatedTarget);
+                    var modal = $("#exampleModal");
+                    modal.find('.modal-body').html('<div class="p-5"></div>');
+                    modal.find('.modal-title').html(button.data("title"));
+                    modal.find('.modal-body').load(button.data("remote"));
+                });
+            });
+        </script>
 
     </body>
     <!-- [Body] end -->

@@ -54,4 +54,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(Technician::class);
     }
+
+    public function logs()
+    {
+        return $this->hasMany(Log::class);
+    }
 }

@@ -28,8 +28,21 @@ class UserController extends Controller
                 })
                 ->addColumn('action', function ($row) {
                     // $btn = '<a href="' . route('user.show', encrypt($row->id)) . '" class="view btn btn-info btn-sm me-2"><i class="ph-duotone ph-eye"></i></a>';
-                    $btn = '<a href="' . route('user.edit', encrypt($row->id)) . '" class="edit btn btn-warning btn-sm me-2"><i class="ph-duotone ph-pencil-line"></i></a>';
-                    $btn = $btn . '<a href="#" class="delete btn btn-danger btn-sm"  data-id="' . encrypt($row->id) . '"><i class="ph-duotone ph-trash"></i></a>';
+                    $btn = '<a href="' . route('user.edit', encrypt($row->id)) . '" class="edit btn btn-warning btn-sm me-2" title="Edit Data"><i class="ph-duotone ph-pencil-line"></i></a>';
+                    $btn = $btn . '<a href="#" class="delete btn btn-danger btn-sm me-2"  data-id="' . encrypt($row->id) . '"  title="Edit Data"><i class="ph-duotone ph-trash"></i></a>';
+
+                    $showLogBtn = 
+                        "<a href='#'class='btn btn-sm btn-info' data-bs-toggle='modal'
+                            data-bs-target='#exampleModal'
+                            data-title='Detail Log' data-bs-tooltip='tooltip'
+                            data-remote=" . route('log.getLog', $row->id) . "
+                            title='Log Information'>
+                            <i class='ph-duotone ph-info'></i>
+                        </a>
+                    ";
+
+                    $btn = $btn . $showLogBtn;
+
                     return $btn;
                 })
                 ->rawColumns(['action'])
@@ -48,6 +61,7 @@ class UserController extends Controller
             'roles' => Role::all(),
             'units' => Units::where('user_id', null)->get(),
         ];
+
         return view('user.create', compact('data'));
     }
 
@@ -82,6 +96,7 @@ class UserController extends Controller
                 ]);
             }
 
+            createLog(9, $user->id, 'create a new user');
             DB::commit();  
             return redirect()->route('user.index')->with('success', 'User created successfully.');
         } catch (\Exception $e) {
@@ -118,6 +133,7 @@ class UserController extends Controller
     public function update(Request $request, string $id)
     {
         $user = User::findOrFail(decrypt($id));
+        $oldUser = $user->toJson();
 
         DB::beginTransaction();
         try {
@@ -160,6 +176,7 @@ class UserController extends Controller
                 }
             }
 
+            createLog(9, $user->id, 'edit a user', null, $oldUser);
             DB::commit();
             return redirect()->route('user.index')->with('success', 'User updated successfully.');
         } catch (\Exception $e) {
@@ -190,7 +207,7 @@ class UserController extends Controller
         }
 
         // check if user is technician
-        
+        createLog(9, $user->id, 'delete a user', null, $user->toJson());
         $user->delete();
         
         return response()->json([

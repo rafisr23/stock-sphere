@@ -89,7 +89,7 @@
                         <div class="form-group row assign-unit {{ old('unit_id') ? '' : 'd-none' }}">
                             <label for="role" class="col-sm-3 col-form-label required">Unit</label>
                             <div class="col-sm-9 mb-4">
-                                <select class="form-control" data-trigger name="unit_id" id="unit_id" required>
+                                <select class="form-control" data-trigger name="unit_id" id="unit_id">
                                     <option value="">-- Select Unit --</option>
                                     @foreach ($data['units'] as $unit)
                                         <option value="{{ $unit->id }}" {{ old('unit_id') == $unit->id ? 'selected' : '' }}>{{ $unit->customer_name }}</option>
