@@ -35,7 +35,7 @@ class UserController extends Controller
                         "<a href='#'class='btn btn-sm btn-info' data-bs-toggle='modal'
                             data-bs-target='#exampleModal'
                             data-title='Detail Log' data-bs-tooltip='tooltip'
-                            data-remote=" . route('log.getLog', $row->id) . "
+                            data-remote=" . route('log.getLog', ['moduleCode' => 9, 'moduleId' => $row->id]) . "
                             title='Log Information'>
                             <i class='ph-duotone ph-info'></i>
                         </a>

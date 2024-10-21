@@ -93,7 +93,7 @@ Route::middleware(['auth'])->group(function () {
         
         Route::controller(LogController::class)->name('log.')->prefix('log')->middleware('role:superadmin')->group(function () {
             Route::get('/', 'index')->name('index');
-            Route::get('/getLog/{moduleId}/{itemId?}', 'getLog')->name('getLog');
+            Route::get('/getLog/{moduleCode}/{moduleId}/{itemId?}', 'getLog')->name('getLog');
         });
 
         Route::controller(UserController::class)->prefix('user')->name('user.')->group(function () {
