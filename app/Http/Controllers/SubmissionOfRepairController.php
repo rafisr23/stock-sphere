@@ -123,13 +123,15 @@ class SubmissionOfRepairController extends Controller
                 // return $request->evidence[$value] . ' - ' . $request->description[$value];
     
                 $item = Items_units::find($value);
-                $evidence = str_replace('_temp_', '_', $request->evidence[$value]);
+                $evidence = $request->evidance ?  str_replace('_temp_', '_', $request->evidence[$value]) : '';
                 $submissionOfRepair->details()->create([
                     'submission_of_repair_id' => $submissionOfRepair->id,
                     'item_unit_id' => $item->id,
-                    'description' => $request->description[$value],
+                    'description' => $request->description[$value] ?? '-',
                     'evidence' => $evidence,
                 ]);
+
+                createLog(2, $submissionOfRepair->id, 'Create Submission of Repair', 'Create submission of repair for ' . $item->items->item_name ?? '-', null, $item->id);
             }
 
             DB::commit();

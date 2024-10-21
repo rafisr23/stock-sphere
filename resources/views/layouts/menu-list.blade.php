@@ -14,50 +14,33 @@
         <li class="pc-item"><a class="pc-link" href="/">Analytics</a></li>
     </ul>
 </li>
-<li class="pc-item pc-hasmenu">
-    <a href="#" class="pc-link">
-        <span class="pc-micon">
-            <i class="ph-duotone ph-hard-drives"></i>
-        </span>
-        <span class="pc-mtext">Data Master</span>
-        <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
-    </a>
-    <ul class="pc-submenu">
-        @role('superadmin')
-            <li class="pc-item"><a class="pc-link" href="{{ route('units.index') }}">Units</a></li>
-            <li class="pc-item"><a class="pc-link" href="{{ route('vendor.index') }}">Vendors</a></li>
-            <li class="pc-item"><a class="pc-link" href="{{ route('technicians.index') }}">Technicians</a></li>
-            <li class="pc-item"><a class="pc-link" href="{{ route('spareparts.index') }}">Spareparts</a></li>
-        @endrole
-        @role('superadmin|unit')
-            <li class="pc-item"><a class="pc-link" href="{{ route('items.index') }}">Items</a></li>
-            <li class="pc-item"><a class="pc-link" href="{{ route('items_units.index') }}">Assign Items</a></li>
-            <li class="pc-item"><a class="pc-link" href="{{ route('rooms.index') }}">Rooms</a></li>
-        @endrole
-    </ul>
-</li>
-{{-- <li class="pc-item pc-hasmenu">
-    <a href="#!" class="pc-link"><span class="pc-micon"> <i class="ph-duotone ph-layout"></i></span><span
-            class="pc-mtext">Layouts</span><span class="pc-arrow"><i data-feather="chevron-right"></i></span></a>
-    <ul class="pc-submenu">
-        <li class="pc-item"><a class="pc-link" href="/demo/layout-horizontal">Horizontal</a></li>
-        <li class="pc-item"><a class="pc-link" href="/demo/layout-vertical">Vertical</a></li>
-        <li class="pc-item"><a class="pc-link" href="/demo/layout-vertical-tab">Vertical + Tab</a></li>
-        <li class="pc-item"><a class="pc-link" href="/demo/layout-tab">Tab</a></li>
-        <li class="pc-item"><a class="pc-link" href="/demo/layout-2-column">2 Column</a></li>
-        <li class="pc-item"><a class="pc-link" href="/demo/layout-big-compact">Big Compact</a></li>
-        <li class="pc-item"><a class="pc-link" href="/demo/layout-compact">Compact</a></li>
-        <li class="pc-item"><a class="pc-link" href="/demo/layout-moduler">Moduler</a></li>
-        <li class="pc-item"><a class="pc-link" href="/demo/layout-creative">Creative</a></li>
-        <li class="pc-item"><a class="pc-link" href="/demo/layout-detached">Detached</a></li>
-        <li class="pc-item"><a class="pc-link" href="/demo/layout-advanced">Advanced</a></li>
-        <li class="pc-item"><a class="pc-link" href="/demo/layout-extended">Extended</a></li>
-    </ul>
-</li>
 
-{{-- <li class="pc-item pc-caption">
-    <label>User Management</label>
-</li> --}}
+@role('superadmin|unit|room')
+    <li class="pc-item pc-hasmenu">
+        <a href="#" class="pc-link">
+            <span class="pc-micon">
+                <i class="ph-duotone ph-hard-drives"></i>
+            </span>
+            <span class="pc-mtext">Data Master</span>
+            <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
+        </a>
+        <ul class="pc-submenu">
+            @role('superadmin')
+                <li class="pc-item {{ request()->routeIs('units.*') ? 'active' : '' }}"><a class="pc-link" href="{{ route('units.index') }}">Units</a></li>
+                <li class="pc-item {{ request()->routeIs('technicians.*') ? 'active' : '' }}"><a class="pc-link" href="{{ route('technicians.index') }}">Technicians</a></li>
+                <li class="pc-item {{ request()->routeIs('spareparts.*') ? 'active' : '' }}"><a class="pc-link" href="{{ route('spareparts.index') }}">Spareparts</a></li>
+                <li class="pc-item {{ request()->routeIs('items.*') ? 'active' : '' }}"><a class="pc-link" href="{{ route('items.index') }}">Items</a></li>
+            @endrole
+            @role('superadmin|unit|room')
+                <li class="pc-item {{ request()->routeIs('items_units.*') ? 'active' : '' }}"><a class="pc-link" href="{{ route('items_units.index') }}">Assign Items</a></li>
+                @role('superadmin|unit')
+                    <li class="pc-item {{ request()->routeIs('rooms.*') ? 'active' : '' }}"><a class="pc-link" href="{{ route('rooms.index') }}">Rooms</a></li>
+                @endrole
+            @endrole
+        </ul>
+    </li>
+@endrole
+
 @role('superadmin')
     <li class="pc-item pc-hasmenu {{ request()->routeIs('user.*') || request()->routeIs('user.role.*') ? 'active pc-trigger' : '' }}">
         <a href="#" class="pc-link">
@@ -94,14 +77,16 @@
     </a>
 </li>
 
-<li class="pc-item pc-caption">
-    <label>System</label>
-</li>
-<li class="pc-item {{ request()->routeIs('log.*') ? 'active' : '' }}">
-    <a href="{{ route('log.index') }}" class="pc-link">
-        <span class="pc-micon">
-            <i class="ph-duotone ph-list-dashes"></i>
-        </span>
-        <span class="pc-mtext">Logs</span>
-    </a>
-</li>
+@role('superadmin')
+    <li class="pc-item pc-caption">
+        <label>System</label>
+    </li>
+    <li class="pc-item {{ request()->routeIs('log.*') ? 'active' : '' }}">
+        <a href="{{ route('log.index') }}" class="pc-link">
+            <span class="pc-micon">
+                <i class="ph-duotone ph-list-dashes"></i>
+            </span>
+            <span class="pc-mtext">Logs</span>
+        </a>
+    </li>
+@endrole

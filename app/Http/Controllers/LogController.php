@@ -19,7 +19,7 @@ class LogController extends Controller
                             return 'Item';
                             break;
                         case '2':
-                            return 'Repir';
+                            return 'Repair';
                             break;
                         case '3':
                             return 'Maintenance';
@@ -68,8 +68,13 @@ class LogController extends Controller
         return view('log.index');
     }
 
-    public function getLog($moduleId) {
-        $logs = Log::where('module_id', $moduleId)->orderBy('created_at', 'desc')->get();
+    public function getLog($moduleId = null, $itemId = null) {
+        if ($itemId) {
+            $logs = Log::where('module_id', $moduleId)->orWhere('item_id', $itemId)->orderBy('created_at', 'desc')->get();
+        } else {
+            $logs = Log::where('module_id', $moduleId)->orderBy('created_at', 'desc')->get();
+        }
+
         return view('log.modal', compact('logs'));
     }
 }

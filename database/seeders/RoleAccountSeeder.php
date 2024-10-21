@@ -86,5 +86,32 @@ class RoleAccountSeeder extends Seeder
             'username' => 'laboratory',
             'password' => bcrypt('laboratory'),
         ])->assignRole('room');
+
+        for ($i = 0; $i < 10; $i++) {
+            $user = User::create([
+                'name' => 'User Room' . $i,
+                'email' => 'user_room' . $i . '@stocksphere.com',
+                'username' => 'user_room' . $i,
+                'password' => bcrypt('password'),
+            ])->assignRole('room');
+        }
+        
+        for ($i = 0; $i < 10; $i++) {
+            $user = User::create([
+                'name' => 'User Tech' . $i,
+                'email' => 'user_tech' . $i . '@stocksphere.com',
+                'username' => 'user_tech' . $i,
+                'password' => bcrypt('password'),
+            ])->assignRole('technician');
+        }
+        
+        for ($i = 0; $i < 10; $i++) {
+            $user = User::create([
+                'name' => 'User Unit' . $i,
+                'email' => 'user_unit' . $i . '@stocksphere.com',
+                'username' => 'user_unit' . $i,
+                'password' => bcrypt('password'),
+            ])->assignRole('unit');
+        }
     }
 }
