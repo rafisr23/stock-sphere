@@ -64,6 +64,7 @@ class SparepartsController extends Controller
         ]);
 
         if ($spareparts) {
+            createLog(6, $spareparts->id, 'Create', );
             return redirect()->route('spareparts.index')->with('success', 'Sparepart created successfully');
         } else {
             return redirect()->route('spareparts.index')->with('error', 'Failed to create sparepart');
@@ -104,6 +105,7 @@ class SparepartsController extends Controller
         ]);
 
         $spareparts = Spareparts::find(decrypt($id));
+        $oldSpareparts = $spareparts->toJson();
         $spareparts->update([
             'name' => $request->name,
             'description' => $request->description,
@@ -113,6 +115,7 @@ class SparepartsController extends Controller
         ]);
 
         if ($spareparts) {
+            createLog(6, $spareparts->id, 'Update', null, $oldSpareparts);
             return redirect()->route('spareparts.index')->with('success', 'Sparepart updated successfully');
         } else {
             return redirect()->route('spareparts.index')->with('error', 'Failed to update sparepart');
@@ -126,6 +129,7 @@ class SparepartsController extends Controller
     {
         $id = decrypt($id);
         $spareparts = Spareparts::find($id);
+        createLog(6, $spareparts->id, 'Delete',null, $spareparts->toJson());
         $spareparts->delete();
 
         if ($spareparts) {

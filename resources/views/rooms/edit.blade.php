@@ -79,7 +79,7 @@
                         <div class="form-group row">
                             <label for="unit_id" class="col-sm-3 col-form-label required">Hospital</label>
                             <div class="col-sm-9 mb-4">
-                                <select name="unit_id[]" id="unit_id" class="form-control choices-init" multiple required>
+                                <select name="unit_id" id="unit_id" class="form-control choices-init" required>
                                     <option value="" disabled>-- Select Hospital --</option>
                                     @foreach ($hospital as $h)
                                         <option value="{{ encrypt($h->id) }}"
