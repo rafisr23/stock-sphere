@@ -51,24 +51,29 @@ class RoomsController extends Controller
      */
     public function store(StoreRoomsRequest $request)
     {
-        $request->validate([
-            'name'=>'required',
-            'description'=>'required',
-            'serial_no'=>'required',
-            'unit_id'=>'required',
-            'user_id'=>'required',
-        ]);
+        try {
+            $request->validate([
+                'name' => 'required',
+                'description' => 'required',
+                'serial_no' => 'required',
+                'unit_id' => 'required',
+                'user_id' => 'required',
+            ]);
 
-        $rooms = Rooms::create([
-            'name' => $request->name,
-            'description' => $request->description,
-            'serial_no' => $request->serial_no,
-            'unit_id' => decrypt($request->unit_id),
-            'user_id' => decrypt($request->user_id),
-        ]);
-        if ($rooms) {
-            return redirect()->route('rooms.index')->with('success', 'Room created successfully.');
-        } else {
+            $rooms = Rooms::create([
+                'name' => $request->name,
+                'description' => $request->description,
+                'serial_no' => $request->serial_no,
+                'unit_id' => decrypt($request->unit_id),
+                'user_id' => decrypt($request->user_id),
+            ]);
+            if ($rooms) {
+                createLog(4, $rooms->id, 'create new room');
+                return redirect()->route('rooms.index')->with('success', 'Room created successfully.');
+            } else {
+                return redirect()->route('rooms.index')->with('error', 'Room creation failed.');
+            }
+        } catch (\Exception $e) {
             return redirect()->route('rooms.index')->with('error', 'Room creation failed.');
         }
     }
@@ -105,16 +110,17 @@ class RoomsController extends Controller
     public function update(UpdateRoomsRequest $request, $id)
     {
         $request->validate([
-            'name'=>'required',
-            'description'=>'required',
-            'serial_no'=>'required',
-            'unit_id'=>'required',
-            'user_id'=>'required',
+            'name' => 'required',
+            'description' => 'required',
+            'serial_no' => 'required',
+            'unit_id' => 'required',
+            'user_id' => 'required',
         ]);
 
-        $request = array_filter($request->all());
+        $request = array_filter($request->all());;
 
         $room = Rooms::find(decrypt($id));
+        $oldRoom = $room->toJson();
         $room->update([
             'name' => $request['name'],
             'description' => $request['description'],
@@ -124,6 +130,7 @@ class RoomsController extends Controller
         ]);
 
         if ($room) {
+            createLog(4, $room->id, 'update room', null, $oldRoom);
             return redirect()->route('rooms.index')->with('success', 'Room updated successfully.');
         } else {
             return redirect()->route('rooms.index')->with('error', 'Room update failed.');
@@ -138,6 +145,7 @@ class RoomsController extends Controller
         $id = decrypt($id);
 
         $room = Rooms::find($id);
+        createLog(4, $room->id, 'delete room', null, $room->toJson());
         $room->delete();
 
         if ($room) {
