@@ -158,7 +158,7 @@ if (! function_exists('getVillage')) {
 }
 
 if (! function_exists('createLog')) {
-    function createLog($module, $module_id = null, $action = null, $extra = null, $data = null)
+    function createLog($module, $module_id = null, $action = null, $extra = null, $data = null, $item_id = null)
     {
         $ipAddr = \Request::ip();
         $log = [
@@ -169,6 +169,7 @@ if (! function_exists('createLog')) {
             'data' => $data,
             'ip' => $ipAddr,
             'user_id' => auth()->user()->id,
+            'item_id' => $item_id,
         ];
 
         Log::create($log);

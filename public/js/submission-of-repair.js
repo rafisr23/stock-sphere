@@ -267,10 +267,10 @@ $("#submitButton").on("click", function () {
                     Swal.fire({
                         icon: "error",
                         title: "Error",
-                        text: "An error occurred while submitting the repair!",
-                        showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true,
+                        text:
+                            "An error occurred while submitting the repair: " +
+                            response.message,
+                        showConfirmButton: true,
                         allowOutsideClick: true,
                     });
                 }

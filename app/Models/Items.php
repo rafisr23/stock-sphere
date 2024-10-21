@@ -25,4 +25,9 @@ class Items extends Model
     {
         return $this->belongsTo(Vendor::class);
     }
+
+    public function logs()
+    {
+        return $this->hasMany(Log::class, 'item_id');
+    }
 }
