@@ -15,15 +15,22 @@ class ItemsUnitsController extends Controller
      */
     public function index()
     {
-        if (request()->ajax()) {
-            if (auth()->user()->hasRole('room')) {
-                $items_units = Items_units::where('room_id', auth()->user()->room->id)->get();
-            } elseif (auth()->user()->hasRole('unit')) {
-                $rooms = Rooms::where('unit_id', auth()->user()->unit->id)->pluck('id');
-                $items_units = Items_units::whereIn('room_id', $rooms)->get();
-            } else {
-                $items_units = Items_units::all();
+        if (auth()->user()->hasRole('room')) {
+            $rooms = Rooms::where('id', auth()->user()->id)->get();
+            if ($rooms->isEmpty()) {
+                return redirect()->back()->with('error', 'Your account is not assigned to any room.');
             }
+            $items_units = Items_units::where('room_id', auth()->user()->room->id)->get();
+        } elseif (auth()->user()->hasRole('unit')) {
+            $units = Units::where('id', auth()->user()->id)->get();
+            if ($units->isEmpty()) {
+                return redirect()->back()->with('error', 'Your account is not assigned to any unit.');
+            }
+            $items_units = Items_units::whereIn('unit_id', auth()->user()->unit->id)->get();
+        } else {
+            $items_units = Items_units::all();
+        }
+        if (request()->ajax()) {
             return datatables()->of($items_units)
                 ->addIndexColumn()
                 ->addColumn('items_name', function ($row) {
@@ -55,6 +62,7 @@ class ItemsUnitsController extends Controller
         $items = Items::all();
         if (auth()->user()->hasRole('room')) {
             $rooms = Rooms::where('id', auth()->user()->room->id)->get();
+
         } elseif (auth()->user()->hasRole('unit')) {
             $rooms = Rooms::where('unit_id', auth()->user()->unit->id)->get();
         } else {

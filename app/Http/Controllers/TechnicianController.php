@@ -263,6 +263,7 @@ class TechnicianController extends Controller
         }
 
         $technician = Technician::find($id);
+
         $technician->update($request->all());
 
         if ($technician) {
