@@ -31,8 +31,9 @@
                         <div class="form-group row">
                             <label for="name" class="col-sm-3 col-form-label required">Name</label>
                             <div class="col-sm-9 mb-4">
-                                <input type="text" class="form-control" id="name" name="name" required
-                                    placeholder="Enter name">
+                                <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                    id="name" name="name" required placeholder="Enter name"
+                                    value="{{ old('name') }}">
                                 @error('name')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
@@ -41,8 +42,9 @@
                         <div class="form-group row">
                             <label for="phone" class="col-sm-3 col-form-label required">Phone</label>
                             <div class="col-sm-9 mb-4">
-                                <input type="numeric" class="form-control" id="phone" name="phone" required
-                                    placeholder="Enter phone number">
+                                <input type="numeric" class="form-control @error('phone') is-invalid @enderror"
+                                    id="phone" name="phone" required placeholder="Enter phone number"
+                                    value="{{ old('phone') }}">
                                 @error('phone')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
@@ -51,7 +53,8 @@
                         <div class="form-group row">
                             <label for="province" class="col-sm-3 col-form-label required">Province</label>
                             <div class="col-sm-9 mb-4">
-                                <select name="province" id="province" class="form-control choices-init">
+                                <select name="province" id="province"
+                                    class="form-control choices-init @error('province') is-invalid @enderror">
                                     <option value="" selected disabled>Select Province</option>
                                     @foreach ($province as $p)
                                         <option value="{{ $p->id }}">{{ $p->name }}</option>
@@ -65,7 +68,8 @@
                         <div class="form-group row">
                             <label for="city" class="col-sm-3 col-form-label required">City</label>
                             <div class="col-sm-9 mb-4">
-                                <select name="city" id="city" class="form-control">
+                                <select name="city" id="city"
+                                    class="form-control @error('city') is-invalid @enderror">
                                     <option value="" selected disabled>Select Province First</option>
                                 </select>
                                 @error('city')
@@ -76,7 +80,8 @@
                         <div class="form-group row">
                             <label for="district" class="col-sm-3 col-form-label required">District</label>
                             <div class="col-sm-9 mb-4">
-                                <select name="district" id="district" class="form-control">
+                                <select name="district" id="district"
+                                    class="form-control @error('district') is-invalid @enderror">
                                     <option value="" selected disabled>Select City First</option>
                                 </select>
                                 @error('district')
@@ -87,7 +92,8 @@
                         <div class="form-group row">
                             <label for="village" class="col-sm-3 col-form-label required">Village</label>
                             <div class="col-sm-9 mb-4">
-                                <select name="village" id="village" class="form-control">
+                                <select name="village" id="village"
+                                    class="form-control @error('village') is-invalid @enderror">
                                     <option value="" selected disabled>Select District First</option>
                                 </select>
                                 @error('village')
@@ -98,7 +104,9 @@
                         <div class="form-group row">
                             <label for="street" class="col-sm-3 col-form-label required">Street</label>
                             <div class="col-sm-9 mb-4">
-                                <textarea type="text" class="form-control" id="street" name="street" required placeholder="Enter Street"></textarea>
+                                <input type="text" class="form-control @error('street') is-invalid @enderror"
+                                    id="street" name="street" required placeholder="Enter Street"
+                                    value="{{ old('street') }}">
                                 @error('street')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
@@ -107,8 +115,9 @@
                         <div class="form-group row">
                             <label for="postal_code" class="col-sm-3 col-form-label required">Postal Code</label>
                             <div class="col-sm-9 mb-4">
-                                <input type="number" class="form-control" id="postal_code" name="postal_code" required
-                                    placeholder="Enter postal code">
+                                <input type="number" class="form-control @error('postal_code') is-invalid @enderror"
+                                    id="postal_code" name="postal_code" required placeholder="Enter postal code"
+                                    value="{{ old('postal_code') }}">
                                 @error('postal_code')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
@@ -117,7 +126,9 @@
                         <div class="form-group row">
                             <label for="notes" class="col-sm-3 col-form-label">Notes</label>
                             <div class="col-sm-9 mb-4">
-                                <textarea type="text" class="form-control" id="notes" name="notes" placeholder="Enter Note (if there is any)"></textarea>
+                                <input type="text" class="form-control @error('notes') is-invalid @enderror"
+                                    id="notes" name="notes" placeholder="Enter Note (if there is any)"
+                                    value="{{ old('notes') }}">
                                 @error('notes')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
@@ -132,14 +143,15 @@
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
-                            <input type="text" id="image" name="image" hidden>
+                            <input type="text" id="image" name="image" value="{{ $technician->image }}"
+                                hidden>
 
                         </div>
                         <div class="form-group row">
                             <label for="status" class="col-sm-3 col-form-label required">Status</label>
                             <div class="col-sm-9 mb-4">
-                                <select class="form-control choices-init" data-trigger id="status" name="status"
-                                    required>
+                                <select class="form-control choices-init @error('status') is-invalid @enderror"
+                                    data-trigger id="status" name="status" required>
                                     <option value="">-- Select Status --</option>
                                     <option value="active">Active</option>
                                     <option value="inactive">Inactive</option>
@@ -159,7 +171,8 @@
                         <div class="form-group row">
                             <label for="user_id" class="col-sm-3 col-form-label">Account</label>
                             <div class="col-sm-9 mb-4">
-                                <select class="form-control choices-init" data-trigger id="user_id" name="user_id">
+                                <select class="form-control choices-init @error('user_id') is-invalid @enderror"
+                                    data-trigger id="user_id" name="user_id">
                                     <option value="">-- Select Account --</option>
                                     @foreach ($users as $user)
                                         <option value="{{ $user->id }}">{{ $user->name }}</option>
@@ -169,7 +182,7 @@
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                                 <span><i> If the select option for account is empty, it means all accounts have been taken.
-                                    You can continue or create a new one first.</i></span>
+                                        You can continue or create a new one first.</i></span>
                             </div>
                         </div>
                         <div class="form-group row">

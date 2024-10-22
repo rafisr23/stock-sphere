@@ -109,18 +109,19 @@ class ItemsController extends Controller
         ]);
 
         if ($validator->fails()) {
+            if (File::exists(public_path('images/items/' . $request->image))) {
+                File::delete(public_path('images/items/' . $request->image));
+            }
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
         $item = Items::where('id', $id)->first();
+
         $item->update($request->all());
 
         if ($item) {
             return redirect()->route('items.index')->with('success', 'Item updated successfully.');
         } else {
-            if (File::exists(public_path('images/items/' . $request->image))) {
-                File::delete(public_path('images/items/' . $request->image));
-            }
             return redirect()->route('items.index')->with('error', 'Item update failed.');
         }
     }
