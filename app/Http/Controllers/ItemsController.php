@@ -29,7 +29,17 @@ class ItemsController extends Controller
                 ->addColumn('action', function ($row) {
                     $btn = '<a href="' . route('items.show', $row->id) . '" class="view btn btn-info btn-sm me-2"><i class="ph-duotone ph-eye"></i></a>';
                     $btn = $btn . '<a href="' . route('items.edit', $row->id) . '" class="edit btn btn-warning btn-sm me-2"><i class="ph-duotone ph-pencil-line"></i></a>';
-                    $btn = $btn . '<a href="#" class="delete btn btn-danger btn-sm"  data-id="' . $row->id . '"><i class="ph-duotone ph-trash"></i></a>';
+                    $btn = $btn . '<a href="#" class="delete btn btn-danger btn-sm me-2"  data-id="' . $row->id . '"><i class="ph-duotone ph-trash"></i></a>';
+                    $showLogBtn =
+                        "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
+                    data-bs-target='#exampleModal'
+                    data-title='Detail Log' data-bs-tooltip='tooltip'
+                    data-remote=" . route('log.getLog', ['moduleCode' => 1, 'moduleId' => $row->id]) . "
+                    title='Log Information'>
+                    <i class='ph-duotone ph-info'></i>
+                        </a>
+                        ";
+                    $btn = $btn . $showLogBtn;
                     return $btn;
                 })
                 ->rawColumns(['action'])
@@ -65,6 +75,8 @@ class ItemsController extends Controller
         }
 
         $item = Items::create($request->all());
+
+        createLog(1, $item->id, 'create a new item');
 
         if ($item) {
             return redirect()->route('items.index')->with('success', 'Item created successfully.');
@@ -116,8 +128,11 @@ class ItemsController extends Controller
         }
 
         $item = Items::where('id', $id)->first();
+        $oldItem = $item->toJson();
 
         $item->update($request->all());
+
+        createLog(1, $item->id, 'update item data', null, $oldItem);
 
         if ($item) {
             return redirect()->route('items.index')->with('success', 'Item updated successfully.');
@@ -141,6 +156,7 @@ class ItemsController extends Controller
             if (file_exists($old_image)) {
                 unlink($old_image);
             }
+            createLog(1, $item->id, 'delete item data', $item->toJson());
             if ($item->delete()) {
                 return response()->json(['success' => 'Item deleted successfully.']);
             }
