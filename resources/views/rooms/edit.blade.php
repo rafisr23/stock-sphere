@@ -29,15 +29,18 @@
                             <div class="form-group row">
                                 <label for="name" class="col-sm-3 col-form-label required">Room Name</label>
                                 <div class="col-sm-9 mb-4">
-                                    <input type="text" class="form-control" id="name" name="name"
-                                        required value="{{ $room->name}}">
+                                    <input type="text" class="form-control" id="name" name="name" required
+                                        value="{{ $room->name }}">
+                                    @error('name')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="description" class="col-sm-3 col-form-label required">Description</label>
                                 <div class="col-sm-9 mb-4">
-                                    <input type="text" class="form-control" id="description" name="description"
-                                    required value="{{ $room->description}}">
+                                    <input type="text" class="form-control" id="description" name="description" required
+                                        value="{{ $room->description }}">
                                     @error('description')
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
@@ -46,8 +49,8 @@
                             <div class="form-group row">
                                 <label for="serial_no" class="col-sm-3 col-form-label required">Serial number</label>
                                 <div class="col-sm-9 mb-4">
-                                    <input type="text" class="form-control" id="serial_no" name="serial_no"
-                                    required value="{{ $room->serial_no}}">
+                                    <input type="text" class="form-control" id="serial_no" name="serial_no" required
+                                        value="{{ $room->serial_no }}">
                                     @error('serial_no')
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
@@ -83,7 +86,8 @@
                                     <option value="" disabled>-- Select Hospital --</option>
                                     @foreach ($hospital as $h)
                                         <option value="{{ encrypt($h->id) }}"
-                                            {{ $room->unit_id == $h->id ? 'selected' : '' }}>{{ $h->customer_name }}</option>
+                                            {{ $room->unit_id == $h->id ? 'selected' : '' }}>{{ $h->customer_name }}
+                                        </option>
                                     @endforeach
                                 </select>
                                 @error('unit_id')
