@@ -23,12 +23,19 @@
                             <div class="col-sm-9 mb-4">
                                 <input type="text" class="form-control" id="name" name="name"
                                     placeholder="Enter Room Name" required>
+                                @error('name')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="description" class="col-sm-3 col-form-label required">Description</label>
                             <div class="col-sm-9 mb-4">
-                                <textarea type="text" class="form-control" id="description" name="description" placeholder="Enter description" required></textarea>
+                                <textarea type="text" class="form-control" id="description" name="description" placeholder="Enter description"
+                                    required></textarea>
+                                @error('description')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
                         <div class="form-group row">
@@ -36,6 +43,9 @@
                             <div class="col-sm-9 mb-4">
                                 <input type="number" class="form-control" id="serial_no" name="serial_no"
                                     placeholder="Enter Serial number" required>
+                                @error('serial_no')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
                     </div>
