@@ -30,4 +30,9 @@ class DetailsOfRepairSubmission extends Model
     {
         return $this->itemUnit->items;
     }
+
+    public function sparepartsOfRepair()
+    {
+        return $this->hasMany(SparepartsOfRepair::class);
+    }
 }

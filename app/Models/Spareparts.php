@@ -15,4 +15,9 @@ class Spareparts extends Model
     {
         return $this->hasMany(Items::class);
     }
+
+    public function sparepartsOfRepair()
+    {
+        return $this->hasMany(SparepartsOfRepair::class);
+    }
 }

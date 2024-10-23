@@ -143,8 +143,7 @@
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
-                            <input type="text" id="image" name="image" value="{{ $technician->image }}"
-                                hidden>
+                            <input type="text" id="image" name="image" hidden>
 
                         </div>
                         <div class="form-group row">
