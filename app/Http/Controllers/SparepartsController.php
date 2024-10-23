@@ -51,7 +51,7 @@ class SparepartsController extends Controller
             'name'=>'required',
             'description'=>'required',
             'serial_no'=>'required',
-            'item_id'=>'required',
+            'item_id'=>'nullable',
             'is_generic'=>'required|in:0,1',
         ]);
 
@@ -59,7 +59,7 @@ class SparepartsController extends Controller
             'name' => $request->name,
             'description' => $request->description,
             'serial_no' => $request->serial_no,
-            'item_id' => decrypt($request->item_id),
+            'item_id' => $request->item_id ? decrypt($request->item_id) : null,
             'is_generic' => $request->is_generic,
         ]);
 
@@ -74,9 +74,10 @@ class SparepartsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show()
+    public function show($id)
     {
-        return view('spareparts.show', );
+        $sparepart = Spareparts::find(decrypt($id));
+        return view('spareparts.show', compact('sparepart'));
     }
 
     /**
@@ -100,7 +101,7 @@ class SparepartsController extends Controller
             'name'=>'required',
             'description'=>'required',
             'serial_no'=>'required',
-            'item_id'=>'required',
+            'item_id'=>'nullable',
             'is_generic'=>'required|in:0,1',
         ]);
 
