@@ -31,8 +31,18 @@ class TechnicianController extends Controller
                     $btn = '<div class="d-flex justify-content-center align-items-center">';
                     $btn .= '<a href="' . route('technicians.show', encrypt($row->id)) . '" class="view btn btn-info btn-sm me-2" title="See Details"><i class="ph-duotone ph-eye"></i></a>';
                     $btn .= '<a href="' . route('technicians.edit', encrypt($row->id)) . '" class="edit btn btn-warning btn-sm me-2" title="Edit Data"><i class="ph-duotone ph-pencil-line"></i></a>';
-                    $btn .= '<a href="#" class="delete btn btn-danger btn-sm" data-id="' . encrypt($row->id) . '" title="Delete Data"><i class="ph-duotone ph-trash"></i></a>';
-                    $btn .= '</div>';
+                    $btn .= '<a href="#" class="delete btn btn-danger btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Delete Data"><i class="ph-duotone ph-trash"></i></a>';
+                    $showLogBtn =
+                        "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
+                    data-bs-target='#exampleModal'
+                    data-title='Detail Log' data-bs-tooltip='tooltip'
+                    data-remote=" . route('log.getLog', ['moduleCode' => 8, 'moduleId' => $row->id]) . "
+                    title='Log Information'>
+                    <i class='ph-duotone ph-info'></i>
+                        </a></div>
+                        ";
+
+                    $btn = $btn . $showLogBtn;
                     return $btn;
                 })
                 ->rawColumns(['action'])
@@ -150,10 +160,13 @@ class TechnicianController extends Controller
             'technician_id' => 'required',
         ]);
 
+        $unit = Units::find($request->unit_id);
+
         foreach ($request->technician_id as $technician_id) {
             $technician = Technician::find($technician_id);
             $technician->unit_id = $request->unit_id;
             $technician->save();
+            createLog(8, $technician->id, 'assign technician to unit', 'unit : ' . $unit->customer_name, $technician->toJson());
         }
 
         return redirect()->route('technicians.index')->with('success', 'Technician assigned successfully.');
@@ -265,8 +278,11 @@ class TechnicianController extends Controller
         }
 
         $technician = Technician::find($id);
+        $oldTechnician = $technician->toJson();
 
         $technician->update($request->all());
+
+        createLog(8, $technician->id, 'update technician data', null, $oldTechnician);
 
         if ($technician) {
             return redirect()->route('technicians.index')->with('success', 'Technician updated successfully.');
@@ -292,6 +308,7 @@ class TechnicianController extends Controller
                 // delete user
                 $technician->user->delete();
             }
+            createLog(8, $technician->id, 'delete technician data', $technician->toJson());
             $technician->delete();
             return response()->json(['success' => 'Technician deleted successfully.']);
         }
