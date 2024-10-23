@@ -124,6 +124,8 @@ class TechnicianController extends Controller
 
         $technician = Technician::create($request->all());
 
+        createLog(8, $technician->id, 'create a new technician');
+
         if ($technician) {
             return redirect()->route('technicians.index')->with('success', 'Technician created successfully.');
         } else {
