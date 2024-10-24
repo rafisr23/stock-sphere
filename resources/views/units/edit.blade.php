@@ -25,7 +25,7 @@
                                                 {{ $unit->customer_name }}
                                             </p>
                                             <span
-                                                class="text-white text-opacity-75 mb-0 text-sm text-truncate w-100">12-Aug-2023</span>
+                                                class="text-white text-opacity-75 mb-0 text-sm text-truncate w-100">{{ \Carbon\Carbon::parse($unit->created_at)->isoFormat('D MMMM Y') }}</span>
                                         </div>
                                     </div>
                                 </a>
@@ -54,7 +54,7 @@
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="unit_photo" class="col-sm-3 col-form-label required">Unit Photo</label>
+                                <label for="unit_photo" class="col-sm-3 col-form-label">Unit Photo</label>
                                 <div class="col-sm-9 mb-4">
                                     <div id="dropzone" class="dropzone"></div>
                                     @error('image')
@@ -135,14 +135,14 @@
                 </div>
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h4 class="card-title">Assign Unit to User</h4>
+                        <h4 class="card-title">Assign Unit to Account</h4>
                     </div>
                     <div class="card-body">
                         <div class="form-group row">
-                            <label for="user_id" class="col-sm-3 col-form-label required">User</label>
+                            <label for="user_id" class="col-sm-3 col-form-label">Account</label>
                             <div class="col-sm-9 mb-4">
                                 <select name="user_id" id="user_id" class="form-control choices-init">
-                                    <option value="" selected disabled>Select User</option>
+                                    <option value="" selected disabled>Select Account</option>
                                     @foreach ($user as $u)
                                         <option value="{{ encrypt($u->id) }}"
                                             {{ $unit->user_id == $u->id ? 'selected' : '' }}>{{ $u->name }}</option>
@@ -150,7 +150,10 @@
                                 </select>
                                 @error('user_id')
                                     <span class="text-danger">{{ $message }}</span>
+                                    <br>
                                 @enderror
+                                <span><i>Keep in mind that if you want to modify an account, ensure it hasn't been assigned
+                                        to a different unit; otherwise, the change won't go through.</i></span>
                             </div>
                         </div>
                         <div class="form-group row">

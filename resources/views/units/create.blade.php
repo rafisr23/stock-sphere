@@ -122,8 +122,9 @@
                                 </select>
                                 @error('user_id')
                                     <span class="text-danger">{{ $message }}</span>
+                                    <br>
                                 @enderror
-                                <span><i> If the select option for account is empty, it means all accounts have been taken.
+                                <span><i>If the select option for account is empty, it means all accounts have been taken.
                                         You can continue or create a new one first.</i></span>
                             </div>
                         </div>

@@ -23,7 +23,7 @@
                                         <p class="text-white mb-0 text-truncate w-100">Picture {{ $unit->customer_name }}
                                         </p>
                                         <span
-                                            class="text-white text-opacity-75 mb-0 text-sm text-truncate w-100">12-Aug-2023</span>
+                                            class="text-white text-opacity-75 mb-0 text-sm text-truncate w-100">{{ \Carbon\Carbon::parse($unit->created_at)->isoFormat('D MMMM Y') }}</span>
                                     </div>
                                 </div>
                             </a>
