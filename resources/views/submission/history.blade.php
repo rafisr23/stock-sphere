@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title', 'Items')
+@section('title', 'History Of Submission')
 @section('breadcrumb-item', 'Submission Of Repairs')
 
 @section('breadcrumb-item-active', 'History')
@@ -72,6 +72,5 @@
                 },
             ]
         });
-
     </script>
 @endsection

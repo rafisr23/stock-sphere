@@ -40,7 +40,7 @@
                         </a>
                     </div>
                 </li>
-                <li class="dropdown pc-h-item">
+                {{-- <li class="dropdown pc-h-item">
                     <a class="pc-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown" href="#"
                         role="button" aria-haspopup="false" aria-expanded="false">
                         <i class="ph-duotone ph-bell"></i>
@@ -223,11 +223,11 @@
                             </div>
                         </div>
                     </div>
-                </li>
+                </li> --}}
                 <li class="dropdown pc-h-item header-user-profile">
                     <a class="pc-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown" href="#"
                         role="button" aria-haspopup="false" data-bs-auto-close="outside" aria-expanded="false">
-                        <img src="{{ URL::asset('build/images/user/avatar-2.jpg') }}" alt="user-image"
+                        <img src="{{ URL::asset('build/images/user/avatar-1.jpg') }}" alt="user-image"
                             class="user-avtar">
                     </a>
                     <div class="dropdown-menu dropdown-user-profile dropdown-menu-end pc-h-dropdown">
@@ -241,18 +241,18 @@
                                     <li class="list-group-item">
                                         <div class="d-flex align-items-center">
                                             <div class="flex-shrink-0">
-                                                <img src="{{ URL::asset('build/images/user/avatar-2.jpg') }}"
+                                                <img src="{{ URL::asset('build/images/user/avatar-1.jpg') }}"
                                                     alt="user-image" class="wid-50 rounded-circle" />
                                             </div>
                                             <div class="flex-grow-1 mx-3">
                                                 <h5 class="mb-0">{{ auth()->user()->name }}</h5>
-                                                <a class="link-primary"
-                                                    href="mailto:carson.darrin@company.io">{{ auth()->user()->email }}</a>
+                                                <a class="link-primary" href="#">{{ auth()->user()->email }}</a>
                                             </div>
                                         </div>
                                     </li>
                                     <li class="list-group-item">
-                                        <a href="{{ route('profile.change_password', encrypt(auth()->user()->id)) }}" class="dropdown-item">
+                                        <a href="{{ route('profile.change_password', encrypt(auth()->user()->id)) }}"
+                                            class="dropdown-item">
                                             <span class="d-flex align-items-center">
                                                 <i class="ph-duotone ph-key"></i>
                                                 <span>Change password</span>
@@ -260,7 +260,8 @@
                                         </a>
                                     </li>
                                     <li class="list-group-item">
-                                        <a href="{{ route('profile.edit',  encrypt(auth()->user()->id)) }}" class="dropdown-item">
+                                        <a href="{{ route('profile.edit', encrypt(auth()->user()->id)) }}"
+                                            class="dropdown-item">
                                             <span class="d-flex align-items-center">
                                                 <i class="ph-duotone ph-user-circle"></i>
                                                 <span>Edit profile</span>

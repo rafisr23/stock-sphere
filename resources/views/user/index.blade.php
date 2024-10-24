@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title', 'Items')
+@section('title', 'Accounts')
 @section('breadcrumb-item', 'User Management')
 
 @section('breadcrumb-item-active', 'Accounts')
@@ -14,8 +14,8 @@
         <div class="col-sm-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="card-title">Data Account</h4>
-                    <a href="{{ route('user.create') }}" class="btn btn-primary">Add User</a>
+                    <h4 class="card-title">Data Accounts</h4>
+                    <a href="{{ route('user.create') }}" class="btn btn-primary">Add Account</a>
                 </div>
                 <div class="card-body">
                     <table id="users_table" class="table table-bordered">

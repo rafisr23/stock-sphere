@@ -26,15 +26,21 @@
         </a>
         <ul class="pc-submenu">
             @role('superadmin')
-                <li class="pc-item {{ request()->routeIs('units.*') ? 'active' : '' }}"><a class="pc-link" href="{{ route('units.index') }}">Units</a></li>
-                <li class="pc-item {{ request()->routeIs('technicians.*') ? 'active' : '' }}"><a class="pc-link" href="{{ route('technicians.index') }}">Technicians</a></li>
-                <li class="pc-item {{ request()->routeIs('spareparts.*') ? 'active' : '' }}"><a class="pc-link" href="{{ route('spareparts.index') }}">Spareparts</a></li>
-                <li class="pc-item {{ request()->routeIs('items.*') ? 'active' : '' }}"><a class="pc-link" href="{{ route('items.index') }}">Items</a></li>
+                <li class="pc-item {{ request()->routeIs('units.*') ? 'active' : '' }}"><a class="pc-link"
+                        href="{{ route('units.index') }}">Units</a></li>
+                <li class="pc-item {{ request()->routeIs('technicians.*') ? 'active' : '' }}"><a class="pc-link"
+                        href="{{ route('technicians.index') }}">Technicians</a></li>
+                <li class="pc-item {{ request()->routeIs('spareparts.*') ? 'active' : '' }}"><a class="pc-link"
+                        href="{{ route('spareparts.index') }}">Spareparts</a></li>
+                <li class="pc-item {{ request()->routeIs('items.*') ? 'active' : '' }}"><a class="pc-link"
+                        href="{{ route('items.index') }}">Items</a></li>
             @endrole
             @role('superadmin|unit|room')
-                <li class="pc-item {{ request()->routeIs('items_units.*') ? 'active' : '' }}"><a class="pc-link" href="{{ route('items_units.index') }}">Assign Items</a></li>
+                <li class="pc-item {{ request()->routeIs('items_units.*') ? 'active' : '' }}"><a class="pc-link"
+                        href="{{ route('items_units.index') }}">Assign Items</a></li>
                 @role('superadmin|unit')
-                    <li class="pc-item {{ request()->routeIs('rooms.*') ? 'active' : '' }}"><a class="pc-link" href="{{ route('rooms.index') }}">Rooms</a></li>
+                    <li class="pc-item {{ request()->routeIs('rooms.*') ? 'active' : '' }}"><a class="pc-link"
+                            href="{{ route('rooms.index') }}">Rooms</a></li>
                 @endrole
             @endrole
         </ul>
@@ -42,7 +48,8 @@
 @endrole
 
 @role('superadmin')
-    <li class="pc-item pc-hasmenu {{ request()->routeIs('user.*') || request()->routeIs('user.role.*') ? 'active pc-trigger' : '' }}">
+    <li
+        class="pc-item pc-hasmenu {{ request()->routeIs('user.*') || request()->routeIs('user.role.*') ? 'active pc-trigger' : '' }}">
         <a href="#" class="pc-link">
             <span class="pc-micon">
                 <i class="ph-duotone ph-users-three"></i>
@@ -51,7 +58,8 @@
             <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
         </a>
         <ul class="pc-submenu">
-            <li class="pc-item {{ request()->routeIs('user.*') ? 'active' : '' }}"><a class="pc-link" href="{{ route('user.index') }}">Account</a></li>
+            <li class="pc-item {{ request()->routeIs('user.*') ? 'active' : '' }}"><a class="pc-link"
+                    href="{{ route('user.index') }}">Accounts</a></li>
             {{-- <li class="pc-item {{ request()->routeIs('user.role') ? 'active' : '' }}"><a class="pc-link" href="{{ route('user.role') }}">Role & Permission</a></li> --}}
         </ul>
     </li>
