@@ -195,8 +195,10 @@ class UnitsController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $decryptedUserId = decrypt($request->user_id);
-        $request->merge(['user_id' => $decryptedUserId]);
+        if ($request->has('user_id') && $request->user_id != null) {
+            $decryptedUserId = decrypt($request->user_id);
+            $request->merge(['user_id' => $decryptedUserId]);
+        }
 
         $extUserID = Units::where('id', decrypt($id))->first()->user_id;
 
