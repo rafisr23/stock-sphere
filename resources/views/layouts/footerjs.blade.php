@@ -143,4 +143,6 @@
     });
 
     Dropzone.autoDiscover = false;
+
+    $('#spanYear').html(new Date().getFullYear());
 </script>

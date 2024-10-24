@@ -22,7 +22,7 @@
                             <label for="customer_name" class="col-sm-3 col-form-label required">Customer/Unit Name</label>
                             <div class="col-sm-9 mb-4">
                                 <input type="text" class="form-control" id="customer_name" name="customer_name"
-                                    placeholder="Enter Unit Name" required>
+                                    placeholder="Enter Unit Name" required value="{{ old('customer_name') }}">
                                 @error('customer_name')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
@@ -44,7 +44,9 @@
                                 <select name="province" id="province" class="form-control choices-init">
                                     <option value="" selected disabled>Select Province</option>
                                     @foreach ($province as $p)
-                                        <option value="{{ $p->id }}">{{ $p->name }}</option>
+                                        <option value="{{ $p->id }}"
+                                            {{ old('province') == $p->id ? 'selected' : '' }}>{{ $p->name }}
+                                        </option>
                                     @endforeach
                                 </select>
                                 @error('province')
@@ -88,7 +90,7 @@
                         <div class="form-group row">
                             <label for="street" class="col-sm-3 col-form-label required">Street</label>
                             <div class="col-sm-9 mb-4">
-                                <textarea type="text" class="form-control" id="street" name="street" placeholder="Enter Street" required></textarea>
+                                <textarea type="text" class="form-control" id="street" name="street" placeholder="Enter Street" required>{{ old('street') }}</textarea>
                                 @error('street')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
@@ -98,7 +100,7 @@
                             <label for="postal_code" class="col-sm-3 col-form-label required">Postal Code</label>
                             <div class="col-sm-9 mb-4">
                                 <input type="number" class="form-control" id="postal_code" name="postal_code"
-                                    placeholder="Enter Postal Code" required>
+                                    placeholder="Enter Postal Code" required value="{{ old('postal_code') }}">
                                 @error('postal_code')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
@@ -117,7 +119,9 @@
                                 <select name="user_id" id="user_id" class="form-control choices-init">
                                     <option value="" selected disabled>Select Account</option>
                                     @foreach ($user as $u)
-                                        <option value="{{ encrypt($u->id) }}">{{ $u->name }}</option>
+                                        <option value="{{ encrypt($u->id) }}"
+                                            {{ old('user_id') == encrypt($u->id) ? 'selected' : '' }}>{{ $u->name }}
+                                        </option>
                                     @endforeach
                                 </select>
                                 @error('user_id')
