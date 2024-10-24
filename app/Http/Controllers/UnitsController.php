@@ -116,11 +116,14 @@ class UnitsController extends Controller
         $unit = Units::create($request->all());
 
         if ($unit) {
+            createLog(5, $unit->id, 'create a new unit');
+
             return redirect()->route('units.index')->with('success', 'Unit created successfully.');
         } else {
             if (File::exists(public_path('images/units/' . $request->image))) {
                 File::delete(public_path('images/units/' . $request->image));
             }
+
             return redirect()->route('units.index')->with('error', 'Unit creation failed.');
         }
     }
@@ -200,16 +203,18 @@ class UnitsController extends Controller
             $request->merge(['user_id' => $decryptedUserId]);
         }
 
-        $extUserID = Units::where('id', decrypt($id))->first()->user_id;
+        $extUser = Units::where('id', decrypt($id))->first();
 
-        if ($extUserID != $request->user_id) {
+        if ($extUser->user_id != $request->user_id) {
             $validator = Validator::make($request->all(), [
                 'user_id' => 'required|unique:units,user_id',
             ]);
 
             if ($validator->fails()) {
-                if (File::exists(public_path('images/units/' . $request->image))) {
-                    File::delete(public_path('images/units/' . $request->image));
+                if ($extUser->image != $request->image) {
+                    if (File::exists(public_path('images/units/' . $request->image))) {
+                        File::delete(public_path('images/units/' . $request->image));
+                    }
                 }
                 return redirect()->back()->withErrors($validator)->withInput();
             }
@@ -237,6 +242,8 @@ class UnitsController extends Controller
         $unit->update($request);
 
         if ($unit) {
+            createLog(5, $unit->id, 'update unit data', null, $unit->toJson());
+
             return redirect()->route('units.index')->with('success', 'Unit updated successfully.');
         } else {
             return redirect()->route('units.index')->with('error', 'Unit update failed.');
@@ -249,18 +256,15 @@ class UnitsController extends Controller
     public function destroy($id)
     {
         $id = decrypt($id);
-        $checkItems = Items_units::where('unit_id', $id)->exists();
         $checkRooms = Rooms::where('unit_id', $id)->exists();
-
-        if ($checkItems) {
-            return response()->json(['error' => 'There are still items on the unit.']);
-        }
 
         if ($checkRooms) {
             return response()->json(['error' => 'There are still rooms on the unit.']);
         }
 
         $unit = Units::find($id);
+        createLog(5, $unit->id, 'delete unit data', null, $unit->toJson());
+
         $unit->delete();
 
         if ($unit) {
