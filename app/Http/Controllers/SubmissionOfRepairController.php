@@ -327,7 +327,7 @@ class SubmissionOfRepairController extends Controller
 
             $submission = SubmissionOfRepair::find($detail->submission_of_repair_id);
 
-            createLog(2, $submission->id, 'Assign Technician', 'Assign technician for submission of repair', null, $request->technician);
+            createLog(2, $submission->id, 'Assign Technician', 'Assign technician for submission of repair', null, $request->technicianId);
 
             DB::commit();
             return response()->json([
