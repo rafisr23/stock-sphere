@@ -59,4 +59,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Log::class);
     }
+
+    public function room()
+    {
+        return $this->hasOne(Rooms::class);
+    }
 }

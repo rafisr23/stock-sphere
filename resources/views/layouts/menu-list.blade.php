@@ -39,7 +39,40 @@
             @endrole
         </ul>
     </li>
+    <li class="pc-item pc-caption">
+        <label>Repairs</label>
+    </li>
+    <li class="pc-item {{ request()->routeIs('submission-of-repair.index') ? 'active' : '' }}">
+        <a href="{{ route('submission-of-repair.index') }}" class="pc-link">
+            <span class="pc-micon">
+                <i class="ph-duotone ph-wrench"></i>
+            </span>
+            <span class="pc-mtext">Submission Of Repairs</span>
+        </a>
+    </li>
+    <li class="pc-item {{ request()->routeIs('submission-of-repair.history') ? 'active' : '' }}">
+        <a href="{{ route('submission-of-repair.history') }}" class="pc-link">
+            <span class="pc-micon">
+                <i class="ph-duotone ph-clock-counter-clockwise"></i>
+            </span>
+            <span class="pc-mtext">History Of Submission</span>
+        </a>
+    </li>
 @endrole
+
+@if((auth()->user()->can('assign technician') && auth()->user()->hasRole('technician')) || auth()->user()->hasRole('superadmin'))
+    <li class="pc-item pc-caption">
+        <label>Repairs</label>
+    </li>
+    <li class="pc-item ">
+        <a href="{{ route('submission-of-repair.list') }}" class="pc-link">
+            <span class="pc-micon">
+                <i class="ph-duotone ph-wrench"></i>
+            </span>
+            <span class="pc-mtext">List Of Repairs</span>
+        </a>
+    </li>
+@endif
 
 @role('superadmin')
     <li class="pc-item pc-hasmenu {{ request()->routeIs('user.*') || request()->routeIs('user.role.*') ? 'active pc-trigger' : '' }}">
@@ -55,29 +88,6 @@
             {{-- <li class="pc-item {{ request()->routeIs('user.role') ? 'active' : '' }}"><a class="pc-link" href="{{ route('user.role') }}">Role & Permission</a></li> --}}
         </ul>
     </li>
-@endrole
-
-<li class="pc-item pc-caption">
-    <label>Repairs</label>
-</li>
-<li class="pc-item {{ request()->routeIs('submission-of-repair.index') ? 'active' : '' }}">
-    <a href="{{ route('submission-of-repair.index') }}" class="pc-link">
-        <span class="pc-micon">
-            <i class="ph-duotone ph-wrench"></i>
-        </span>
-        <span class="pc-mtext">Submission Of Repairs</span>
-    </a>
-</li>
-<li class="pc-item {{ request()->routeIs('submission-of-repair.history') ? 'active' : '' }}">
-    <a href="{{ route('submission-of-repair.history') }}" class="pc-link">
-        <span class="pc-micon">
-            <i class="ph-duotone ph-clock-counter-clockwise"></i>
-        </span>
-        <span class="pc-mtext">History Of Submission</span>
-    </a>
-</li>
-
-@role('superadmin')
     <li class="pc-item pc-caption">
         <label>System</label>
     </li>

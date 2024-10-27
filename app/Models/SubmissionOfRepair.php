@@ -41,4 +41,9 @@ class SubmissionOfRepair extends Model
             return $detail->itemUnit;
         });
     }
+
+    public function room()
+    {
+        return $this->belongsTo(Rooms::class);
+    }
 }

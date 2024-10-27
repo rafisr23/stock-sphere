@@ -17,7 +17,7 @@ class Units extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function technicians()
@@ -28,5 +28,10 @@ class Units extends Model
     public function rooms()
     {
         return $this->hasMany(Rooms::class, 'unit_id');
+    }
+
+    public function submission_of_repairs()
+    {
+        return $this->hasMany(SubmissionOfRepair::class, 'unit_id');
     }
 }

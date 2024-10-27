@@ -118,13 +118,21 @@ Route::middleware(['auth'])->group(function () {
         Route::get('technicians/{id}/show', [TechnicianController::class, 'show'])->name('technicians.show');
         Route::get('technicians/assign', [TechnicianController::class, 'assign'])->name('technicians.assign');
         Route::post('technicians/assignTechnician', [TechnicianController::class, 'assignTechnician'])->name('technicians.assignTechnician');
+
+        Route::controller(SubmissionOfRepairController::class)->prefix('submission-of-repair')->name('submission-of-repair.')->group(function () {
+            Route::get('/list', 'viewListOfRepairs')->name('list');
+            Route::get('/getList', 'getListOfRepairs')->name('getList');
+            Route::get('/detail/{submissionId}', 'detailSubmission')->name('detail');
+            Route::get('/getTechnicians', 'getTechnicians')->name('getTechnicians');
+            Route::post('/assignTechnician', 'assignTechnician')->name('assignTechnician');
+        });
     });
     
     // ROUTE FOR SUPERADMIN OR UNIT OR ROOM
     Route::group(['middleware' => ['role:superadmin|unit|room']], function () { 
         Route::resource('items_units', ItemsUnitsController::class)->name('items_units', '*');
     
-        Route::controller(SubmissionOfRepairController::class)->middleware('role:superadmin|unit')->prefix('submission-of-repair')->name('submission-of-repair.')->group(function () {
+        Route::controller(SubmissionOfRepairController::class)->prefix('submission-of-repair')->name('submission-of-repair.')->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('/getItems', 'getItems')->name('getItems');
             Route::post('/store', 'store')->name('store');

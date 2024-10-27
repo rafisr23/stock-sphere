@@ -20,5 +20,15 @@ class Rooms extends Model
     {
         return $this->hasMany(Items_units::class, 'room_id');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function submission_of_repairs()
+    {
+        return $this->hasMany(SubmissionOfRepair::class, 'room_id');
+    }
     
 }

@@ -69,6 +69,10 @@
                     modal.find('.modal-body').load(button.data("remote"));
                 });
             });
+
+            $.fn.dataTable.ext.errMode = function(settings, helpPage, message) {
+                console.log(message);
+            };
         </script>
 
     </body>

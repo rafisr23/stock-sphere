@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class RoleAccountSeeder extends Seeder
@@ -37,6 +38,8 @@ class RoleAccountSeeder extends Seeder
             'guard_name' => 'web',
             'description' => 'Room role is for the admin of each room in the company',
         ]);
+
+        $permission = Permission::create(['name' => 'assign technician']);
 
         $superadmin = User::create([
             'name' => 'Super Admin',
@@ -113,5 +116,12 @@ class RoleAccountSeeder extends Seeder
                 'password' => bcrypt('password'),
             ])->assignRole('unit');
         }
+
+        $techLeader = User::create([
+            'name' => 'Technician Leader',
+            'email' => 'techlead@stocksphere.com',
+            'username' => 'techlead',
+            'password' => bcrypt('techlead'),
+        ])->assignRole('technician')->givePermissionTo($permission);
     }
 }

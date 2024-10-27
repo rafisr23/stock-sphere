@@ -18,7 +18,7 @@ class DetailsOfRepairSubmission extends Model
 
     public function itemUnit()
     {
-        return $this->belongsTo(ItemUnit::class);
+        return $this->belongsTo(Items_units::class);
     }
 
     // public function technician()
@@ -34,5 +34,10 @@ class DetailsOfRepairSubmission extends Model
     public function sparepartsOfRepair()
     {
         return $this->hasMany(SparepartsOfRepair::class);
+    }
+
+    public function technician()
+    {
+        return $this->belongsTo(Technician::class, 'technician_id');
     }
 }

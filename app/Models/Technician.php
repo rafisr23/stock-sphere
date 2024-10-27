@@ -25,4 +25,9 @@ class Technician extends Model
     {
         return $this->belongsTo(Vendor::class);
     }
+
+    public function repair()
+    {
+        return $this->hasMany(DetailsOfRepairSubmission::class, 'technician_id');
+    }
 }

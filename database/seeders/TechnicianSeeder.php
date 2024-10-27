@@ -23,6 +23,8 @@ class TechnicianSeeder extends Seeder
             'province' => 'JAWA BARAT',
             'district' => 'COBLONG',
             'village' => 'DAGO',
+            // 'user_id' => 4,
+            // 'unit_id' => 1,
         ]);
             
 
