@@ -37,7 +37,7 @@ Auth::routes();
 Route::middleware(['auth'])->group(function () {
     Route::get('/', function () {
         return view('index');
-    });
+    })->name('dashboard');
 
     Route::prefix('api')->name('api.')->group(function () {
         Route::get('/get-all-province', function () {
@@ -83,14 +83,14 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('profile', EditProfileController::class)->name('profile', '*');
 
     Route::resource('vendor', VendorController::class)->middleware('role:superadmin')->name('vendor', '*');
-    
+
     // ROUTE FOR SUPERADMIN
-    Route::group(['middleware' => ['role:superadmin']], function () { 
+    Route::group(['middleware' => ['role:superadmin']], function () {
         Route::resource('units', UnitsController::class);
         Route::resource('items', ItemsController::class)->name('items', '*');
         Route::resource('spareparts', SparepartsController::class)->name('spareparts', '*');
         Route::resource('user', UserController::class);
-        
+
         Route::controller(LogController::class)->name('log.')->prefix('log')->middleware('role:superadmin')->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('/getLog/{moduleCode}/{moduleId}/{itemId?}', 'getLog')->name('getLog');
@@ -107,14 +107,14 @@ Route::middleware(['auth'])->group(function () {
         Route::put('technicians/{id}', [TechnicianController::class, 'update'])->name('technicians.update');
         Route::delete('technicians/{id}', [TechnicianController::class, 'destroy'])->name('technicians.destroy');
     });
-    
+
     // ROUTE FOR SUPERADMIN OR UNIT
-    Route::group(['middleware' => ['role:superadmin|unit']], function () { 
+    Route::group(['middleware' => ['role:superadmin|unit']], function () {
         Route::resource('rooms', RoomsController::class)->name('rooms', '*');
     });
-    
+
     // ROUTE FOR SUPERADMIN OR TECHNICIAN
-    Route::group(['middleware' => ['role:superadmin|technician']], function () { 
+    Route::group(['middleware' => ['role:superadmin|technician']], function () {
         Route::get('technicians/{id}/show', [TechnicianController::class, 'show'])->name('technicians.show');
         Route::get('technicians/assign', [TechnicianController::class, 'assign'])->name('technicians.assign');
         Route::post('technicians/assignTechnician', [TechnicianController::class, 'assignTechnician'])->name('technicians.assignTechnician');
@@ -127,9 +127,9 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/assignTechnician', 'assignTechnician')->name('assignTechnician');
         });
     });
-    
+
     // ROUTE FOR SUPERADMIN OR UNIT OR ROOM
-    Route::group(['middleware' => ['role:superadmin|unit|room']], function () { 
+    Route::group(['middleware' => ['role:superadmin|unit|room']], function () {
         Route::resource('items_units', ItemsUnitsController::class)->name('items_units', '*');
     
         Route::controller(SubmissionOfRepairController::class)->prefix('submission-of-repair')->name('submission-of-repair.')->group(function () {

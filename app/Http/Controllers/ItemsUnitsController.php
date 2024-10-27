@@ -43,8 +43,18 @@ class ItemsUnitsController extends Controller
                     $btn = '<div class="d-flex justify-content-center align-items-center">';
                     $btn .= '<a href="' . route('items_units.show', $row->id) . '" class="view btn btn-info btn-sm me-2" title="See Details"><i class="ph-duotone ph-eye"></i></a>';
                     $btn .= '<a href="' . route('items_units.edit', $row->id) . '" class="edit btn btn-warning btn-sm me-2" title="Edit Data"><i class="ph-duotone ph-pencil-line"></i></a>';
-                    $btn .= '<a href="#" class="delete btn btn-danger btn-sm" data-id="' . encrypt($row->id) . '" title="Delete Data"><i class="ph-duotone ph-trash"></i></a>';
-                    $btn .= '</div>';
+                    $btn .= '<a href="#" class="delete btn btn-danger btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Delete Data"><i class="ph-duotone ph-trash"></i></a>';
+                    $showLogBtn =
+                        "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
+                    data-bs-target='#exampleModal'
+                    data-title='Detail Log' data-bs-tooltip='tooltip'
+                    data-remote=" . route('log.getLog', ['moduleCode' => 7, 'moduleId' => $row->id]) . "
+                    title='Log Information'>
+                    <i class='ph-duotone ph-info'></i>
+                        </a></div>
+                        ";
+
+                    $btn = $btn . $showLogBtn;
                     return $btn;
                 })
                 ->rawColumns(['action'])
@@ -91,7 +101,7 @@ class ItemsUnitsController extends Controller
         ]);
 
         foreach ($request['item_id'] as $key => $value) {
-            Items_units::create([
+            $items_units = Items_units::create([
                 'item_id' => $value,
                 'room_id' => $request['room_id'],
                 'serial_number' => $request['serial_number'],
@@ -104,6 +114,7 @@ class ItemsUnitsController extends Controller
                 'status' => $request['status'],
                 'last_checked_date' => $request['last_checked_date'],
             ]);
+            createLog(7, $items_units->id, 'create a new items room');
         }
         return redirect()->route('items_units.index')->with('success', 'Items added successfully.');
     }
@@ -154,6 +165,7 @@ class ItemsUnitsController extends Controller
         ]);
 
         $itemUnits = Items_units::where('id', $id)->first();
+        $oldItemUnits = $itemUnits->toJson();
         if ($request['srs_status'] == $itemUnits->srs_status) {
             $last_checked_date = $itemUnits->last_checked_date;
         } else {
@@ -173,6 +185,9 @@ class ItemsUnitsController extends Controller
             'status' => $request['status'],
             'last_checked_date' => $last_checked_date,
         ]);
+
+        createLog(7, $itemUnits->id, 'update items room', null, $oldItemUnits);
+
         if ($itemUnits) {
             return redirect()->route('items_units.index')->with('success', 'Item updated successfully.');
         }
@@ -185,6 +200,7 @@ class ItemsUnitsController extends Controller
     public function destroy(Request $request)
     {
         $item = Items_units::find(decrypt($request->id));
+        createLog(7, $item->id, 'delete items room', $item->toJson());
         if ($item->delete()) {
             return response()->json(['success' => 'Item deleted successfully.']);
         }

@@ -29,15 +29,18 @@
                             <div class="form-group row">
                                 <label for="name" class="col-sm-3 col-form-label required">Sparepart Name</label>
                                 <div class="col-sm-9 mb-4">
-                                    <input type="text" class="form-control" id="name" name="name"
-                                        required value="{{ $sparepart->name}}">
+                                    <input type="text" class="form-control" id="name" name="name" required
+                                        value="{{ $sparepart->name }}">
+                                    @error('name')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="description" class="col-sm-3 col-form-label required">Description</label>
                                 <div class="col-sm-9 mb-4">
-                                    <input type="text" class="form-control" id="description" name="description"
-                                    required value="{{ $sparepart->description}}">
+                                    <input type="text" class="form-control" id="description" name="description" required
+                                        value="{{ $sparepart->description }}">
                                     @error('description')
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
@@ -46,8 +49,8 @@
                             <div class="form-group row">
                                 <label for="serial_no" class="col-sm-3 col-form-label required">Serial number</label>
                                 <div class="col-sm-9 mb-4">
-                                    <input type="text" class="form-control" id="serial_no" name="serial_no"
-                                    required value="{{ $sparepart->serial_no}}">
+                                    <input type="text" class="form-control" id="serial_no" name="serial_no" required
+                                        value="{{ $sparepart->serial_no }}">
                                     @error('serial_no')
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
@@ -57,13 +60,15 @@
                                 <label for="is_generic" class="col-sm-3 col-form-label required">Generic Sparepart</label>
                                 <div class="col-sm-9 mb-4 mt-2">
                                     <div class="form-check form-check-inline">
-                                        <input type="radio" class="form-check-input" name="is_generic" id="is_generic1" value="1"
-                                        {{ old('is_generic', $sparepart->is_generic) == 1 ? 'checked' : '' }}>
+                                        <input type="radio" class="form-check-input" name="is_generic" id="is_generic1"
+                                            value="1"
+                                            {{ old('is_generic', $sparepart->is_generic) == 1 ? 'checked' : '' }}>
                                         <label for="is_generic1" class="form-check-label">Yes</label>
                                     </div>
                                     <div class="form-check form-check-inline">
-                                        <input type="radio" class="form-check-input" name="is_generic" id="is_generic2" value="0"
-                                        {{ old('is_generic', $sparepart->is_generic) == 0 ? 'checked' : '' }}>
+                                        <input type="radio" class="form-check-input" name="is_generic" id="is_generic2"
+                                            value="0"
+                                            {{ old('is_generic', $sparepart->is_generic) == 0 ? 'checked' : '' }}>
                                         <label for="is_generic2" class="form-check-label">No</label>
                                     </div>
                                 </div>
@@ -77,18 +82,16 @@
                     </div>
                     <div class="card-body">
                         <div class="form-group row">
-                            <label for="item_id" class="col-sm-3 col-form-label required">User</label>
+                            <label for="item_id" class="col-sm-3 col-form-label">Item</label>
                             <div class="col-sm-9 mb-4">
                                 <select name="item_id" id="item_id" class="form-control choices-init">
                                     <option value="" selected disabled>Select Item</option>
                                     @foreach ($item as $i)
                                         <option value="{{ encrypt($i->id) }}"
-                                            {{ $sparepart->item_id == $i->id ? 'selected' : '' }}>{{ $i->item_name }}</option>
+                                            {{ $sparepart->item_id == $i->id ? 'selected' : '' }}>{{ $i->item_name }}
+                                        </option>
                                     @endforeach
                                 </select>
-                                @error('item_id')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
                             </div>
                         </div>
                         <div class="form-group row">
