@@ -47,7 +47,7 @@ let table = $("#details_of_repair_submissions_table").DataTable({
             orderable: false,
             searchable: false,
             className: "text-center",
-        }
+        },
     ],
     drawCallback: function () {
         $("input.select-row").each(function () {
@@ -57,7 +57,6 @@ let table = $("#details_of_repair_submissions_table").DataTable({
         });
     },
 });
-
 
 let workOnRepairmentTable = $("#work_on_repairment_table").DataTable({
     fixedHeader: true,
@@ -101,21 +100,20 @@ let workOnRepairmentTable = $("#work_on_repairment_table").DataTable({
             orderable: false,
             searchable: false,
             className: "text-center",
-        }
+        },
     ],
     drawCallback: function () {
         $("input.select-row").each(function () {
             if (selectedItems.includes($(this).val())) {
                 $(this).prop("checked", true);
             }
-        }
-        );
+        });
     },
 });
 
-$("#details_of_repair_submissions_table").on("click", '.accept', function (e) {
+$("#details_of_repair_submissions_table").on("click", ".accept", function (e) {
     e.preventDefault();
-    let id = $(this).data('id');
+    let id = $(this).data("id");
     let url = "repairments/acceptRepairments/" + id;
     $.ajax({
         url: url,
@@ -144,18 +142,20 @@ $("#details_of_repair_submissions_table").on("click", '.accept', function (e) {
                 Swal.fire({
                     icon: "error",
                     title: "Error",
-                    text: "An error occurred while accepting the repairment: " + response.message,
+                    text:
+                        "An error occurred while accepting the repairment: " +
+                        response.message,
                     showConfirmButton: true,
                     allowOutsideClick: true,
                 });
             }
         },
-    })
+    });
 });
 
-$("#details_of_repair_submissions_table").on("click", '.cancel', function (e) {
+$("#details_of_repair_submissions_table").on("click", ".cancel", function (e) {
     e.preventDefault();
-    let id = $(this).data('id');
+    let id = $(this).data("id");
     let url = "repairments/cancelRepairments/" + id;
     $.ajax({
         url: url,
@@ -184,18 +184,20 @@ $("#details_of_repair_submissions_table").on("click", '.cancel', function (e) {
                 Swal.fire({
                     icon: "error",
                     title: "Error",
-                    text: "An error occurred while accepting the repairment: " + response.message,
+                    text:
+                        "An error occurred while accepting the repairment: " +
+                        response.message,
                     showConfirmButton: true,
                     allowOutsideClick: true,
                 });
             }
         },
-    })
+    });
 });
 
-$("#details_of_repair_submissions_table").on("click", '.start', function (e) {
+$("#details_of_repair_submissions_table").on("click", ".start", function (e) {
     e.preventDefault();
-    let id = $(this).data('id');
+    let id = $(this).data("id");
     let url = "repairments/startRepairments/" + id;
     $.ajax({
         url: url,
@@ -224,18 +226,20 @@ $("#details_of_repair_submissions_table").on("click", '.start', function (e) {
                 Swal.fire({
                     icon: "error",
                     title: "Error",
-                    text: "An error occurred while starting the repairment: " + response.message,
+                    text:
+                        "An error occurred while starting the repairment: " +
+                        response.message,
                     showConfirmButton: true,
                     allowOutsideClick: true,
                 });
             }
         },
-    })
+    });
 });
 
-$("work_on_repairment_table").on("click", '.update', function (e) {
+$("#work_on_repairment_table").on("click", ".update", function (e) {
     e.preventDefault();
-    let id = $(this).data('id');
+    let id = $(this).data("id");
     let url = "repairments/update/" + id;
     $.ajax({
         url: url,
@@ -264,13 +268,15 @@ $("work_on_repairment_table").on("click", '.update', function (e) {
                 Swal.fire({
                     icon: "error",
                     title: "Error",
-                    text: "An error occurred while updating the repairment: " + response.message,
+                    text:
+                        "An error occurred while updating the repairment: " +
+                        response.message,
                     showConfirmButton: true,
                     allowOutsideClick: true,
                 });
             }
         },
-    })
+    });
 });
 
 function countPage() {
@@ -289,7 +295,6 @@ function navigatePage(step) {
     countPage();
 }
 
-
 window.onbeforeunload = function () {
     sessionStorage.clear();
 };
@@ -301,8 +306,6 @@ $("#nextButton").on("click", function () {
 $("#previousButton").on("click", function () {
     navigatePage(-1);
 });
-
-
 
 $("#submitButton").on("click", function () {
     if (selectedItems.length > 0) {
