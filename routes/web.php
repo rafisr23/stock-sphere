@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DetailsOfRepairSubmissionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -126,12 +127,24 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/getTechnicians', 'getTechnicians')->name('getTechnicians');
             Route::post('/assignTechnician', 'assignTechnician')->name('assignTechnician');
         });
+
+        // Route::get('/repairments', [DetailsOfRepairSubmissionController::class, 'index'])->name('detail_submission.index');
+        Route::controller(DetailsOfRepairSubmissionController::class)->prefix('repairments')->name('repairments.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::put('/acceptRepairments/{id}', 'acceptRepairments')->name('acceptRepairments');
+            Route::put('/cancelRepairments/{id}', 'cancelRepairments')->name('cancelRepairments');
+            Route::get('/{id}', 'show')->name('show');
+            Route::put('/startRepairments/{id}', 'startRepairments')->name('startRepairments');
+            Route::put('/update/{id}', 'update')->name('update');
+            Route::get('/showSparepart/{id}', 'showSparepart')->name('showSparepart');
+            Route::put('/finish/{id}', 'finish')->name('finish');
+        });
     });
 
     // ROUTE FOR SUPERADMIN OR UNIT OR ROOM
     Route::group(['middleware' => ['role:superadmin|unit|room']], function () {
         Route::resource('items_units', ItemsUnitsController::class)->name('items_units', '*');
-    
+
         Route::controller(SubmissionOfRepairController::class)->prefix('submission-of-repair')->name('submission-of-repair.')->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('/getItems', 'getItems')->name('getItems');

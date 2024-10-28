@@ -64,6 +64,15 @@
             <span class="pc-mtext">History Of Submission</span>
         </a>
     </li>
+
+<li class="pc-item {{ request()->routeIs('detail_submission.index') ? 'active' : '' }}">
+    <a href="{{ route('repairments.index') }}" class="pc-link">
+        <span class="pc-micon">
+            <i class="ph-duotone ph-wrench"></i>
+        </span>
+        <span class="pc-mtext">Repairments</span>
+    </a>
+</li>
 @endrole
 
 @if((auth()->user()->can('assign technician') && auth()->user()->hasRole('technician')) || auth()->user()->hasRole('superadmin'))
@@ -96,6 +105,10 @@
             {{-- <li class="pc-item {{ request()->routeIs('user.role') ? 'active' : '' }}"><a class="pc-link" href="{{ route('user.role') }}">Role & Permission</a></li> --}}
         </ul>
     </li>
+@endrole
+
+
+@role('superadmin')
     <li class="pc-item pc-caption">
         <label>System</label>
     </li>
