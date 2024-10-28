@@ -21,10 +21,6 @@ class DetailsOfRepairSubmission extends Model
         return $this->belongsTo(Items_units::class);
     }
 
-    // public function technician()
-    // {
-    //     return $this->belongsTo(User::class, 'technician_id');
-    // }
 
     public function getItem()
     {
@@ -35,9 +31,10 @@ class DetailsOfRepairSubmission extends Model
     {
         return $this->hasMany(SparepartsOfRepair::class);
     }
-
     public function technician()
     {
-        return $this->belongsTo(Technician::class, 'technician_id');
+        return $this->belongsTo(User::class, 'technician_id');
     }
+
 }
+

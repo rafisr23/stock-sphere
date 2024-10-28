@@ -62,7 +62,7 @@ class SubmissionOfRepairController extends Controller
                 ->rawColumns(['checkbox', 'action'])
                 ->make(true);
         }
-    
+
         return view('submission.index');
     }
 
@@ -86,7 +86,7 @@ class SubmissionOfRepairController extends Controller
                 $desc = '
                     <textarea type="text" name="description[]" rows="4" class="form-control" id="description[' . $row->id . ']" placeholder="Enter repair description for ' . $row->items->item_name . '"></textarea>
                 ';
-                
+
                 return $desc;
             })
             ->addColumn('evidence', function ($row) {
@@ -100,22 +100,22 @@ class SubmissionOfRepairController extends Controller
             ->make(true);
     }
 
-    
+
     public function storeTemporaryFile(Request $request) {
         if ($request->hasFile('evidence')) {
             $file = $request->file('evidence');
             $fileName = time() . '_temp_' . $file->getClientOriginalName();
             $file->move(public_path('temp'), $fileName);
-            
+
             return response()->json([
                 'success' => true,
                 'code' => 200,
-                'message' => 'File has been uploaded successfully!', 
+                'message' => 'File has been uploaded successfully!',
                 'fileName' => $fileName
             ]);
         }
     }
-    
+
     public function store(Request $request) {
         // return $request->all();
 
@@ -136,13 +136,13 @@ class SubmissionOfRepairController extends Controller
                 'description' => '',
                 'date_submitted' => date('Y-m-d H:i:s')
             ]);
-    
+
             $itemUnitId = explode(',', $request->items);
-    
+
             foreach ($itemUnitId as $key => $value) {
                 // if ($key == 0) continue;
                 // return $request->evidence[$value] . ' - ' . $request->description[$value];
-    
+
                 $item = Items_units::find($value);
                 $evidence = $request->evidence ?  $request->evidence[$value] : '';
                 $submissionOfRepair->details()->create([
@@ -171,11 +171,11 @@ class SubmissionOfRepairController extends Controller
 
     public function history() {
         if (request()->ajax()) {
-            $submission = auth()->user()->hasRole('unit') 
-                ? SubmissionOfRepair::where('unit_id', auth()->user()->unit->id)->get() 
+            $submission = auth()->user()->hasRole('unit')
+                ? SubmissionOfRepair::where('unit_id', auth()->user()->unit->id)->get()
                 : SubmissionOfRepair::all();
             return datatables()->of($submission)
-                ->addIndexColumn()  
+                ->addIndexColumn()
                 ->addColumn('count', function ($row) {
                     $count = $row->details->count();
                     return $count;
@@ -215,7 +215,7 @@ class SubmissionOfRepairController extends Controller
                 ->rawColumns(['status', 'action'])
                 ->make(true);
         }
-        
+
         return view('submission.history');
     }
 
@@ -224,11 +224,11 @@ class SubmissionOfRepairController extends Controller
     }
 
     public function getListOfRepairs() {
-        $submission = auth()->user()->hasRole('unit') 
-            ? SubmissionOfRepair::where('unit_id', auth()->user()->unit->id)->get() 
+        $submission = auth()->user()->hasRole('unit')
+            ? SubmissionOfRepair::where('unit_id', auth()->user()->unit->id)->get()
             : SubmissionOfRepair::all();
         return datatables()->of($submission)
-            ->addIndexColumn()  
+            ->addIndexColumn()
             ->addColumn('count', function ($row) {
                 $count = $row->details->count();
                 return $count;
@@ -289,7 +289,7 @@ class SubmissionOfRepairController extends Controller
 
     public function getTechnicians() {
         $technicians = Technician::where('user_id', '!=', auth()->id())->get();
-        
+
         if ($technicians->count() > 0) {
             return response()->json([
                 'success' => true,
