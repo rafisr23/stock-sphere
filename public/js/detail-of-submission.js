@@ -95,6 +95,10 @@ let workOnRepairmentTable = $("#work_on_repairment_table").DataTable({
             name: "remark",
         },
         {
+            data: "sparepart_used",
+            name: "sparepart_used",
+        },
+        {
             data: "action",
             name: "action",
             orderable: false,
@@ -241,6 +245,8 @@ $("#work_on_repairment_table").on("click", ".update", function (e) {
     e.preventDefault();
     let id = $(this).data("id");
     let url = "repairments/update/" + id;
+    console.log($("#status").val());
+    console.log($("#remarks").val());
     $.ajax({
         url: url,
         type: "POST",
@@ -248,6 +254,8 @@ $("#work_on_repairment_table").on("click", ".update", function (e) {
             _method: "PUT",
             _token: CSRF_TOKEN,
             id: id,
+            remarks: $("#remarks").val(),
+            status: $("#status").val(),
         },
         success: function (response) {
             if (response.success) {
@@ -278,6 +286,49 @@ $("#work_on_repairment_table").on("click", ".update", function (e) {
         },
     });
 });
+
+$("#work_on_repairment_table").on("click", ".finish", function (e) {
+    e.preventDefault();
+    let id = $(this).data("id");
+    let url = "repairments/finish/" + id;
+    $.ajax({
+        url: url,
+        type: "POST",
+        data: {
+            _method: "PUT",
+            _token: CSRF_TOKEN,
+            id: id,
+        },
+        success: function (response) {
+            if (response.success) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Success",
+                    text: "The repairment is finished!",
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    allowOutsideClick: false,
+                }).then((result) => {
+                    if (result.dismiss === Swal.DismissReason.timer) {
+                        window.location.reload();
+                    }
+                });
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text:
+                        "An error occurred while finishing the repairment: " +
+                        response.message,
+                    showConfirmButton: true,
+                    allowOutsideClick: true,
+                });
+            }
+        },
+    });
+});
+
 
 function countPage() {
     switch (currentPage) {

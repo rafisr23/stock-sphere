@@ -64,7 +64,7 @@
                                                         <th>Item Name</th>
                                                         <th>Serial Number</th>
                                                         <th>Submission Date</th>
-                                                        <th>Accepted</th>
+                                                        <th>Repairment status</th>
                                                         <th>Action</th>
                                                     </tr>
                                                 </thead>
@@ -87,6 +87,7 @@
                                                         <th>Serial Number</th>
                                                         <th>Status</th>
                                                         <th>Remark</th>
+                                                        <th>Sparepart Used</th>
                                                         <th>Action</th>
                                                     </tr>
                                                 </thead>

@@ -134,8 +134,10 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/acceptRepairments/{id}', 'acceptRepairments')->name('acceptRepairments');
             Route::put('/cancelRepairments/{id}', 'cancelRepairments')->name('cancelRepairments');
             Route::get('/{id}', 'show')->name('show');
+            Route::put('/startRepairments/{id}', 'startRepairments')->name('startRepairments');
             Route::put('/update/{id}', 'update')->name('update');
-            Route::put('/addSparepart/{id}', 'addSparepart')->name('addSparepart');
+            Route::get('/showSparepart/{id}', 'showSparepart')->name('showSparepart');
+            Route::put('/finish/{id}', 'finish')->name('finish');
         });
     });
 

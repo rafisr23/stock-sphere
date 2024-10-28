@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Items_units;
+use App\Models\Spareparts;
+use App\Models\SparepartsOfRepair;
 use App\Models\SubmissionOfRepair;
 use Illuminate\Http\Request;
 use App\Models\DetailsOfRepairSubmission;
+use League\Fractal\Resource\Item;
 
 class DetailsOfRepairSubmissionController extends Controller
 {
@@ -32,7 +36,11 @@ class DetailsOfRepairSubmissionController extends Controller
                     })
                     ->addColumn('accepted', function ($row) {
                         $accepted = '<div class="d-flex justify-content-center align-items-center">';
-                        if ($row->date_worked_on != null) {
+                        if ($row->status == 1) {
+                            $accepted .= '<span class="badge bg-info">On Progress</span>';
+                        } elseif ($row->date_completed != null) {
+                            $accepted .= '<span class="badge bg-primary">Completed</span>';
+                        } elseif ($row->date_worked_on != null) {
                             $accepted .= '<span class="badge bg-success">Accepted</span>';
                         } elseif ($row->date_cancelled != null) {
                             $accepted .= '<span class="badge bg-danger">Canceled</span>';
@@ -45,14 +53,14 @@ class DetailsOfRepairSubmissionController extends Controller
                     ->addColumn('action', function ($row) {
                         $btn = '<div class="d-flex justify-content-center align-items-center">';
                         $btn .= '<a href="' . route('repairments.show', encrypt($row->id)) . '" class="view btn btn-info btn-sm me-2" title="Show data"><i class="ph-duotone ph-eye"></i></a>';
-                        if ($row->date_worked_on == null && $row->date_cancelled == null) {
+                        if ($row->date_worked_on == null && $row->date_cancelled == null && $row->status == 0) {
                             $btn .= '<a href="#" class="accept btn btn-success btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Accept Repairment"><i class="ph-duotone ph-check"></i></a>';
                             $btn .= '<a href="#" class="cancel btn btn-danger btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Cancel Repairment"><i class="ph-duotone ph-x"></i></a>';
                         } else {
                             $btn .= '<a href="#" class="accept btn btn-success btn-sm me-2 disabled"><i class="ph-duotone ph-check"></i></a>';
                             $btn .= '<a href="#" class="cancel btn btn-danger btn-sm me-2 disabled"><i class="ph-duotone ph-x"></i></a>';
                         }
-                        if ($row->date_worked_on != null && $row->date_completed == null) {
+                        if ($row->date_worked_on != null && $row->date_completed == null && $row->status == 0) {
                             $btn .= '<a href="#" class="start btn btn-secondary btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Start Repairing"><i class="ph-duotone ph-wrench"></i></a>';
                         } else {
                             $btn .= '<a href="#" class="start btn btn-secondary btn-sm me-2 disabled"><i class="ph-duotone ph-wrench"></i></a>';
@@ -76,11 +84,11 @@ class DetailsOfRepairSubmissionController extends Controller
                     ->addColumn('status', function ($row) {
                         $statusOptions = ['Running', 'System Down', 'Restricted'];
                         $status = '<div class="btn-group mb-2 me-2 dropdown">';
-                        $status .= '<select class="form-control" name="status" id="status['.$row->id.']" required>';
+                        $status .= '<select class="form-control" name="status" id="status" required>';
 
                         foreach ($statusOptions as $option) {
                             $selected = $row->itemUnit->status == $option ? 'selected' : '';
-                            $status .= '<option value="'.$option.'" '.$selected.'>'.$option.'</option>';
+                            $status .= '<option value="' . $option . '" ' . $selected . '>' . $option . '</option>';
                         }
 
                         $status .= '</select>';
@@ -89,17 +97,22 @@ class DetailsOfRepairSubmissionController extends Controller
                     })
 
                     ->addColumn('remark', function ($row) {
-                        $remark = '<textarea type="text" name="remarks" rows="4" id=remark['.$row->id.'] class="form-control" data-id="' . encrypt($row->id);
+                        $remark = '<textarea type="text" name="remarks" rows="4" id="remarks" class="form-control" data-id="' . encrypt($row->id);
                         $remark .= '"placeholder="Enter repairment remark for ' . $row->itemUnit->items->item_name . '">';
+                        $remark .= old('remarks', $row->remarks);
                         $remark .= '</textarea>';
 
                         return $remark;
                     })
+                    ->addColumn('sparepart_used', function ($row) {
+                        $sparepartUsedCount = SparepartsOfRepair::where('details_of_repair_submission_id', $row->id)->count();
+                        return $sparepartUsedCount;
+                    })
                     ->addColumn('action', function ($row) {
                         $btn = '<div class="d-flex justify-content-center align-items-center">';
                         $btn .= '<a href="#" class="update btn btn-warning btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Update Repairment data"><i class="ph-duotone ph-pencil-line"></i></a>';
-                        $btn .= '<a href="#" class="btn btn-primary btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Add Sparepart"><i class="ph-duotone ph-plus"></i></a>';
-                        $btn .= '<a href="#" class="submit btn btn-success btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Finish Repairment"><i class="ph-duotone ph-check"></i></a>';
+                        $btn .= '<a href="' . route('repairments.showSparepart', encrypt($row->id)) . '" class="btn btn-primary btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Add Sparepart"><i class="ph-duotone ph-plus"></i></a>';
+                        $btn .= '<a href="#" class="finish btn btn-success btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Finish Repairment"><i class="ph-duotone ph-check"></i></a>';
                         $btn .= '</div>';
                         return $btn;
                     })
@@ -157,7 +170,13 @@ class DetailsOfRepairSubmissionController extends Controller
 
     private function getRepairmentsById($req)
     {
-        $id = decrypt($req->get('id'));
+        if (is_object($req)) {
+            $id = decrypt($req->get('id'));
+        } else {
+            $id = decrypt($req);
+        }
+
+        // return DetailsOfRepairSubmission::findOrFail($id);
         $details_of_repair_submission = DetailsOfRepairSubmission::where('id', $id)->first();
         return $details_of_repair_submission;
     }
@@ -213,8 +232,9 @@ class DetailsOfRepairSubmissionController extends Controller
         return response()->json(['error' => 'Failed to ' . $result . ' repairments']);
     }
 
-    public function startRepairing($req)
+    public function startRepairments(Request $req)
     {
+        // dd($req->all());
         $details_of_repair_submission = $this->getRepairmentsById($req);
         if ($details_of_repair_submission->date_worked_on == null) {
             return response()->json(['error', 'message' => 'Repairments not yet accepted']);
@@ -231,13 +251,65 @@ class DetailsOfRepairSubmissionController extends Controller
 
     public function update(Request $request)
     {
+        // dd($request->all());
         $details_of_repair_submission = $this->getRepairmentsById($request);
-        dd($details_of_repair_submission);
-        $details_of_repair_submission->itemUnit->status = $request->status;
+        $item_unit = Items_units::find($details_of_repair_submission->item_unit_id);
+        $item_unit->status = $request->status;
         $details_of_repair_submission->remarks = $request->remarks;
-        if ($details_of_repair_submission->save() && $details_of_repair_submission->itemUnit->save()) {
+        if ($details_of_repair_submission->save() && $item_unit->save()) {
             return response()->json(['success' => 'Repairments updated successfully']);
         }
         return response()->json(['error' => 'Failed to update repairments']);
+    }
+
+    public function showSparepart($id)
+    {
+        $details_of_repair_submission = DetailsOfRepairSubmission::where('id', decrypt($id))->first();
+        $items = $details_of_repair_submission->getItem();
+        $spareparts = Spareparts::where('item_id', $items->id)
+            ->orWhere('is_generic', 1)
+            ->get();
+        if (request()->ajax()) {
+            return datatables()->of($spareparts)
+                ->addIndexColumn()
+                ->addColumn('name', function ($row) {
+                    return $row->name;
+                })
+                ->addColumn('serial_no', function ($row) {
+                    return $row->serial_no;
+                })
+                ->addColumn('description', function ($row) {
+                    return $row->description;
+                })
+                // ->addColumn('check_box', function ($row) {
+                //     $checkboxes = '<div class="text-center dtr-control">';
+                //     $checkboxes .= '<input type="checkbox" class="select-row form-check-input" name="sparepart_id[]" value="' . $row->id . '">';
+                //     $checkboxes .= '</div>';
+                //     return $checkboxes;
+                // })
+                ->rawColumns(['check_box'])
+                ->make(true);
+
+        }
+        return view('repairments.showSparepart', compact('id'));
+    }
+
+    public function finish(Request $request)
+    {
+        $details_of_repair_submission = $this->getRepairmentsById($request);
+        $submission_of_repair = SubmissionOfRepair::find($details_of_repair_submission->submission_of_repair_id);
+        $details_of_repair_submission->status = 2;
+        $details_of_repair_submission->date_completed = now();
+        $fullData = DetailsOfRepairSubmission::where('submission_of_repair_id', $details_of_repair_submission->submission_of_repair_id)->count();
+        $allCompleted = DetailsOfRepairSubmission::where('submission_of_repair_id', $details_of_repair_submission->submission_of_repair_id)
+            ->whereNotNull('date_completed')
+            ->count();
+        if ($allCompleted+1 == $fullData) {
+            $submission_of_repair->date_completed = now();
+        }
+        if ($details_of_repair_submission->save() && $submission_of_repair->save()) {
+            return response()->json(['success' => 'Repairments finished successfully']);
+        }
+        return response()->json(['error' => 'Failed to finish repairments']);
     }
 }

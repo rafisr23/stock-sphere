@@ -20,4 +20,9 @@ class Items_units extends Model
     {
         return $this->belongsTo(Rooms::class, 'room_id');
     }
+
+    public function detailsOfRepairSubmission()
+    {
+        return $this->hasMany(DetailsOfRepairSubmission::class);
+    }
 }

@@ -18,7 +18,7 @@ class DetailsOfRepairSubmission extends Model
 
     public function itemUnit()
     {
-        return $this->belongsTo(Items_units::class);
+        return $this->belongsTo(Items_units::class, 'item_unit_id');
     }
 
 
