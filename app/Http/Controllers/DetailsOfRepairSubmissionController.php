@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Items_units;
 use App\Models\Spareparts;
+use App\Models\Items_units;
+use Illuminate\Http\Request;
+use League\Fractal\Resource\Item;
 use App\Models\SparepartsOfRepair;
 use App\Models\SubmissionOfRepair;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\DetailsOfRepairSubmission;
-use League\Fractal\Resource\Item;
 
 class DetailsOfRepairSubmissionController extends Controller
 {
@@ -264,34 +265,34 @@ class DetailsOfRepairSubmissionController extends Controller
 
     public function showSparepart($id)
     {
-        $details_of_repair_submission = DetailsOfRepairSubmission::where('id', decrypt($id))->first();
-        $items = $details_of_repair_submission->getItem();
-        $spareparts = Spareparts::where('item_id', $items->id)
-            ->orWhere('is_generic', 1)
-            ->get();
-        if (request()->ajax()) {
-            return datatables()->of($spareparts)
-                ->addIndexColumn()
-                ->addColumn('name', function ($row) {
-                    return $row->name;
-                })
-                ->addColumn('serial_no', function ($row) {
-                    return $row->serial_no;
-                })
-                ->addColumn('description', function ($row) {
-                    return $row->description;
-                })
-                // ->addColumn('check_box', function ($row) {
-                //     $checkboxes = '<div class="text-center dtr-control">';
-                //     $checkboxes .= '<input type="checkbox" class="select-row form-check-input" name="sparepart_id[]" value="' . $row->id . '">';
-                //     $checkboxes .= '</div>';
-                //     return $checkboxes;
-                // })
-                ->rawColumns(['check_box'])
-                ->make(true);
-
-        }
         return view('repairments.showSparepart', compact('id'));
+    }
+
+    public function getSpareparts($id)
+    {
+        $details_of_repair_submission = DetailsOfRepairSubmission::where('id', decrypt($id))->first();
+        $itemId = $details_of_repair_submission->itemUnit->item_id;
+        
+        $spareparts = Spareparts::where('item_id', $itemId)->orWhere('is_generic', 1)->get();
+        return datatables()->of($spareparts)
+            ->addIndexColumn()
+            ->addColumn('name', function ($row) {
+                return $row->name;
+            })
+            ->addColumn('serial_no', function ($row) {
+                return $row->serial_no;
+            })
+            ->addColumn('description', function ($row) {
+                return $row->description;
+            })
+            // ->addColumn('check_box', function ($row) {
+            //     $checkboxes = '<div class="text-center dtr-control">';
+            //     $checkboxes .= '<input type="checkbox" class="select-row form-check-input" name="sparepart_id[]" value="' . $row->id . '">';
+            //     $checkboxes .= '</div>';
+            //     return $checkboxes;
+            // })
+            ->rawColumns(['check_box'])
+            ->make(true);
     }
 
     public function finish(Request $request)

@@ -322,7 +322,7 @@ class SubmissionOfRepairController extends Controller
             $detail = DetailsOfRepairSubmission::where('id', $request->detailId)->first();
             $detail->update([
                 'technician_id' => $request->technicianId,
-                'status' => 4,
+                'status' => 0,
             ]);
 
             $submission = SubmissionOfRepair::find($detail->submission_of_repair_id);

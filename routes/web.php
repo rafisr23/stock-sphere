@@ -137,6 +137,7 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/startRepairments/{id}', 'startRepairments')->name('startRepairments');
             Route::put('/update/{id}', 'update')->name('update');
             Route::get('/showSparepart/{id}', 'showSparepart')->name('showSparepart');
+            Route::get('/getSpareparts/{id}', 'getSpareparts')->name('getSpareparts');
             Route::put('/finish/{id}', 'finish')->name('finish');
         });
     });
