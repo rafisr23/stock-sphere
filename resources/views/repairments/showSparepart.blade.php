@@ -41,7 +41,7 @@
             responsive: true,
             deferLoading: 0,
             ajax: {
-                url: "{{ route('repairments.showSparepart', encrypt($id)) }}",
+                url: "{{ route('repairments.getSpareparts', $id) }}",
             },
             order: [
                 [1, "asc"]

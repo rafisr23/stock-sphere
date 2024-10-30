@@ -21,7 +21,6 @@ class DetailsOfRepairSubmission extends Model
         return $this->belongsTo(Items_units::class, 'item_unit_id');
     }
 
-
     public function getItem()
     {
         return $this->itemUnit->items;
@@ -37,4 +36,3 @@ class DetailsOfRepairSubmission extends Model
     }
 
 }
-

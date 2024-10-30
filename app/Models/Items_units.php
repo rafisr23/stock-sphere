@@ -23,6 +23,6 @@ class Items_units extends Model
 
     public function detailsOfRepairSubmission()
     {
-        return $this->hasMany(DetailsOfRepairSubmission::class);
+        return $this->hasMany(DetailsOfRepairSubmission::class, 'item_unit_id');
     }
 }
