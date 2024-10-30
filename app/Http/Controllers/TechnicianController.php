@@ -61,7 +61,7 @@ class TechnicianController extends Controller
         if ($technician->count() > 0) {
             $users = User::whereHas('roles', function ($query) {
                 $query->where('name', 'technician');
-            })->where('id', '!=', $technician->pluck('user_id'))->get();
+            })->whereNotIn('id', Technician::where('user_id', '!=', null)->pluck('user_id'))->get();
         } else {
             $users = User::whereHas('roles', function ($query) {
                 $query->where('name', 'technician');
