@@ -16,14 +16,16 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4 class="card-title">Add Sparepart</h4>
                 </div>
+                @csrf
                 <div class="card-body">
-                    <table id="spareparts_table" class="table table-bordered">
+                    <a href="{{ route('repairments.index') }}" class="btn btn-secondary">Back</a>
+                    <table id="spareparts_table" data-id="{{ $id }}" class="table table-bordered">
                         <thead>
+                            <th>Select</th>
                             <th>No</th>
                             <th>Sparepart name</th>
                             <th>Serial Number</th>
                             <th>Description</th>
-                            {{-- <th>Select</th> --}}
                         </thead>
                     </table>
                 </div>
@@ -47,6 +49,10 @@
                 [1, "asc"]
             ],
             columns: [{
+                    data: 'check_box',
+                    name: 'check_box'
+                },
+                {
                     data: 'DT_RowIndex',
                     name: 'DT_RowIndex'
                 },
@@ -62,11 +68,49 @@
                     data: 'description',
                     name: 'description'
                 },
-                // {
-                //     data: 'check_box',
-                //     name: 'check_box'
-                // },
             ],
+        });
+    </script>
+    <script>
+        $('#spareparts_table').on('change', 'input.select-row', function() {
+            let idDetail = $('#spareparts_table').data('id');
+            // console.log(idDetails);
+            let idSparepart = $(this).val();
+            // console.log(idSpareparts);
+            url = $(this).is(':checked') ? "repairments/addSparepart/" : "repairments/removeSparepart/";
+            url = url + idDetail + "/" + idSparepart;
+            console.log(url);
+            let CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
+            if ($(this).is(':checked')) {
+                $.ajax({
+                    url: "repairments/addSparepart/" + idDetail + "/" + idSparepart,
+                    type: 'POST',
+                    data: {
+                        idDetail: idDetail,
+                        idSparepart: idSparepart,
+                        _token: CSRF_TOKEN
+                    },
+                    success: function(data) {
+                        console.log(data);
+                    },
+                    error: function(data) {
+                        console.log(data);
+                    }
+                });
+            } else {
+                $.ajax({
+                    url: "repairments/removeSparepart/" + idDetail + "/" + idSparepart,
+                    type: 'POST',
+                    data: {
+                        idDetail: idDetail,
+                        idSparepart: idSparepart,
+                        _token: CSRF_TOKEN
+                    },
+                    success: function(data) {
+                        console.log(data);
+                    }
+                });
+            }
         });
     </script>
 @endsection

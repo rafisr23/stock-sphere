@@ -138,6 +138,8 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/update/{id}', 'update')->name('update');
             Route::get('/showSparepart/{id}', 'showSparepart')->name('showSparepart');
             Route::get('/getSpareparts/{id}', 'getSpareparts')->name('getSpareparts');
+            Route::post('/showSparepart/repairments/addSparepart/{idDetail}/{idSparepart}', 'addSparepart')->name('addSparepart');
+            Route::post('/showSparepart/repairments/removeSparepart/{idDetail}/{idSparepart}', 'removeSparepart')->name('removeSparepart');
             Route::put('/finish/{id}', 'finish')->name('finish');
         });
     });

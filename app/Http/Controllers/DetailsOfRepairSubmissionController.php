@@ -57,14 +57,9 @@ class DetailsOfRepairSubmissionController extends Controller
                         if ($row->date_worked_on == null && $row->date_cancelled == null && $row->status == 0) {
                             $btn .= '<a href="#" class="accept btn btn-success btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Accept Repairment"><i class="ph-duotone ph-check"></i></a>';
                             $btn .= '<a href="#" class="cancel btn btn-danger btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Cancel Repairment"><i class="ph-duotone ph-x"></i></a>';
-                        } else {
-                            $btn .= '<a href="#" class="accept btn btn-success btn-sm me-2 disabled"><i class="ph-duotone ph-check"></i></a>';
-                            $btn .= '<a href="#" class="cancel btn btn-danger btn-sm me-2 disabled"><i class="ph-duotone ph-x"></i></a>';
                         }
                         if ($row->date_worked_on != null && $row->date_completed == null && $row->status == 0) {
                             $btn .= '<a href="#" class="start btn btn-secondary btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Start Repairing"><i class="ph-duotone ph-wrench"></i></a>';
-                        } else {
-                            $btn .= '<a href="#" class="start btn btn-secondary btn-sm me-2 disabled"><i class="ph-duotone ph-wrench"></i></a>';
                         }
 
                         $btn .= '</div>';
@@ -272,9 +267,21 @@ class DetailsOfRepairSubmissionController extends Controller
     {
         $details_of_repair_submission = DetailsOfRepairSubmission::where('id', decrypt($id))->first();
         $itemId = $details_of_repair_submission->itemUnit->item_id;
-        
+
         $spareparts = Spareparts::where('item_id', $itemId)->orWhere('is_generic', 1)->get();
+        $spareparts_of_repair = SparepartsOfRepair::where('details_of_repair_submission_id', $details_of_repair_submission->id)->get();
+        $spareparts_id = $spareparts_of_repair->pluck('sparepart_id')->toArray();
         return datatables()->of($spareparts)
+            ->addColumn('check_box', function ($row) use ($spareparts_id) {
+                $checkboxes = '<div class="text-center dtr-control">';
+                if (in_array($row->id, $spareparts_id)) {
+                    $checkboxes .= '<input type="checkbox" class="select-row form-check-input" name="sparepart_id[]" value="' . encrypt($row->id) . '" checked>';
+                } else {
+                    $checkboxes .= '<input type="checkbox" class="select-row form-check-input" name="sparepart_id[]" value="' . encrypt($row->id) . '">';
+                }
+                $checkboxes .= '</div>';
+                return $checkboxes;
+            })
             ->addIndexColumn()
             ->addColumn('name', function ($row) {
                 return $row->name;
@@ -285,14 +292,30 @@ class DetailsOfRepairSubmissionController extends Controller
             ->addColumn('description', function ($row) {
                 return $row->description;
             })
-            // ->addColumn('check_box', function ($row) {
-            //     $checkboxes = '<div class="text-center dtr-control">';
-            //     $checkboxes .= '<input type="checkbox" class="select-row form-check-input" name="sparepart_id[]" value="' . $row->id . '">';
-            //     $checkboxes .= '</div>';
-            //     return $checkboxes;
-            // })
             ->rawColumns(['check_box'])
             ->make(true);
+    }
+
+    public function addSparepart($idDetails, $idSparepart)
+    {
+        $details_of_repair_submission = $this->getRepairmentsById($idDetails);
+        $sparepart = Spareparts::where('id', decrypt($idSparepart))->first();
+        $spareparts_of_repair = new SparepartsOfRepair();
+        $spareparts_of_repair->details_of_repair_submission_id = $details_of_repair_submission->id;
+        $spareparts_of_repair->sparepart_id = $sparepart->id;
+        $spareparts_of_repair->save();
+        return response()->json(['success' => 'Sparepart added successfully']);
+    }
+
+    public function removeSparepart($idDetails, $idSparepart)
+    {
+        $details_of_repair_submission = $this->getRepairmentsById($idDetails);
+        $sparepart = Spareparts::where('id', decrypt($idSparepart))->first();
+        $spareparts_of_repair = SparepartsOfRepair::where('details_of_repair_submission_id', $details_of_repair_submission->id)
+            ->where('sparepart_id', $sparepart->id)
+            ->first();
+        $spareparts_of_repair->delete();
+        return response()->json(['success' => 'Sparepart removed successfully']);
     }
 
     public function finish(Request $request)
@@ -305,7 +328,7 @@ class DetailsOfRepairSubmissionController extends Controller
         $allCompleted = DetailsOfRepairSubmission::where('submission_of_repair_id', $details_of_repair_submission->submission_of_repair_id)
             ->whereNotNull('date_completed')
             ->count();
-        if ($allCompleted+1 == $fullData) {
+        if ($allCompleted + 1 == $fullData) {
             $submission_of_repair->date_completed = now();
         }
         if ($details_of_repair_submission->save() && $submission_of_repair->save()) {
