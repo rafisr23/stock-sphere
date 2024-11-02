@@ -152,6 +152,8 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/store', 'store')->name('store');
             Route::post('/store/temporary-file', 'storeTemporaryFile')->name('store.temporary-file');
             Route::get('/history', 'history')->name('history');
+            Route::get('/detail/{submissionId}', 'detailSubmission')->name('detail');
+            Route::get('/getTechnician', 'getTechnician')->name('getTechnician');
         });
     });
 });
