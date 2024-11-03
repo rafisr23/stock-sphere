@@ -48,17 +48,28 @@
                                     </div>
                                     <div class="row mt-4">
                                         <div class="col">
-                                            <button id="toggle-check" class="btn btn-secondary mb-3">Check All</button>
+                                            <div class="form-group row mb-2">
+                                                <label for="filterMonth" class="col-sm-3 col-md-1 col-form-label"><b>Filter
+                                                        :</b></label>
+                                                <div class="col-sm-6 col-md-3">
+                                                    <select name="filterMonth" id="filterMonth" class="choices-init">
+                                                        <option value="0">All</option>
+                                                        <option value="1" selected>1 Month Longer</option>
+                                                        <option value="3">3 Months Longer</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <button id="toggle-check" class="btn btn-secondary mb-3">Check
+                                                All</button>
                                             <table id="items_table" class="table table-bordered">
                                                 <thead>
                                                     <tr>
                                                         <th>Select</th>
                                                         <th>No</th>
                                                         <th>Item Name</th>
-                                                        <th>Customer Name</th>
+                                                        <th>Room</th>
                                                         <th>Serial Number</th>
-                                                        <th>Last Checked Date</th>
-                                                        <th>Last Serviced Date</th>
+                                                        <th>Maintenance Date</th>
                                                     </tr>
                                                 </thead>
                                             </table>
@@ -81,8 +92,8 @@
                                                             <th>No</th>
                                                             <th>Item Name</th>
                                                             <th>Serial Number</th>
-                                                            <th>Description</th>
-                                                            <th>Evidence</th>
+                                                            <th>Status</th>
+                                                            <th>Action</th>
                                                         </tr>
                                                     </thead>
                                                 </table>
@@ -122,5 +133,5 @@
             progress: true
         });
     </script>
-    {{-- <script src="{{ URL::asset('js/submission-of-repair.js') }}"></script> --}}
+    <script src="{{ URL::asset('js/maintenance.js') }}"></script>
 @endsection
