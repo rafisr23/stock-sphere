@@ -9,7 +9,7 @@ class Items_units extends Model
 {
     use HasFactory;
 
-   protected $guarded = ['id'];
+    protected $guarded = ['id'];
 
     public function items()
     {
@@ -24,5 +24,10 @@ class Items_units extends Model
     public function detailsOfRepairSubmission()
     {
         return $this->hasMany(DetailsOfRepairSubmission::class, 'item_unit_id');
+    }
+
+    public function maintenances()
+    {
+        return $this->hasMany(Maintenances::class, 'item_room_id');
     }
 }

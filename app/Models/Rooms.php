@@ -30,5 +30,9 @@ class Rooms extends Model
     {
         return $this->hasMany(SubmissionOfRepair::class, 'room_id');
     }
-    
+
+    public function maintenances()
+    {
+        return $this->hasMany(Maintenances::class, 'room_id');
+    }
 }
