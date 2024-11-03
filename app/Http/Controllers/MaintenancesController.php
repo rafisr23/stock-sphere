@@ -12,7 +12,10 @@ class MaintenancesController extends Controller
      */
     public function index()
     {
-        //
+        if (request()->ajax()) {
+        } else {
+            return view('maintenances.index');
+        }
     }
 
     /**
