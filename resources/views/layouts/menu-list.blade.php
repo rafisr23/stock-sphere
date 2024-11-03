@@ -79,7 +79,7 @@
     
 
 @if((auth()->user()->can('assign technician') && auth()->user()->hasRole('technician')) || auth()->user()->hasRole('superadmin'))
-    <li class="pc-item ">
+    <li class="pc-item {{ request()->routeIs('submission-of-repair.list') || request()->routeIs('submission-of-repair.detail') ? 'active' : ''  }}">
         <a href="{{ route('submission-of-repair.list') }}" class="pc-link">
             <span class="pc-micon">
                 <i class="ph-duotone ph-wrench"></i>

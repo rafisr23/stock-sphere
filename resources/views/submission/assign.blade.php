@@ -125,7 +125,7 @@
 
             <div class="row mb-3">
                 <div class="col-md-12">
-                    <a href="{{ route('submission-of-repair.history') }}" class="btn btn-primary">Back</a>
+                    <a href="#" class="btn btn-primary" id="btn-back">Back</a>
                 </div>
             </div>
         </div>
@@ -318,5 +318,8 @@
                 }
             })
         })
+
+        // set btn-back href from localstorage
+        $('#btn-back').attr('href', sessionStorage.getItem('previous_url'));
     </script>
 @endsection

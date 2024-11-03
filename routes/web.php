@@ -123,7 +123,6 @@ Route::middleware(['auth'])->group(function () {
         Route::controller(SubmissionOfRepairController::class)->prefix('submission-of-repair')->name('submission-of-repair.')->group(function () {
             Route::get('/list', 'viewListOfRepairs')->name('list');
             Route::get('/getList', 'getListOfRepairs')->name('getList');
-            Route::get('/detail/{submissionId}', 'detailSubmission')->name('detail');
             Route::get('/getTechnicians', 'getTechnicians')->name('getTechnicians');
             Route::post('/assignTechnician', 'assignTechnician')->name('assignTechnician');
         });
@@ -152,8 +151,11 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/store', 'store')->name('store');
             Route::post('/store/temporary-file', 'storeTemporaryFile')->name('store.temporary-file');
             Route::get('/history', 'history')->name('history');
-            Route::get('/detail/{submissionId}', 'detailSubmission')->name('detail');
             Route::get('/getTechnician', 'getTechnician')->name('getTechnician');
         });
+    });
+    
+    Route::controller(SubmissionOfRepairController::class)->prefix('submission-of-repair')->name('submission-of-repair.')->middleware('role:superadmin|room|unit|technician')->group(function () {
+        Route::get('/detail/{submissionId}', 'detailSubmission')->name('detail');
     });
 });
