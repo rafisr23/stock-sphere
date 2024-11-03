@@ -77,13 +77,10 @@
             // console.log(idDetails);
             let idSparepart = $(this).val();
             // console.log(idSpareparts);
-            url = $(this).is(':checked') ? "repairments/addSparepart/" : "repairments/removeSparepart/";
-            url = url + idDetail + "/" + idSparepart;
-            console.log(url);
             let CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
             if ($(this).is(':checked')) {
                 $.ajax({
-                    url: "repairments/addSparepart/" + idDetail + "/" + idSparepart,
+                    url: "addSparepart/" + idDetail + "/" + idSparepart,
                     type: 'POST',
                     data: {
                         idDetail: idDetail,
@@ -99,7 +96,7 @@
                 });
             } else {
                 $.ajax({
-                    url: "repairments/removeSparepart/" + idDetail + "/" + idSparepart,
+                    url: "removeSparepart/" + idDetail + "/" + idSparepart,
                     type: 'POST',
                     data: {
                         idDetail: idDetail,
