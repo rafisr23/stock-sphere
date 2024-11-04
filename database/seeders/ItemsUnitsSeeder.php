@@ -24,7 +24,8 @@ class ItemsUnitsSeeder extends Seeder
             'srs_status' => 'No SRS Connection',
             'last_checked_date' => '2005-05-20 23:00:00',
             'status' => 'Running',
-            'functional_location_no' => '700-40305299-0201'
+            'functional_location_no' => '700-40305299-0201',
+            'maintenance_date' => '2006-05-20'
         ]);
         DB::table('items_units')->insert([
             'item_id' => '2',
@@ -37,7 +38,8 @@ class ItemsUnitsSeeder extends Seeder
             'srs_status' => 'Connected',
             'last_checked_date' => '2005-05-20 23:00:00',
             'status' => 'Running',
-            'functional_location_no' => '700-40305299-0302'
+            'functional_location_no' => '700-40305299-0302',
+            'maintenance_date' => '2006-05-20'
         ]);
         DB::table('items_units')->insert([
             'item_id' => '3',
@@ -50,7 +52,8 @@ class ItemsUnitsSeeder extends Seeder
             'srs_status' => 'Disconnected',
             'last_checked_date' => '2005-05-20 23:00:00',
             'status' => 'Running',
-            'functional_location_no' => '700-40305299-0303'
+            'functional_location_no' => '700-40305299-0303',
+            'maintenance_date' => '2006-05-20'
         ]);
     }
 }

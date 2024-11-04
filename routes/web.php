@@ -17,6 +17,7 @@ use App\Http\Controllers\ItemsUnitsController;
 use App\Http\Controllers\SparepartsController;
 use App\Http\Controllers\TechnicianController;
 use App\Http\Controllers\EditProfileController;
+use App\Http\Controllers\MaintenancesController;
 use App\Http\Controllers\SubmissionOfRepairController;
 
 /*
@@ -142,6 +143,8 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/showSparepart/removeSparepart/{idDetail}/{idSparepart}', 'removeSparepart')->name('removeSparepart');
             Route::put('/finish/{id}', 'finish')->name('finish');
         });
+
+        Route::resource('maintenances', MaintenancesController::class);
     });
 
     // ROUTE FOR SUPERADMIN OR UNIT OR ROOM
