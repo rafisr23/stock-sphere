@@ -70,6 +70,9 @@
 @if (
     (auth()->user()->can('assign technician') && auth()->user()->hasRole('technician')) ||
         auth()->user()->hasRole('superadmin'))
+@if (
+    (auth()->user()->can('assign technician') && auth()->user()->hasRole('technician')) ||
+        auth()->user()->hasRole('superadmin'))
     <li class="pc-item pc-caption">
         <label>Repairs</label>
     </li>
@@ -79,6 +82,17 @@
                 <i class="ph-duotone ph-wrench"></i>
             </span>
             <span class="pc-mtext">List Of Repairs</span>
+        </a>
+    </li>
+@endif
+
+@if (auth()->user()->hasRole('technician') || auth()->user()->hasRole('superadmin'))
+    <li class="pc-item ">
+        <a href="{{ route('maintenances.index') }}" class="pc-link">
+            <span class="pc-micon">
+                <i class="ph-duotone ph-gear-six"></i>
+            </span>
+            <span class="pc-mtext">Maintenances</span>
         </a>
     </li>
 @endif
