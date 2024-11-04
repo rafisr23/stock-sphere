@@ -47,6 +47,10 @@
                                 <p for="item_name" class="col-sm-3 col-form-p">Downtime : {{ $item->items->downtime }}
                                     Days</p>
                             </div>
+                            <div class="row">
+                                <p for="item_name" class="col-sm-4 col-form-p">Next Maintenance :
+                                    {{ \Carbon\Carbon::parse($item->maintenance_date)->isoFormat('D MMMM Y') }}</p>
+                            </div>
                         </div>
                         <div class="col-auto">
                             <a href="{{ route('items_units.index') }}" class="btn btn-secondary">Back</a>

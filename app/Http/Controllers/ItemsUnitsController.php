@@ -72,7 +72,6 @@ class ItemsUnitsController extends Controller
         $items = Items::all();
         if (auth()->user()->hasRole('room')) {
             $rooms = Rooms::where('id', auth()->user()->room->id)->get();
-
         } elseif (auth()->user()->hasRole('unit')) {
             $rooms = Rooms::where('unit_id', auth()->user()->unit->id)->get();
         } else {
@@ -101,6 +100,9 @@ class ItemsUnitsController extends Controller
         ]);
 
         foreach ($request['item_id'] as $key => $value) {
+            $item = Items::find($value);
+            $maintenance_date = date('Y-m-d', strtotime($request['installation_date']) + ($item->downtime * 86400));
+
             $items_units = Items_units::create([
                 'item_id' => $value,
                 'room_id' => $request['room_id'],
@@ -113,6 +115,7 @@ class ItemsUnitsController extends Controller
                 'srs_status' => $request['srs_status'],
                 'status' => $request['status'],
                 'last_checked_date' => $request['last_checked_date'],
+                'maintenance_date' => $maintenance_date,
             ]);
             createLog(7, $items_units->id, 'create a new items room');
         }
@@ -172,6 +175,10 @@ class ItemsUnitsController extends Controller
             $last_checked_date = $request['last_checked_date'];
         }
 
+        $maintenance_date = $request->installation_date != $itemUnits->installation_date
+            ? date('Y-m-d', strtotime($request['installation_date']) + ($itemUnits->items->downtime * 86400))
+            : $itemUnits->maintenance_date;
+
         $itemUnits->update([
             'item_id' => $request['item_id'],
             'room_id' => $request['room_id'],
@@ -184,6 +191,7 @@ class ItemsUnitsController extends Controller
             'srs_status' => $request['srs_status'],
             'status' => $request['status'],
             'last_checked_date' => $last_checked_date,
+            'maintenance_date' => $maintenance_date,
         ]);
 
         createLog(7, $itemUnits->id, 'update items room', null, $oldItemUnits);
