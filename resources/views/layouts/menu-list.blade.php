@@ -65,14 +65,6 @@
         </a>
     </li>
 
-    <li class="pc-item {{ request()->routeIs('detail_submission.index') ? 'active' : '' }}">
-        <a href="{{ route('repairments.index') }}" class="pc-link">
-            <span class="pc-micon">
-                <i class="ph-duotone ph-wrench"></i>
-            </span>
-            <span class="pc-mtext">Repairments</span>
-        </a>
-    </li>
 @endrole
 
 @if (
@@ -98,6 +90,14 @@
                 <i class="ph-duotone ph-gear-six"></i>
             </span>
             <span class="pc-mtext">Maintenances</span>
+        </a>
+    </li>
+    <li class="pc-item {{ request()->routeIs('detail_submission.index') ? 'active' : '' }}">
+        <a href="{{ route('repairments.index') }}" class="pc-link">
+            <span class="pc-micon">
+                <i class="ph-duotone ph-wrench"></i>
+            </span>
+            <span class="pc-mtext">Repairments</span>
         </a>
     </li>
 @endif
