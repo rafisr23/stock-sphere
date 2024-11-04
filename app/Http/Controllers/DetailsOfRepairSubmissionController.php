@@ -19,7 +19,7 @@ class DetailsOfRepairSubmissionController extends Controller
             $table = request('table');
             if ($table === 'repairments') {
                 if (auth()->user()->hasRole('technician')) {
-                    $details_of_repair_submission = DetailsOfRepairSubmission::where('technician_id', auth()->user()->technician->id)->get();
+                    $details_of_repair_submission = DetailsOfRepairSubmission::where('technician_id', auth()->user()->id)->get();
                 } else {
                     $details_of_repair_submission = DetailsOfRepairSubmission::all();
                 }
