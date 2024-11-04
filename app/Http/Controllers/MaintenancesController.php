@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Items_units;
 use App\Models\Maintenances;
+use App\Models\Technician;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Yajra\DataTables\Facades\DataTables;
@@ -19,36 +20,26 @@ class MaintenancesController extends Controller
             $type = $request->input('type');
             $filter = $request->input('filter');
 
-            $loginDate = Carbon::parse(auth()->user()->last_login_date)->format('Y-m-d');
+            $loginDate = Carbon::parse(auth()->user()->last_login_date);
+
+            $extData = Maintenances::all();
 
             if ($type == 'list') {
+                $endDate = null;
                 if ($filter == '1') {
                     $endDate = Carbon::parse($loginDate)->addMonth()->format('Y-m-d');
-
-                    $maintenances = Items_units::where('maintenance_date', '>=', $loginDate)
-                        ->where('maintenance_date', '<=', $endDate)
-                        ->get();
                 } else if ($filter == '3') {
                     $endDate = Carbon::parse($loginDate)->addMonth(3)->format('Y-m-d');
-
-                    $maintenances = Items_units::where('maintenance_date', '>=', $loginDate)
-                        ->where('maintenance_date', '<=', $endDate)
-                        ->get();
-                } else {
-                    $maintenances = Items_units::all();
                 }
 
-                $maintenances = $maintenances->sortBy('maintenance_date');
+                if ($endDate) {
+                    $items = Items_units::where('maintenance_date', '<=', $endDate)->get();
+                } else {
+                    $items = Items_units::all();
+                }
 
-                return DataTables::of($maintenances)
+                return DataTables::of($items)
                     ->addIndexColumn()
-                    ->addColumn('checkbox', function ($row) use ($loginDate) {
-                        if ($loginDate == $row->maintenance_date) {
-                            return '<input type="checkbox" class="select-row form-check-input" value="' . encrypt($row->id) . '" name="itemId[]">';
-                        } else {
-                            return '<span class="badge rounded-pill text-bg-info">Not Today</span>';
-                        }
-                    })
                     ->addColumn('item', function ($row) {
                         return $row->items->item_name;
                     })
@@ -61,13 +52,78 @@ class MaintenancesController extends Controller
                     ->addColumn('maintenance_date', function ($row) {
                         return Carbon::parse($row->maintenance_date)->isoFormat('D MMMM Y');
                     })
-                    ->rawColumns(['checkbox'])
+                    ->addColumn('action', function ($row) use ($loginDate, $extData) {
+                        $count = $extData->where('item_id', $row->item_id)
+                            ->filter(function ($item) use ($loginDate) {
+                                return $item->created_at->year == $loginDate->year &&
+                                    $item->created_at->month == $loginDate->month;
+                            })
+                            ->count();
+
+                        $status = $extData->where('item_room_id', $row->id)
+                            ->filter(function ($item) use ($loginDate) {
+                                return $item->created_at->year == $loginDate->year &&
+                                    $item->created_at->month == $loginDate->month;
+                            })
+                            ->first()->status ?? null;
+
+                        if (($loginDate->isSameDay($row->maintenance_date) && $status === null) || ($loginDate->greaterThan($row->maintenance_date) && $count == 0 && $status === null)) {
+                            return '<button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#assignTechnicianModal" title="Assign Technician" data-id="' . encrypt($row->id) . '" data-name="' . $row->items->item_name . ' (' . $row->serial_number . ')"><i class="ph ph-duotone ph-wrench"></i></button>';
+                        } elseif ($status !== null) {
+                            return '<span class="badge rounded-pill text-bg-success">Already Assigned</span>';
+                        } else {
+                            return '<span class="badge rounded-pill text-bg-info">Not Today</span>';
+                        }
+                    })
+                    ->rawColumns(['action'])
                     ->make(true);
-            } else {
-                $maintenances = Maintenances::all();
+            } else if ($type == 'maintenance') {
+                if (auth()->user()->hasRole('superadmin')) {
+                    $maintenances = Maintenances::all();
+                } elseif (auth()->user()->can('assign technician') && auth()->user()->hasRole('technician')) {
+                    $allTechnicians = Technician::where('unit_id', auth()->user()->technician->unit_id)->pluck('id');
+                    $maintenances = Maintenances::whereIn('technician_id', $allTechnicians)->get();
+                } elseif (auth()->user()->hasRole('technician')) {
+                    $maintenances = Maintenances::where('technician_id', auth()->user()->technician->id)->get();
+                } else {
+                    $maintenances = [];
+                }
+
+                return DataTables::of($maintenances)
+                    ->addIndexColumn()
+                    ->addColumn('item', function ($row) {
+                        return $row->items_room->items->item_name;
+                    })
+                    ->addColumn('serial_number', function ($row) {
+                        return $row->items_room->serial_number;
+                    })
+                    ->addColumn('technician', function ($row) {
+                        return $row->technician->name;
+                    })
+                    ->addColumn('status', function ($row) {
+                        if ($row->status == 0) {
+                            return '<span class="badge rounded-pill text-bg-info">Pending</span>';
+                        } elseif ($row->status == 1) {
+                            return '<span class="badge rounded-pill text-bg-success">Done</span>';
+                        } else {
+                            return '<span class="badge rounded-pill text-bg-danger">Canceled</span>';
+                        }
+                    })
+                    ->addColumn('action', function ($row) {
+                        return '<button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#maintenanceDetailModal" title="Detail" data-id="' . encrypt($row->id) . '"><i class="ph ph-duotone ph-eye"></i></button>';
+                    })
+                    ->rawColumns(['action', 'status'])
+                    ->make(true);
             }
         } else {
-            return view('maintenances.index');
+            if (auth()->user()->hasRole('superadmin')) {
+                $technicians = Technician::all();
+            } elseif (auth()->user()->can('assign technician') && auth()->user()->hasRole('technician')) {
+                $technicians = Technician::where('unit_id', auth()->user()->technician->unit_id)->get();
+            } else {
+                $technicians = [];
+            }
+            return view('maintenances.index', compact('technicians'));
         }
     }
 
@@ -84,7 +140,23 @@ class MaintenancesController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'item_unit_id' => 'required',
+            'technician' => 'required',
+        ]);
+
+        $create = Maintenances::create([
+            'room_id' => Items_units::find(decrypt($request->item_unit_id))->room_id,
+            'item_room_id' => decrypt($request->item_unit_id),
+            'technician_id' => decrypt($request->technician),
+            'status' => 0,
+        ]);
+
+        if ($create) {
+            return redirect()->back()->with('success', 'Maintenance assigned to technician');
+        } else {
+            return redirect()->back()->with('error', 'Failed to assign maintenance to technician');
+        }
     }
 
     /**

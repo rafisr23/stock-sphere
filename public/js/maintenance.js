@@ -1,6 +1,6 @@
 const CSRF_TOKEN = $('meta[name="csrf-token"]').attr("content");
 const getItemsTableUrl = `/maintenances`;
-const getItemsUrl = `/submission-of-repair/getItems`;
+// const getItemsUrl = `/maintenances/getItems`;
 const storeTemporaryFileUrl = `/submission-of-repair/store/temporary-file`;
 
 let selectedItems = [];
@@ -21,35 +21,40 @@ let table = $("#items_table").DataTable({
             d.filter = $("#filterMonth").val();
         },
     },
-    order: [[1, "asc"]],
+    order: [[4, "desc"]],
     columns: [
         {
-            data: "checkbox",
-            name: "checkbox",
+            data: "DT_RowIndex",
+            name: "DT_RowIndex",
             orderable: false,
             searchable: false,
             className: "text-center",
         },
         {
-            data: "DT_RowIndex",
-            name: "DT_RowIndex",
-            className: "text-center",
-        },
-        {
             data: "item",
             name: "item",
+            orderable: false,
         },
         {
             data: "room",
             name: "room",
+            orderable: false,
         },
         {
             data: "serial_number",
             name: "serial_number",
+            orderable: false,
         },
         {
             data: "maintenance_date",
             name: "maintenance_date",
+        },
+        {
+            data: "action",
+            name: "action",
+            orderable: false,
+            searchable: false,
+            className: "text-center",
         },
     ],
     drawCallback: function () {
@@ -65,6 +70,15 @@ $("#filterMonth").on("change", function () {
     table.ajax.reload();
 });
 
+$("#assignTechnicianModal").on("show.bs.modal", function (e) {
+    let button = $(e.relatedTarget);
+    let itemId = button.data("id");
+    let nameItem = button.data("name");
+
+    $("#item_unit_id").val(itemId);
+    $("#itemName").text(nameItem);
+});
+
 let maintenanceItemTable = $("#maintenanceItemTable").DataTable({
     fixedHeader: true,
     pageLength: 25,
@@ -74,9 +88,10 @@ let maintenanceItemTable = $("#maintenanceItemTable").DataTable({
     processing: true,
     serverSide: true,
     ajax: {
-        url: getItemsUrl,
-        data: function (data) {
-            data.id = selectedItems;
+        url: getItemsTableUrl,
+        data: function (d) {
+            d._token = CSRF_TOKEN;
+            d.type = "maintenance";
         },
     },
     columns: [
@@ -86,137 +101,226 @@ let maintenanceItemTable = $("#maintenanceItemTable").DataTable({
             className: "text-center",
         },
         {
-            data: "items_name",
-            name: "items_name",
+            data: "item",
+            name: "item",
         },
         {
             data: "serial_number",
             name: "serial_number",
         },
         {
-            data: "description",
-            name: "description",
+            data: "technician",
+            name: "technician",
         },
         {
-            data: "evidence",
-            name: "evidence",
+            data: "status",
+            name: "status",
+        },
+        {
+            data: "action",
+            name: "action",
         },
     ],
-    drawCallback: function () {
-        loadRepairDescription();
-        loadUploadedFiles();
-    },
+    // drawCallback: function () {
+    //     loadMaintenanceDescription();
+    //     loadUploadedFiles();
+    // },
 });
 
-$("#items_table").on("change", "input.select-row", function () {
-    let id = $(this).val();
+// $('a[data-bs-toggle="tab"]').on("shown.bs.tab", function (e) {
+//     let tabId = $(e.target).data("id");
+//     let isMaintenanceTab = tabId == "maintenances-tab";
+//     $("#submitButton")
+//         .prop("disabled", isMaintenanceTab)
+//         .prop("hidden", isMaintenanceTab);
+// });
 
-    if ($(this).is(":checked")) {
-        if (!selectedItems.includes(id)) {
-            selectedItems.push(id);
-        }
-        if (
-            $("input.select-row").length ===
-            $("input.select-row:checked").length
-        ) {
-            checkAllStatus = true;
-            $("#toggle-check")
-                .text("Uncheck All")
-                .removeClass("btn-secondary")
-                .addClass("btn-warning");
-        }
-    } else {
-        let index = selectedItems.indexOf(id);
-        if (index !== -1) {
-            selectedItems.splice(index, 1);
-        }
-        if (selectedItems.length === 0) {
-            checkAllStatus = false;
-            $("#toggle-check")
-                .text("Check All")
-                .removeClass("btn-warning")
-                .addClass("btn-secondary");
-        }
-    }
-});
+// $("#submitButton").on("click", function () {
+//     if (selectedItems.length > 0) {
+//         let formRepairItem = new FormData();
 
-$("#toggle-check").on("click", function (event) {
-    event.preventDefault();
-    checkAllStatus = !checkAllStatus;
+//         formRepairItem.append("items", selectedItems);
+//         // $('textarea[id^="description"]').each(function () {
+//         //     let itemId = $(this).attr("id");
+//         //     let description = $(this).val();
+//         //     formRepairItem.append(itemId, description);
+//         // });
+//         // $('input[type="file"][id^="evidence"]').each(function () {
+//         //     let itemId = $(this).attr("id");
+//         //     let fileName = sessionStorage.getItem(itemId + "_file");
+//         //     if (fileName) {
+//         //         formRepairItem.append(itemId, fileName);
+//         //     }
+//         // });
+//         formRepairItem.append("_token", CSRF_TOKEN);
 
-    $("input.select-row").each(function () {
-        $(this).prop("checked", checkAllStatus).trigger("change");
-    });
+//         $.ajax({
+//             url: "/maintenances/store",
+//             type: "POST",
+//             data: formRepairItem,
+//             processData: false,
+//             contentType: false,
+//             success: function (response) {
+//                 if (response.success) {
+//                     Swal.fire({
+//                         icon: "success",
+//                         title: "Success",
+//                         text: "The repair submission has been successfully submitted!",
+//                         showConfirmButton: false,
+//                         timer: 3000,
+//                         timerProgressBar: true,
+//                         allowOutsideClick: false,
+//                     }).then((result) => {
+//                         if (result.dismiss === Swal.DismissReason.timer) {
+//                             window.location.href = "/submission-of-repair";
+//                         }
+//                     });
+//                 } else {
+//                     Swal.fire({
+//                         icon: "error",
+//                         title: "Error",
+//                         text:
+//                             "An error occurred while submitting the maintenance: " +
+//                             response.message,
+//                         showConfirmButton: true,
+//                         allowOutsideClick: true,
+//                     });
+//                 }
+//             },
+//             error: function (err) {
+//                 Swal.fire({
+//                     icon: "error",
+//                     title: "Error",
+//                     text: "An error occurred while submitting the maintenance!",
+//                     showConfirmButton: false,
+//                     timer: 3000,
+//                     timerProgressBar: true,
+//                     allowOutsideClick: true,
+//                 });
+//             },
+//         });
+//     } else {
+//         Swal.fire({
+//             icon: "error",
+//             title: "Error",
+//             text: "Please select at least one item!",
+//             showConfirmButton: false,
+//             timer: 3000,
+//             timerProgressBar: true,
+//             allowOutsideClick: true,
+//         });
+//     }
+// });
 
-    $(this)
-        .text(checkAllStatus ? "Uncheck All" : "Check All")
-        .toggleClass("btn-warning", checkAllStatus)
-        .toggleClass("btn-secondary", !checkAllStatus);
-});
+// $("#items_table").on("change", "input.select-row", function () {
+//     let id = $(this).val();
 
-function getItems() {
-    $("#maintenanceItemDescription").empty();
-    $("#maintenanceItemDetailWrapper").empty();
+//     if ($(this).is(":checked")) {
+//         if (!selectedItems.includes(id)) {
+//             selectedItems.push(id);
+//         }
+//         if (
+//             $("input.select-row").length ===
+//             $("input.select-row:checked").length
+//         ) {
+//             checkAllStatus = true;
+//             $("#toggle-check")
+//                 .text("Uncheck All")
+//                 .removeClass("btn-secondary")
+//                 .addClass("btn-warning");
+//         }
+//     } else {
+//         let index = selectedItems.indexOf(id);
+//         if (index !== -1) {
+//             selectedItems.splice(index, 1);
+//         }
+//         if (selectedItems.length === 0) {
+//             checkAllStatus = false;
+//             $("#toggle-check")
+//                 .text("Check All")
+//                 .removeClass("btn-warning")
+//                 .addClass("btn-secondary");
+//         }
+//     }
+// });
 
-    if (selectedItems.length > 0) {
-        repairItemTable.draw();
-        loadRepairDescription();
-    }
-}
+// $("#toggle-check").on("click", function (event) {
+//     event.preventDefault();
+//     checkAllStatus = !checkAllStatus;
 
-function saveRepairDescription() {
-    $('textarea[id^="description"]').each(function () {
-        let itemId = $(this).attr("id");
-        let description = $(this).val();
-        sessionStorage.setItem(itemId, description);
-    });
-}
+//     $("input.select-row").each(function () {
+//         $(this).prop("checked", checkAllStatus).trigger("change");
+//     });
 
-function loadRepairDescription() {
-    $('textarea[id^="description"]').each(function () {
-        let itemId = $(this).attr("id");
-        let savedDescription = sessionStorage.getItem(itemId);
-        if (savedDescription !== null) {
-            $(this).val(savedDescription);
-        }
-    });
-}
+//     $(this)
+//         .text(checkAllStatus ? "Uncheck All" : "Check All")
+//         .toggleClass("btn-warning", checkAllStatus)
+//         .toggleClass("btn-secondary", !checkAllStatus);
+// });
 
-function loadUploadedFiles() {
-    $('input[type="file"][id^="evidence"]').each(function () {
-        let itemId = $(this).attr("id");
-        let fileName = sessionStorage.getItem(itemId + "_file");
+// function getItems() {
+//     $("#maintenanceItemDescription").empty();
+//     $("#maintenanceItemDetailWrapper").empty();
 
-        if (fileName) {
-            $(this).after(
-                '<p>File uploaded: <a href="/temp/' +
-                    fileName +
-                    '" target="_blank">View file</a></p>'
-            );
-        }
-    });
-}
+//     if (selectedItems.length > 0) {
+//         maintenanceItemTable.draw();
+//         loadMaintenanceDescription();
+//     }
+// }
 
-function countPage() {
-    switch (currentPage) {
-        case 1:
-            getItems();
-            loadRepairDescription();
-            break;
-        default:
-            break;
-    }
-}
+// function saveRepairDescription() {
+//     $('textarea[id^="description"]').each(function () {
+//         let itemId = $(this).attr("id");
+//         let description = $(this).val();
+//         sessionStorage.setItem(itemId, description);
+//     });
+// }
+
+// function loadMaintenanceDescription() {
+//     $('textarea[id^="description"]').each(function () {
+//         let itemId = $(this).attr("id");
+//         let savedDescription = sessionStorage.getItem(itemId);
+//         if (savedDescription !== null) {
+//             $(this).val(savedDescription);
+//         }
+//     });
+// }
+
+// function loadUploadedFiles() {
+//     $('input[type="file"][id^="evidence"]').each(function () {
+//         let itemId = $(this).attr("id");
+//         let fileName = sessionStorage.getItem(itemId + "_file");
+
+//         if (fileName) {
+//             $(this).after(
+//                 '<p>File uploaded: <a href="/temp/' +
+//                     fileName +
+//                     '" target="_blank">View file</a></p>'
+//             );
+//         }
+//     });
+// }
+
+// function countPage() {
+//     switch (currentPage) {
+//         case 1:
+//             getItems();
+//             loadMaintenanceDescription();
+//             break;
+//         default:
+//             break;
+//     }
+// }
 
 function navigatePage(step) {
     currentPage += step;
-    countPage();
-    saveRepairDescription();
+    // countPage();
+    // saveRepairDescription();
 }
 
-$('a[data-bs-toggle="tab"]').on("click", function (e) {
-    saveRepairDescription();
-});
+// $('a[data-bs-toggle="tab"]').on("click", function (e) {
+//     saveRepairDescription();
+// });
 
 window.onbeforeunload = function () {
     sessionStorage.clear();
@@ -224,120 +328,47 @@ window.onbeforeunload = function () {
 
 $("#nextButton").on("click", function () {
     navigatePage(1);
+    maintenanceItemTable.ajax.reload();
+    table.ajax.reload();
 });
 
 $("#previousButton").on("click", function () {
     navigatePage(-1);
+    maintenanceItemTable.ajax.reload();
+    table.ajax.reload();
 });
 
-$("#submitButton").on("click", function () {
-    if (selectedItems.length > 0) {
-        let formRepairItem = new FormData();
+// $(document).on("change", 'input[type="file"]', function () {
+//     let fileInput = $(this);
+//     let itemId = fileInput.attr("id");
+//     let file = fileInput[0].files[0];
 
-        formRepairItem.append("items", selectedItems);
-        $('textarea[id^="description"]').each(function () {
-            let itemId = $(this).attr("id");
-            let description = $(this).val();
-            formRepairItem.append(itemId, description);
-        });
-        $('input[type="file"][id^="evidence"]').each(function () {
-            let itemId = $(this).attr("id");
-            let fileName = sessionStorage.getItem(itemId + "_file");
-            if (fileName) {
-                formRepairItem.append(itemId, fileName);
-            }
-        });
-        formRepairItem.append("_token", CSRF_TOKEN);
+//     let formData = new FormData();
+//     formData.append("evidence", file);
+//     formData.append("item_id", itemId);
+//     formData.append("_token", CSRF_TOKEN);
 
-        $.ajax({
-            url: "/submission-of-repair/store",
-            type: "POST",
-            data: formRepairItem,
-            processData: false,
-            contentType: false,
-            success: function (response) {
-                if (response.success) {
-                    Swal.fire({
-                        icon: "success",
-                        title: "Success",
-                        text: "The repair submission has been successfully submitted!",
-                        showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true,
-                        allowOutsideClick: false,
-                    }).then((result) => {
-                        if (result.dismiss === Swal.DismissReason.timer) {
-                            window.location.href = "/submission-of-repair";
-                        }
-                    });
-                } else {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Error",
-                        text:
-                            "An error occurred while submitting the repair: " +
-                            response.message,
-                        showConfirmButton: true,
-                        allowOutsideClick: true,
-                    });
-                }
-            },
-            error: function (err) {
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: "An error occurred while submitting the repair!",
-                    showConfirmButton: false,
-                    timer: 3000,
-                    timerProgressBar: true,
-                    allowOutsideClick: true,
-                });
-            },
-        });
-    } else {
-        Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "Please select at least one item!",
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true,
-            allowOutsideClick: true,
-        });
-    }
-});
-
-$(document).on("change", 'input[type="file"]', function () {
-    let fileInput = $(this);
-    let itemId = fileInput.attr("id");
-    let file = fileInput[0].files[0];
-
-    let formData = new FormData();
-    formData.append("evidence", file);
-    formData.append("item_id", itemId);
-    formData.append("_token", CSRF_TOKEN);
-
-    $.ajax({
-        url: storeTemporaryFileUrl,
-        type: "POST",
-        data: formData,
-        processData: false,
-        contentType: false,
-        success: function (response) {
-            if (response.success) {
-                sessionStorage.setItem(itemId + "_file", response.fileName);
-            }
-        },
-        error: function (err) {
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: "An error occurred while uploading the file!",
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-                allowOutsideClick: true,
-            });
-        },
-    });
-});
+//     $.ajax({
+//         url: storeTemporaryFileUrl,
+//         type: "POST",
+//         data: formData,
+//         processData: false,
+//         contentType: false,
+//         success: function (response) {
+//             if (response.success) {
+//                 sessionStorage.setItem(itemId + "_file", response.fileName);
+//             }
+//         },
+//         error: function (err) {
+//             Swal.fire({
+//                 icon: "error",
+//                 title: "Error",
+//                 text: "An error occurred while uploading the file!",
+//                 showConfirmButton: false,
+//                 timer: 3000,
+//                 timerProgressBar: true,
+//                 allowOutsideClick: true,
+//             });
+//         },
+//     });
+// });

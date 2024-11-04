@@ -19,14 +19,15 @@
                         <div class="card-body p-3">
                             <ul class="nav nav-pills nav-justified">
                                 <li class="nav-item" data-target-form="#itemListForm">
-                                    <a href="#itemList" data-bs-toggle="tab" data-toggle="tab" class="nav-link active">
+                                    <a href="#itemList" data-bs-toggle="tab" data-toggle="tab" class="nav-link active"
+                                        data-id="items-tab">
                                         <i class="ph-duotone ph-package"></i>
                                         <span class="d-none d-sm-inline">Item List</span>
                                     </a>
                                 </li>
-                                <li class="nav-item" data-target-form="#maintenanceDescriptionForm" onclick="getItems()">
+                                <li class="nav-item" data-target-form="#maintenanceDescriptionForm">
                                     <a href="#maintenanceDescription" data-bs-toggle="tab" data-toggle="tab"
-                                        class="nav-link icon-btn">
+                                        class="nav-link icon-btn" data-id="maintenances-tab">
                                         <i class="ph-duotone ph-note"></i>
                                         <span class="d-none d-sm-inline">Maintenance Detail</span>
                                     </a>
@@ -43,8 +44,9 @@
                                 </div>
                                 <div class="tab-pane show active" id="itemList">
                                     <div class="text-center">
-                                        <h3 class="mb-2">Step 1: Choose Items</h3>
-                                        <small class="text-muted">Pick the items to undergo maintenance.</small>
+                                        <h3 class="mb-2">Page 1: Choose Items</h3>
+                                        <small class="text-muted">Choose the items to undergo maintenance and assign
+                                            technician.</small>
                                     </div>
                                     <div class="row mt-4">
                                         <div class="col">
@@ -59,17 +61,17 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            <button id="toggle-check" class="btn btn-secondary mb-3">Check
-                                                All</button>
+                                            {{-- <button id="toggle-check" class="btn btn-secondary mb-3">Check
+                                                All</button> --}}
                                             <table id="items_table" class="table table-bordered">
                                                 <thead>
                                                     <tr>
-                                                        <th>Select</th>
                                                         <th>No</th>
                                                         <th>Item Name</th>
                                                         <th>Room</th>
                                                         <th>Serial Number</th>
                                                         <th>Maintenance Date</th>
+                                                        <th>Action</th>
                                                     </tr>
                                                 </thead>
                                             </table>
@@ -78,7 +80,7 @@
                                 </div>
                                 <div class="tab-pane" id="maintenanceDescription">
                                     <div class="text-center">
-                                        <h3 class="mb-2">Step 2: Provide Details for Maintenance Request</h3>
+                                        <h3 class="mb-2">Page 2: List Maintenance</h3>
                                         <small class="text-muted">Describe the issue</small>
                                     </div>
                                     <form action="" method="POST" id="maintenanceSubmissionForm">
@@ -92,6 +94,7 @@
                                                             <th>No</th>
                                                             <th>Item Name</th>
                                                             <th>Serial Number</th>
+                                                            <th>Technician</th>
                                                             <th>Status</th>
                                                             <th>Action</th>
                                                         </tr>
@@ -111,11 +114,11 @@
                                             <a href="javascript:void(0);" class="btn btn-secondary" id="nextButton">Next</a>
                                         </div>
                                     </div>
-
-                                    <div class="submit">
-                                        <a href="javascript:void(0);" class="btn btn-success" type="button"
-                                            id="submitButton">Submit</a>
-                                    </div>
+                                    {{-- <div class="submit">
+                                        <button class="btn btn-success" type="button" id="submitButton">
+                                            Submit
+                                        </button>
+                                    </div> --}}
                                 </div>
                             </div>
                         </div>
@@ -124,6 +127,45 @@
             </div>
         </div>
     </div>
+
+    {{-- modal for assign technician --}}
+    <div id="assignTechnicianModal" class="modal fade" tabindex="-1" role="dialog"
+        aria-labelledby="assignTechnicianModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <form action="{{ route('maintenances.store') }}" method="POST">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="assignTechnicianModalLabel">Assign Technician</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input hidden name="item_unit_id" id="item_unit_id">
+                        <p style="font-weight: bold;">Assign a Technician to <span id="itemName"
+                                style="font-style: italic;"></span> Maintenance.
+                        </p>
+                        <div class="form-group">
+                            <label for="technician" class="mb-1 required">Select Technician</label>
+                            <select name="technician" id="technician" class="form-control choices-init" required>
+                                <option value="" selected disabled>Select Technician</option>
+                                @foreach ($technicians as $tech)
+                                    <option value="{{ encrypt($tech->id) }}">{{ $tech->name }}</option>
+                                @endforeach
+                            </select>
+                            @error('technician')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Assign</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {{-- end modal for assign technician --}}
 @endsection
 
 @section('scripts')
