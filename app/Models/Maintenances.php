@@ -14,7 +14,7 @@ class Maintenances extends Model
 
     public function room()
     {
-        return $this->belongsTo(Rooms::class);
+        return $this->belongsTo(Rooms::class, 'room_id');
     }
 
     public function item_room()

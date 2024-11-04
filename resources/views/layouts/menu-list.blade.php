@@ -89,6 +89,9 @@
             <span class="pc-mtext">List Of Repairs</span>
         </a>
     </li>
+@endif
+
+@if (auth()->user()->hasRole('technician') || auth()->user()->hasRole('superadmin'))
     <li class="pc-item ">
         <a href="{{ route('maintenances.index') }}" class="pc-link">
             <span class="pc-micon">

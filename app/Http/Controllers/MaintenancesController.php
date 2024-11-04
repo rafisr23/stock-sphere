@@ -24,7 +24,7 @@ class MaintenancesController extends Controller
 
             $extData = Maintenances::all();
 
-            if ($type == 'list') {
+            if (($type == 'list' && auth()->user()->hasRole('superadmin')) || ($type == 'list' && auth()->user()->can('assign technician'))) {
                 $endDate = null;
                 if ($filter == '1') {
                     $endDate = Carbon::parse($loginDate)->addMonth()->format('Y-m-d');
@@ -85,17 +85,17 @@ class MaintenancesController extends Controller
                     $maintenances = Maintenances::whereIn('technician_id', $allTechnicians)->get();
                 } elseif (auth()->user()->hasRole('technician')) {
                     $maintenances = Maintenances::where('technician_id', auth()->user()->technician->id)->get();
-                } else {
-                    $maintenances = [];
                 }
+
+                $maintenances = $maintenances->sortByDesc('created_at');
 
                 return DataTables::of($maintenances)
                     ->addIndexColumn()
                     ->addColumn('item', function ($row) {
-                        return $row->items_room->items->item_name;
+                        return $row->item_room->items->item_name;
                     })
                     ->addColumn('serial_number', function ($row) {
-                        return $row->items_room->serial_number;
+                        return $row->item_room->serial_number;
                     })
                     ->addColumn('technician', function ($row) {
                         return $row->technician->name;
@@ -104,9 +104,13 @@ class MaintenancesController extends Controller
                         if ($row->status == 0) {
                             return '<span class="badge rounded-pill text-bg-info">Pending</span>';
                         } elseif ($row->status == 1) {
-                            return '<span class="badge rounded-pill text-bg-success">Done</span>';
+                            return '<span class="badge rounded-pill text-bg-secondary">Worked on</span>';
+                        } elseif ($row->status == 2) {
+                            return '<span class="badge rounded-pill text-bg-warning">Work On Delay</span>';
+                        } elseif ($row->status == 3) {
+                            return '<span class="badge rounded-pill text-bg-success">Completed</span>';
                         } else {
-                            return '<span class="badge rounded-pill text-bg-danger">Canceled</span>';
+                            return '<span class="badge rounded-pill text-bg-danger">Need Repair</span>';
                         }
                     })
                     ->addColumn('action', function ($row) {
@@ -114,6 +118,7 @@ class MaintenancesController extends Controller
                     })
                     ->rawColumns(['action', 'status'])
                     ->make(true);
+            } else if ($type == 'history') {
             }
         } else {
             if (auth()->user()->hasRole('superadmin')) {
@@ -145,12 +150,17 @@ class MaintenancesController extends Controller
             'technician' => 'required',
         ]);
 
-        $create = Maintenances::create([
-            'room_id' => Items_units::find(decrypt($request->item_unit_id))->room_id,
-            'item_room_id' => decrypt($request->item_unit_id),
-            'technician_id' => decrypt($request->technician),
-            'status' => 0,
-        ]);
+        if (auth()->user()->can('assign technician') || auth()->user()->hasRole('superadmin')) {
+            $create = Maintenances::create([
+                'room_id' => Items_units::find(decrypt($request->item_unit_id))->room_id,
+                'item_room_id' => decrypt($request->item_unit_id),
+                'technician_id' => decrypt($request->technician),
+                'status' => 0,
+            ]);
+        } else {
+            return redirect()->back()->with('error', 'You are not authorized to assign maintenance to technician');
+        }
+
 
         if ($create) {
             return redirect()->back()->with('success', 'Maintenance assigned to technician');

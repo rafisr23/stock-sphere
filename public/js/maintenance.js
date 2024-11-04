@@ -99,6 +99,8 @@ let maintenanceItemTable = $("#maintenanceItemTable").DataTable({
             data: "DT_RowIndex",
             name: "DT_RowIndex",
             className: "text-center",
+            orderable: false,
+            searchable: false,
         },
         {
             data: "item",
@@ -115,10 +117,16 @@ let maintenanceItemTable = $("#maintenanceItemTable").DataTable({
         {
             data: "status",
             name: "status",
+            className: "text-center",
+            orderable: false,
+            searchable: false,
         },
         {
             data: "action",
             name: "action",
+            className: "text-center",
+            orderable: false,
+            searchable: false,
         },
     ],
     // drawCallback: function () {
@@ -318,9 +326,11 @@ function navigatePage(step) {
     // saveRepairDescription();
 }
 
-// $('a[data-bs-toggle="tab"]').on("click", function (e) {
-//     saveRepairDescription();
-// });
+$('a[data-bs-toggle="tab"]').on("click", function (e) {
+    // saveRepairDescription();
+    maintenanceItemTable.ajax.reload();
+    table.ajax.reload();
+});
 
 window.onbeforeunload = function () {
     sessionStorage.clear();
