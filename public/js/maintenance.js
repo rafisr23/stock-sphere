@@ -135,6 +135,132 @@ let maintenanceItemTable = $("#maintenanceItemTable").DataTable({
     // },
 });
 
+$("#maintenanceItemTable").on("click", ".accept", function (e) {
+    e.preventDefault();
+    let id = $(this).data("id");
+    let url = "maintenances/acceptMaintenances/" + id;
+    $.ajax({
+        url: url,
+        type: "POST",
+        data: {
+            _method: "PUT",
+            _token: CSRF_TOKEN,
+            id: id,
+        },
+        success: function (response) {
+            if (response.success) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Success",
+                    text: "The maintenance has been successfully accepted!",
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    allowOutsideClick: false,
+                }).then((result) => {
+                    if (result.dismiss === Swal.DismissReason.timer) {
+                        window.location.reload();
+                    }
+                });
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text:
+                        "An error occurred while accepting the maintenance: " +
+                        response.message,
+                    showConfirmButton: true,
+                    allowOutsideClick: true,
+                });
+            }
+        },
+    });
+});
+
+$("#maintenanceItemTable").on("click", ".cancel", function (e) {
+    e.preventDefault();
+    let id = $(this).data("id");
+    let url = "maintenances/cancelMaintenances/" + id;
+    $.ajax({
+        url: url,
+        type: "POST",
+        data: {
+            _method: "PUT",
+            _token: CSRF_TOKEN,
+            id: id,
+        },
+        success: function (response) {
+            if (response.success) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Success",
+                    text: "The maintenance has been successfully cancelled!",
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    allowOutsideClick: false,
+                }).then((result) => {
+                    if (result.dismiss === Swal.DismissReason.timer) {
+                        window.location.reload();
+                    }
+                });
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text:
+                        "An error occurred while accepting the maintenance: " +
+                        response.message,
+                    showConfirmButton: true,
+                    allowOutsideClick: true,
+                });
+            }
+        },
+    });
+});
+
+$("#maintenanceItemTable").on("click", ".start", function (e) {
+    e.preventDefault();
+    let id = $(this).data("id");
+    let url = "maintenances/startMaintenances/" + id;
+    $.ajax({
+        url: url,
+        type: "POST",
+        data: {
+            _method: "PUT",
+            _token: CSRF_TOKEN,
+            id: id,
+        },
+        success: function (response) {
+            if (response.success) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Success",
+                    text: "The maintenance is starting!",
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    allowOutsideClick: false,
+                }).then((result) => {
+                    if (result.dismiss === Swal.DismissReason.timer) {
+                        window.location.reload();
+                    }
+                });
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text:
+                        "An error occurred while starting the maintenance: " +
+                        response.message,
+                    showConfirmButton: true,
+                    allowOutsideClick: true,
+                });
+            }
+        },
+    });
+});
+
 // $('a[data-bs-toggle="tab"]').on("shown.bs.tab", function (e) {
 //     let tabId = $(e.target).data("id");
 //     let isMaintenanceTab = tabId == "maintenances-tab";

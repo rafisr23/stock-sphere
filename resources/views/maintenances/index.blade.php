@@ -181,6 +181,60 @@
         </div>
     </div>
     {{-- end modal for assign technician --}}
+
+    {{-- modal for start maintaining --}}
+    <div id="startMaintainingModal" class="modal fade" tabindex="-1" role="dialog"
+        aria-labelledby="startMaintainingModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <form action="{{ route('maintenances.update', 'maintenance_id') }}" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="startMaintainingModalLabel">Start Maintaining</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <input hidden name="item_unit_id" id="item_unit_id">
+                        <div class="form-group row mb-4">
+                            <label for="remarks" class="col-sm-3 col-form-label">Remarks</label>
+                            <div class="col-sm-9">
+                                <textarea name="remarks" id="remarks" class="form-control" required></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group row mb-4">
+                            <label for="description" class="col-sm-3 col-form-label">Description</label>
+                            <div class="col-sm-9">
+                                <textarea name="description" id="description" class="form-control" required></textarea>
+                            </div>
+                        </div>
+                        {{-- status : 0 - Pending, 1 - Worked on, 2 - Work On Delay, 3 - Completed, 4 - Need Repair --}}
+                        <div class="form-group row mb-4">
+                            <label for="status" class="col-sm-3 col-form-label">Status</label>
+                            <div class="col-sm-9">
+                                <select name="status" id="status" class="form-control" required>
+                                    <option value="" selected disabled>Select Status</option>
+                                    <option value="4">Need Repair</option>
+                                    <option value="3">Completed</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row mb-4">
+                            <label for="evidence" class="col-sm-3 col-form-label">Evidence</label>
+                            <div class="col-sm-9">
+                                <input type="file" name="evidence" id="evidence" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Start</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {{-- end modal for start maintaining --}}
 @endsection
 
 @section('scripts')

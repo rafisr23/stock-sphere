@@ -114,7 +114,18 @@ class MaintenancesController extends Controller
                         }
                     })
                     ->addColumn('action', function ($row) {
-                        return '<button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#maintenanceDetailModal" title="Detail" data-id="' . encrypt($row->id) . '"><i class="ph ph-duotone ph-eye"></i></button>';
+                        $btn = '<div class="d-flex justify-content-center align-items-center">';
+                        $btn .= '<a href="' . route('maintenances.show', encrypt($row->id)) . '" class="view btn btn-info btn-sm me-2" title="Show data"><i class="ph-duotone ph-eye"></i></a>';
+                        if ($row->date_worked_on == null && $row->date_cancelled == null && $row->status == 0) {
+                            $btn .= '<a href="#" class="accept btn btn-success btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Accept Maintenance"><i class="ph-duotone ph-check"></i></a>';
+                            $btn .= '<a href="#" class="cancel btn btn-danger btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Cancel Maintenance"><i class="ph-duotone ph-x"></i></a>';
+                        }
+                        if ($row->date_worked_on != null && $row->date_completed == null && $row->status == 1) {
+                            $btn .= '<button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#startMaintainingModal" title="Start Maintaining" data-id="' . encrypt($row->id) . '" data-name="' . $row->item_room->items->item_name . ' (' . $row->serial_number . ')"><i class="ph ph-duotone ph-wrench"></i></button>';
+                        }
+
+                        $btn .= '</div>';
+                        return $btn;
                     })
                     ->rawColumns(['action', 'status'])
                     ->make(true);
@@ -172,9 +183,88 @@ class MaintenancesController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Maintenances $maintenances)
+    public function show($id)
     {
-        //
+        $id = decrypt($id);
+        $maintenance = Maintenances::find($id);
+        return view('maintenances.show', compact('maintenance'));
+    }
+
+    public function acceptMaintenances(Request $request)
+    {
+        return $this->acceptCancelFinishState($request, 'accepted');
+    }
+
+    public function cancelMaintenances(Request $request)
+    {
+        return $this->acceptCancelFinishState($request, 'canceled');
+    }
+
+    public function finishMaintenances(Request $request)
+    {
+        return $this->acceptCancelFinishState($request, 'completed');
+    }
+
+    private function getMaintenancesById($req)
+    {
+        if (is_object($req)) {
+            $id = decrypt($req->get('id'));
+        } else {
+            $id = decrypt($req);
+        }
+
+        // return Maintenances::findOrFail($id);
+        $maintenance = Maintenances::where('id', $id)->first();
+        return $maintenance;
+    }
+
+    private function acceptCancelFinishState($req, $state)
+    {
+        $maintenance = $this->getMaintenancesById($req);
+
+        if ($maintenance->date_worked_on != null) {
+            return response()->json(['error', 'message' => 'Maintenances already accepted']);
+        }
+        if ($maintenance->date_cancelled != null) {
+            return response()->json(['error', 'message' => 'Maintenances already canceled']);
+        }
+        if ($maintenance->date_completed != null) {
+            return response()->json(['error', 'message' => 'Maintenances already completed']);
+        }
+
+        if ($state == 'accepted') {
+            $maintenance->date_worked_on = now();
+
+            if ($maintenance->date_worked_on == null) {
+                $maintenance->date_worked_on = now();
+                $maintenance->status = 1;
+                $maintenance->save();
+            }
+
+        } elseif ($state == 'canceled') {
+            $maintenance->date_cancelled = now();
+
+            $allCancelled = Maintenances::whereNull('date_cancelled')
+                ->doesntExist();
+
+            if ($allCancelled) {
+                $maintenance->date_cancelled = now();
+            }
+        } elseif ($state == 'completed') {
+            $maintenance->date_completed = now();
+
+            $allCompleted = Maintenances::whereNull('date_completed')
+                ->doesntExist();
+
+            if ($allCompleted) {
+                $maintenance->date_completed = now();
+            }
+        }
+        if ($maintenance->save() && $maintenance->save()) {
+            return response()->json(['success' => 'Maintenances ' . $state . ' successfully']);
+        }
+        $result = strstr($state, 'ed', true);
+        return response()->json(['error' => 'Failed to ' . $result . ' repairments']);
     }
 
     /**
@@ -188,9 +278,15 @@ class MaintenancesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Maintenances $maintenances)
+    public function update(Request $request, $id)
     {
-        //
+        dd($id);
+        $maintenance = Maintenances::find(decrypt($id));
+        dd($maintenance);
+        $maintenance->status = $request->status;
+        $maintenance->save();
+
+        return redirect()->back()->with('success', 'Maintenance status updated');
     }
 
     /**

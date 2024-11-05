@@ -144,7 +144,15 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/finish/{id}', 'finish')->name('finish');
         });
 
-        Route::resource('maintenances', MaintenancesController::class);
+        Route::controller(MaintenancesController::class)->prefix('maintenances')->name('maintenances.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::post('/store', 'store')->name('store');
+            Route::get('show/{id}', 'show')->name('show');
+            Route::put('/acceptMaintenances/{id}', 'acceptMaintenances')->name('acceptMaintenances');
+            Route::put('/cancelMaintenances/{id}', 'cancelMaintenances')->name('cancelMaintenances');
+            Route::put('/startMaintenances/{id}', 'startMaintenances')->name('startMaintenances');
+            Route::put('/update/{id}', 'update')->name('update');
+        });
     });
 
     // ROUTE FOR SUPERADMIN OR UNIT OR ROOM
