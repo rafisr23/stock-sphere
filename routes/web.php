@@ -37,9 +37,12 @@ Auth::routes();
 
 // Define a group of routes with 'auth' middleware applied
 Route::middleware(['auth'])->group(function () {
-    Route::get('/', function () {
-        return view('index');
-    })->name('dashboard');
+    // Route::get('/', function () {
+    //     return view('index');
+    // })->name('dashboard');
+    Route::controller(HomeController::class)->name('home.')->group(function () {
+        Route::get('/', 'index')->name('index');
+    });
 
     Route::prefix('api')->name('api.')->group(function () {
         Route::get('/get-all-province', function () {

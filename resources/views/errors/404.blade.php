@@ -16,7 +16,8 @@
                             <p class="mt-2 mb-4 text-muted f-20">We couldn’t find the page you were looking for. Why not
                                 try back to the Homepage.</p>
                             <a class="btn btn-primary d-inline-flex align-items-center mb-3"
-                                href="{{ route('dashboard') }}"><i class="ph-duotone ph-house me-2"></i> Back to Home</a>
+                                href="{{ route('home.index') }}"><i class="ph-duotone ph-house me-2"></i> Back to
+                                Home</a>
                         </div>
                     </div>
                 </div>
@@ -30,7 +31,7 @@
                     </div>
                     <div class="col-auto my-1">
                         <ul class="list-inline footer-link mb-0">
-                            <li class="list-inline-item"><a href="{{ route('dashboard') }}">Home</a></li>
+                            <li class="list-inline-item"><a href="{{ route('home.index') }}">Home</a></li>
                         </ul>
                     </div>
                 </div>
