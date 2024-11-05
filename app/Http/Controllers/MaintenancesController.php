@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Items_units;
 use App\Models\Maintenances;
+use App\Models\Rooms;
 use App\Models\Technician;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -33,7 +34,13 @@ class MaintenancesController extends Controller
                 }
 
                 if ($endDate) {
-                    $items = Items_units::where('maintenance_date', '<=', $endDate)->get();
+                    if (auth()->user()->hasRole('superadmin')) {
+                        $items = Items_units::where('maintenance_date', '<=', $endDate)->get();
+                    } else {
+                        $technician = auth()->user()->technician;
+                        $roomId = Rooms::where('unit_id', $technician->unit_id)->pluck('id');
+                        $items = Items_units::whereIn('room_id', $roomId)->where('maintenance_date', '<=', $endDate)->get();
+                    }
                 } else {
                     $items = Items_units::all();
                 }
