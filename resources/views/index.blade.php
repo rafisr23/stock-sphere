@@ -27,7 +27,28 @@
         </div>
     </div>
     <!-- Breadcrumb end -->
-
+    <!-- Alert start -->
+    @if ($maintenanceSoon == 'true')
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <svg class="bi flex-shrink-0 me-2" width="24" height="24">
+                <use xlink:href="#info-fill"></use>
+            </svg>
+            <strong>Perhatian!</strong> Ada barang yang akan mendekati waktu <a href="{{ route('maintenances.index') }}"
+                class="alert-link">Maintenance</a>.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+    @if ($maintenanceExpired == 'true')
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <svg class="bi flex-shrink-0 me-2" width="24" height="24">
+                <use xlink:href="#exclamation-triangle-fill"></use>
+            </svg>
+            <strong>Perhatian!</strong> Ada barang yang sudah melebihi waktu <a href="{{ route('maintenances.index') }}"
+                class="alert-link">Maintenance</a>.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+    <!-- Alert end -->
 
 @endsection
 
