@@ -21,7 +21,6 @@ let table = $("#items_table").DataTable({
             d.filter = $("#filterMonth").val();
         },
     },
-    order: [[4, "desc"]],
     columns: [
         {
             data: "DT_RowIndex",

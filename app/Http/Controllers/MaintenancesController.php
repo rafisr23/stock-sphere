@@ -45,6 +45,8 @@ class MaintenancesController extends Controller
                     $items = Items_units::all();
                 }
 
+                $items = $items->sortBy('maintenance_date');
+
                 return DataTables::of($items)
                     ->addIndexColumn()
                     ->addColumn('item', function ($row) {
@@ -93,8 +95,6 @@ class MaintenancesController extends Controller
                 } elseif (auth()->user()->hasRole('technician')) {
                     $maintenances = Maintenances::where('technician_id', auth()->user()->technician->id)->get();
                 }
-
-                $maintenances = $maintenances->sortByDesc('created_at');
 
                 return DataTables::of($maintenances)
                     ->addIndexColumn()
