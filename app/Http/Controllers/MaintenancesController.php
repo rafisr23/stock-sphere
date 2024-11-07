@@ -75,7 +75,7 @@ class MaintenancesController extends Controller
                             ->first()->status ?? null;
 
                         if (($loginDate->isSameDay($row->maintenance_date) && $status === null) || ($loginDate->greaterThan($row->maintenance_date) && $count == 0 && $status === null)) {
-                            return '<button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#assignTechnicianModal" title="Assign Technician" data-id="' . encrypt($row->id) . '" data-name="' . $row->items->item_name . ' (' . $row->serial_number . ')"><i class="ph ph-duotone ph-wrench"></i></button>';
+                            return '<button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#assignTechnicianModal" title="Assign Technician" data-id="' . encrypt($row->id) . '" data-name="' . $row->items->item_name . ' (' . $row->serial_number . ')"><i class="ph-duotone ph-user-plus"></i></button>';
                         } elseif ($status !== null) {
                             return '<span class="badge rounded-pill text-bg-success">Already Assigned</span>';
                         } else {
