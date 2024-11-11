@@ -88,10 +88,20 @@
                         _token: CSRF_TOKEN
                     },
                     success: function(data) {
-                        console.log(data);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Sparepart added successfully',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
                     },
                     error: function(data) {
-                        console.log(data);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Sparepart failed to add',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
                     }
                 });
             } else {
@@ -104,7 +114,20 @@
                         _token: CSRF_TOKEN
                     },
                     success: function(data) {
-                        console.log(data);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Sparepart removed successfully',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    },
+                    error: function(data) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Sparepart failed to remove',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
                     }
                 });
             }

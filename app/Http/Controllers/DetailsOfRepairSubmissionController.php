@@ -20,6 +20,7 @@ class DetailsOfRepairSubmissionController extends Controller
             if ($table === 'repairments') {
                 if (auth()->user()->hasRole('technician')) {
                     $details_of_repair_submission = DetailsOfRepairSubmission::where('technician_id', auth()->user()->id)->get();
+                    dd($details_of_repair_submission);
                 } else {
                     $details_of_repair_submission = DetailsOfRepairSubmission::all();
                 }
@@ -102,7 +103,18 @@ class DetailsOfRepairSubmissionController extends Controller
                     })
                     ->addColumn('sparepart_used', function ($row) {
                         $sparepartUsedCount = SparepartsOfRepair::where('details_of_repair_submission_id', $row->id)->count();
-                        return $sparepartUsedCount;
+                        // Tambahin show sparepart used
+                        $sparepartUsedText = '<div class="d-flex justify-content-center align-items-center">';
+                        $sparepartUsedText .= "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
+                        data-bs-target='#exampleModal'
+                        data-title='Detail Sparepart Used for ".$row->itemUnit->items->item_name."' data-bs-tooltip='tooltip'
+                        data-remote=" . route('repairments.showSparepartUsed', ['id' => encrypt($row->id)]) . "
+                        title='Number of Sparepart Used'>
+                        " . $sparepartUsedCount . "
+                            </a>
+                            ";
+                        $sparepartUsedText .= '</div>';
+                        return $sparepartUsedText;
                     })
                     ->addColumn('action', function ($row) {
                         $btn = '<div class="d-flex justify-content-center align-items-center">';
@@ -112,7 +124,7 @@ class DetailsOfRepairSubmissionController extends Controller
                         $btn .= '</div>';
                         return $btn;
                     })
-                    ->rawColumns(['action', 'remark', 'status'])
+                    ->rawColumns(['action', 'remark', 'status', 'sparepart_used'])
                     ->make(true);
             }
         }
@@ -212,6 +224,7 @@ class DetailsOfRepairSubmissionController extends Controller
             }
         } elseif ($state == 'completed') {
             $details_of_repair_submission->date_completed = now();
+            // tambahin "No Remark from Technician"
 
             $allCompleted = DetailsOfRepairSubmission::where('submission_of_repair_id', $details_of_repair_submission->submission_of_repair_id)
                 ->whereNull('date_completed')
@@ -335,5 +348,18 @@ class DetailsOfRepairSubmissionController extends Controller
             return response()->json(['success' => 'Repairments finished successfully']);
         }
         return response()->json(['error' => 'Failed to finish repairments']);
+    }
+
+    public function showSparepartUsed($id)
+    {
+        $sparepartsOfRepair = SparepartsOfRepair::where('details_of_repair_submission_id', decrypt($id))->get();
+        $sparepartUsed = $sparepartsOfRepair->map(function ($item) {
+            return [
+                'name' => $item->sparepart->name,
+                'serial_no' => $item->sparepart->serial_no,
+                'description' => $item->sparepart->description,
+            ];
+        });
+        return view('repairments.sparepartsModal', compact('sparepartUsed'));
     }
 }
