@@ -43,10 +43,11 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-12">
-                            {{-- @if ($repairment->evidence != null) --}}
-                                <div class="form-group row">
-                                    <label for="image" class="col-sm-3 col-form-label">Evidence:</label>
-                                    <div class="col-sm-9 d-flex align-items-center">
+                            <div class="form-group row">
+                                <label for="image" class="col-sm-3 col-form-label">Evidence:</label>
+                                @if ($repairment->evidence != null)
+                                    {{-- tambahin No evidence  --}}
+                                    <div class="col-sm-9 d-flex align-items-center" id="image">
                                         <a class="card-gallery" data-fslightbox="gallery"
                                             href="{{ asset('images/units/' . $repairment->evidence) }}">
                                             <img class="img-fluid"
@@ -62,20 +63,24 @@
                                             </div>
                                         </a>
                                     </div>
-                                </div>
-                            {{-- @endif --}}
+                                @else
+                                    <div class="col-sm-9 d-flex align-items-center">
+                                        <p class="mb-0" id="image">No evidence</p>
+                                    </div>
+                                @endif
+                            </div>
                             <div class="form-group
                                 row">
                                 <label for="decsription" class="col-sm-3 col-form-label">Description: </label>
                                 <div class="col-sm-9 d-flex align-items-center">
-                                    <p id="decsription" class="mb-0">{{ $repairment->description }}</p>
+                                    <p id="decsription" class="mb-0">{{ $repairment->description ?? "No description" }}</p>
                                 </div>
                             </div>
                             @role('superadmin')
                                 <div class="form-group row">
                                     <label for="technician" class="col-sm-3 col-form-label">Technician name: </label>
                                     <div class="col-sm-9 d-flex align-items-center">
-                                        <p id="technician" class="mb-0">{{ $repairment->technician_id }}</p>
+                                        <p id="technician" class="mb-0">{{ $repairment->technician->name ?? "No technician assigned"}}</p>
                                     </div>
                                 </div>
                             @endrole
@@ -90,7 +95,8 @@
                                 row">
                                 <label for="created_at" class="col-sm-3 col-form-label">Created at: </label>
                                 <div class="col-sm-9 d-flex align-items-center">
-                                    <p id="created_at" class="mb-0">{{ $repairment->created_at->isoFormat('D MMMM Y') }}</p>
+                                    <p id="created_at" class="mb-0">{{ $repairment->created_at->isoFormat('D MMMM Y') }}
+                                    </p>
                                 </div>
                             </div>
                         </div>

@@ -141,6 +141,7 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/showSparepart/addSparepart/{idDetail}/{idSparepart}', 'addSparepart')->name('addSparepart');
             Route::post('/showSparepart/removeSparepart/{idDetail}/{idSparepart}', 'removeSparepart')->name('removeSparepart');
             Route::put('/finish/{id}', 'finish')->name('finish');
+            Route::get('/showSparepartUsed/{id}', 'showSparepartUsed')->name('showSparepartUsed');
         });
 
         Route::resource('maintenances', MaintenancesController::class);
@@ -162,7 +163,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/getTechnician', 'getTechnician')->name('getTechnician');
         });
     });
-    
+
     Route::controller(SubmissionOfRepairController::class)->prefix('submission-of-repair')->name('submission-of-repair.')->middleware('role:superadmin|room|unit|technician')->group(function () {
         Route::get('/detail/{submissionId}', 'detailSubmission')->name('detail');
     });
