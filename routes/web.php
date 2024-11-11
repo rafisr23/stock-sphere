@@ -17,6 +17,7 @@ use App\Http\Controllers\ItemsUnitsController;
 use App\Http\Controllers\SparepartsController;
 use App\Http\Controllers\TechnicianController;
 use App\Http\Controllers\EditProfileController;
+use App\Http\Controllers\MaintenancesController;
 use App\Http\Controllers\SubmissionOfRepairController;
 
 /*
@@ -36,9 +37,9 @@ Auth::routes();
 
 // Define a group of routes with 'auth' middleware applied
 Route::middleware(['auth'])->group(function () {
-    Route::get('/', function () {
-        return view('index');
-    })->name('dashboard');
+    Route::controller(HomeController::class)->name('home.')->group(function () {
+        Route::get('/', 'index')->name('index');
+    });
 
     Route::prefix('api')->name('api.')->group(function () {
         Route::get('/get-all-province', function () {
@@ -137,7 +138,14 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/update/{id}', 'update')->name('update');
             Route::get('/showSparepart/{id}', 'showSparepart')->name('showSparepart');
             Route::get('/getSpareparts/{id}', 'getSpareparts')->name('getSpareparts');
+            Route::post('/showSparepart/addSparepart/{idDetail}/{idSparepart}', 'addSparepart')->name('addSparepart');
+            Route::post('/showSparepart/removeSparepart/{idDetail}/{idSparepart}', 'removeSparepart')->name('removeSparepart');
             Route::put('/finish/{id}', 'finish')->name('finish');
+        });
+
+        Route::resource('maintenances', MaintenancesController::class);
+        Route::controller(MaintenancesController::class)->name('maintenances.')->group(function () {
+            Route::get('/history', 'history')->name('history');
         });
     });
 
