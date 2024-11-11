@@ -167,8 +167,8 @@ class MaintenancesController extends Controller
             return redirect()->back()->with('error', 'You are not authorized to assign maintenance to technician');
         }
 
-
         if ($create) {
+            createLog(3, $create->id, 'assign maintenance to technician', null, Items_units::where('id', $create->item_room_id)->get('maintenance_date')->toJson());
             return redirect()->back()->with('success', 'Maintenance assigned to technician');
         } else {
             return redirect()->back()->with('error', 'Failed to assign maintenance to technician');
