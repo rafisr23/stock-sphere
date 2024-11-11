@@ -48,9 +48,9 @@
                                     <label for="image" class="col-sm-3 col-form-label">Evidence:</label>
                                     <div class="col-sm-9 d-flex align-items-center">
                                         <a class="card-gallery" data-fslightbox="gallery"
-                                            href="{{ asset('images/items/' . $maintenance->item_room->items->image) }}">
+                                            href="{{ asset('temp/' . $maintenance->evidence) }}">
                                             <img class="img-fluid"
-                                                src="{{ asset('images/items/' . $maintenance->item_room->items->image) }}"
+                                                src="{{ asset('temp/' . $maintenance->evidence) }}"
                                                 alt="Card image">
                                             <div class="gallery-hover-data card-body justify-content-end">
                                                 <div>

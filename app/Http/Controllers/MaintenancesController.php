@@ -113,22 +113,22 @@ class MaintenancesController extends Controller
                         } elseif ($row->status == 1) {
                             return '<span class="badge rounded-pill text-bg-secondary">Worked on</span>';
                         } elseif ($row->status == 2) {
-                            return '<span class="badge rounded-pill text-bg-warning">Work On Delay</span>';
+                            return '<span class="badge rounded-pill text-bg-warning">Worked on Delay</span>';
                         } elseif ($row->status == 3) {
                             return '<span class="badge rounded-pill text-bg-success">Completed</span>';
-                        } else {
+                        } elseif ($row->status == 4) {
                             return '<span class="badge rounded-pill text-bg-danger">Need Repair</span>';
+                        } else {
+                            return '<span class="badge rounded-pill text-bg-danger">Undefined</span>';
                         }
                     })
                     ->addColumn('action', function ($row) {
                         $btn = '<div class="d-flex justify-content-center align-items-center">';
                         $btn .= '<a href="' . route('maintenances.show', encrypt($row->id)) . '" class="view btn btn-info btn-sm me-2" title="Show data"><i class="ph-duotone ph-eye"></i></a>';
-                        if ($row->date_worked_on == null && $row->date_cancelled == null && $row->status == 0) {
-                            $btn .= '<a href="#" class="accept btn btn-success btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Accept Maintenance"><i class="ph-duotone ph-check"></i></a>';
-                            $btn .= '<a href="#" class="cancel btn btn-danger btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Cancel Maintenance"><i class="ph-duotone ph-x"></i></a>';
-                        }
-                        if ($row->date_worked_on != null && $row->date_completed == null && $row->status == 1) {
-                            $btn .= '<button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#startMaintainingModal" title="Start Maintaining" data-id="' . encrypt($row->id) . '" data-name="' . $row->item_room->items->item_name . ' (' . $row->serial_number . ')"><i class="ph ph-duotone ph-wrench"></i></button>';
+                        if (auth()->user()->hasRole('technician') && $row->technician_id == auth()->user()->technician->id) {
+                            if ($row->date_worked_on == null && $row->date_cancelled == null && $row->status == 0) {
+                                $btn .= '<a href="#" class="accept btn btn-secondary btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Start Maintenance"><i class="ph-duotone ph-wrench"></i></a>';
+                            }
                         }
 
                         $btn .= '</div>';
@@ -136,7 +136,73 @@ class MaintenancesController extends Controller
                     })
                     ->rawColumns(['action', 'status'])
                     ->make(true);
-            } else if ($type == 'history') {
+            } else if ($type == 'process') {
+                if (auth()->user()->hasRole('superadmin')) {
+                    $maintenances = Maintenances::where('date_worked_on', '!=', null)->where('date_completed', null)->get();
+                } elseif (auth()->user()->can('assign technician') && auth()->user()->hasRole('technician')) {
+                    $allTechnicians = Technician::where('date_worked_on', '!=', null)->where('date_completed', null)->where('unit_id', auth()->user()->technician->unit_id)->pluck('id');
+                    $maintenances = Maintenances::where('date_worked_on', '!=', null)->where('date_completed', null)->whereIn('technician_id', $allTechnicians)->get();
+                } elseif (auth()->user()->hasRole('technician')) {
+                    $maintenances = Maintenances::where('date_worked_on', '!=', null)->where('date_completed', null)->where('technician_id', auth()->user()->technician->id)->get();
+                }
+
+                $maintenances = $maintenances->sortByDesc('created_at');
+
+                return DataTables::of($maintenances)
+                    ->addIndexColumn()
+                    ->addColumn('item', function ($row) {
+                        return $row->item_room->items->item_name;
+                    })
+                    ->addColumn('status', function ($row) {
+                        $statusOptions = [2, 3, 4];
+                        $statusDesc = ['Worked On Delay', 'Completed', 'Need Repair'];
+                        $status = '<div class="btn-group mb-2 me-2 dropdown">';
+                        $status .= '<select class="form-control" name="status" id="status" required>';
+
+                        foreach ($statusOptions as $option) {
+                            $selected = $row->item_room->status == $option ? 'selected' : '';
+                            $status .= '<option value="' . $option . '" ' . $selected . '>' . $statusDesc[$option - 2] . '</option>';
+                        }
+
+                        $status .= '</select>';
+                        $status .= '</div>';
+                        return $status;
+                    })
+                    ->addColumn('remarks', function ($row) {
+                        $remark = '<textarea type="text" name="remarks" rows="4" id="remarks" class="form-control" data-id="' . encrypt($row->id);
+                        $remark .= '"placeholder="Enter repairment remark for ' . $row->item_room->items->item_name . '">';
+                        $remark .= old('remarks', $row->remarks);
+                        $remark .= '</textarea>';
+
+                        return $remark;
+                    })
+                    ->addColumn('description', function ($row) {
+                        $description = '<textarea type="text" name="description" rows="4" id="description" class="form-control" data-id="' . encrypt($row->id);
+                        $description .= '"placeholder="Enter repairment description for ' . $row->item_room->items->item_name . '">';
+                        $description .= old('description', $row->description);
+                        $description .= '</textarea>';
+
+                        return $description;
+                    })
+                    ->addColumn('evidence', function ($row) {
+                        $evidence = '<input type="file" name="evidence" class="form-control" id="evidence" placeholder="Upload evidence for ' . $row->item_room->items->item_name . '">';
+                        return $evidence;
+                    })
+                    ->addColumn('action', function ($row) {
+                        $btn = '<div class="d-flex justify-content-center align-items-center">';
+                        if ($row->evidence) {
+                            $btn .= '<a href="' . asset('/temp/' . $row->evidence) . '" target="_blank" class="btn btn-info btn-sm me-2" title="View Evidence"><i class="ph-duotone ph-eye"></i></a>';
+                        }
+                        if (!$row->date_completed) {
+                            $btn .= '<a href="#" class="update btn btn-warning btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Update Maintenance"><i class="ph-duotone ph-pencil-line"></i></a>';
+                        }
+                        $btn .= '<a href="#" class="finish btn btn-success btn-sm" data-id="' . encrypt($row->id) . '" title="Finish Maintenance"';
+                        $btn .= '><i class="ph-duotone ph-check"></i></a>';
+                        $btn .= '</div>';
+                        return $btn;
+                    })
+                    ->rawColumns(['action', 'remarks', 'description', 'evidence', 'status'])
+                    ->make(true);
             }
         } else {
             if (auth()->user()->hasRole('superadmin')) {
@@ -187,6 +253,22 @@ class MaintenancesController extends Controller
         }
     }
 
+    public function storeTemporaryFile(Request $request)
+    {
+        if ($request->hasFile('evidence')) {
+            $file = $request->file('evidence');
+            $fileName = time() . '_temp_' . $file->getClientOriginalName();
+            $file->move(public_path('temp'), $fileName);
+
+            return response()->json([
+                'success' => true,
+                'code' => 200,
+                'message' => 'File has been uploaded successfully!',
+                'fileName' => $fileName
+            ]);
+        }
+    }
+
     /**
      * Display the specified resource.
      */
@@ -199,17 +281,12 @@ class MaintenancesController extends Controller
 
     public function acceptMaintenances(Request $request)
     {
-        return $this->acceptCancelFinishState($request, 'accepted');
-    }
-
-    public function cancelMaintenances(Request $request)
-    {
-        return $this->acceptCancelFinishState($request, 'canceled');
+        return $this->acceptOrFinishState($request, 'accepted');
     }
 
     public function finishMaintenances(Request $request)
     {
-        return $this->acceptCancelFinishState($request, 'completed');
+        return $this->acceptOrFinishState($request, 'completed');
     }
 
     private function getMaintenancesById($req)
@@ -225,49 +302,36 @@ class MaintenancesController extends Controller
         return $maintenance;
     }
 
-    private function acceptCancelFinishState($req, $state)
+    private function acceptOrFinishState($req, $state)
     {
         $maintenance = $this->getMaintenancesById($req);
 
-        if ($maintenance->date_worked_on != null) {
-            return response()->json(['error', 'message' => 'Maintenances already accepted']);
-        }
-        if ($maintenance->date_cancelled != null) {
-            return response()->json(['error', 'message' => 'Maintenances already canceled']);
-        }
-        if ($maintenance->date_completed != null) {
-            return response()->json(['error', 'message' => 'Maintenances already completed']);
+        if ($maintenance->status == 1) {
+            return response()->json(['error', 'message' => 'You need to complete the maintenance first']);
         }
 
-        if ($state == 'accepted') {
+        if ($state == 'accepted' && $maintenance->status == 0) {
             $maintenance->date_worked_on = now();
+            $maintenance->status = 1;
+            $maintenance->save();
 
-            if ($maintenance->date_worked_on == null) {
-                $maintenance->date_worked_on = now();
-                $maintenance->status = 1;
-                $maintenance->save();
-            }
-
-        } elseif ($state == 'canceled') {
-            $maintenance->date_cancelled = now();
-
-            $allCancelled = Maintenances::whereNull('date_cancelled')
-                ->doesntExist();
-
-            if ($allCancelled) {
-                $maintenance->date_cancelled = now();
-            }
-        } elseif ($state == 'completed') {
+        } elseif ($state == 'completed' && ($maintenance->status == 2 || $maintenance->status == 3 || $maintenance->status == 4)) {
             $maintenance->date_completed = now();
 
-            $allCompleted = Maintenances::whereNull('date_completed')
-                ->doesntExist();
+            $items = Items_units::find($maintenance->item_room_id);
 
-            if ($allCompleted) {
-                $maintenance->date_completed = now();
+            // change datetime to date for $maintenance->date_completed
+            $date_completed = date('Y-m-d', strtotime($maintenance->date_completed));
+            $condition = strtotime($date_completed) - strtotime($items->maintenance_date);
+            // 2592000 = 30 days
+            if ($condition > 25923000) {
+                $items->maintenance_date = date('Y-m-d', strtotime($maintenance->date_completed) + ($items->items->downtime * 86400));
+            } else {
+                $items->maintenance_date = date('Y-m-d', strtotime($items->maintenance_date) + ($items->items->downtime * 86400));
             }
+            $items->save();
         }
-        if ($maintenance->save() && $maintenance->save()) {
+        if ($maintenance->save()) {
             return response()->json(['success' => 'Maintenances ' . $state . ' successfully']);
         }
         $result = strstr($state, 'ed', true);
@@ -287,11 +351,32 @@ class MaintenancesController extends Controller
      */
     public function update(Request $request, $id)
     {
-        dd($id);
-        $maintenance = Maintenances::find(decrypt($id));
-        dd($maintenance);
+        $id = decrypt($id);
+
+        $request->validate([
+            'remarks' => 'required',
+            'description' => 'required',
+            'status' => 'required',
+            'evidence' => 'required',
+        ]);
+
+        $maintenance = Maintenances::find($id);
+        $maintenance->remarks = $request->remarks;
+        $maintenance->description = $request->description;
         $maintenance->status = $request->status;
+        $maintenance->evidence = $request->evidence;
+
+        $items = Items_units::find($maintenance->item_room_id);
+        if ($request->status == 2) {
+            $items->status = "System Down";
+        } elseif ($request->status == 3) {
+            $items->status = "Running";
+        } else {
+            $items->status = "Restricted";
+        }
+
         $maintenance->save();
+        $items->save();
 
         return redirect()->back()->with('success', 'Maintenance status updated');
     }

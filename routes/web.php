@@ -146,7 +146,7 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/showSparepart/removeSparepart/{idDetail}/{idSparepart}', 'removeSparepart')->name('removeSparepart');
             Route::put('/finish/{id}', 'finish')->name('finish');
         });
-
+        
         Route::controller(MaintenancesController::class)->prefix('maintenances')->name('maintenances.')->group(function () {
             Route::get('/', 'index')->name('index');
             Route::post('/store', 'store')->name('store');
@@ -154,7 +154,10 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/acceptMaintenances/{id}', 'acceptMaintenances')->name('acceptMaintenances');
             Route::put('/cancelMaintenances/{id}', 'cancelMaintenances')->name('cancelMaintenances');
             Route::put('/startMaintenances/{id}', 'startMaintenances')->name('startMaintenances');
+            Route::put('/finishMaintenances/{id}', 'finishMaintenances')->name('finishMaintenances');
             Route::put('/update/{id}', 'update')->name('update');
+            Route::post('/store/temporary-file', 'storeTemporaryFile')->name('store.temporary-file');
+            
         });
     });
 
