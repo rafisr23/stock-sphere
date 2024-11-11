@@ -154,14 +154,13 @@ class MaintenancesController extends Controller
                         return $row->item_room->items->item_name;
                     })
                     ->addColumn('status', function ($row) {
-                        $statusOptions = [2, 3, 4];
-                        $statusDesc = ['Worked On Delay', 'Completed', 'Need Repair'];
+                        $statusOptions = ['Running', 'System Down', 'Restricted'];
                         $status = '<div class="btn-group mb-2 me-2 dropdown">';
                         $status .= '<select class="form-control" name="status" id="status" required>';
 
                         foreach ($statusOptions as $option) {
                             $selected = $row->item_room->status == $option ? 'selected' : '';
-                            $status .= '<option value="' . $option . '" ' . $selected . '>' . $statusDesc[$option - 2] . '</option>';
+                            $status .= '<option value="' . $option . '" ' . $selected . '>' . $option . '</option>';
                         }
 
                         $status .= '</select>';
@@ -318,9 +317,14 @@ class MaintenancesController extends Controller
         } elseif ($state == 'completed' && ($maintenance->status == 2 || $maintenance->status == 3 || $maintenance->status == 4)) {
             $maintenance->date_completed = now();
 
+            if ($maintenance->status == 2) {
+                $maintenance->status = 3;
+            }
+
             $items = Items_units::find($maintenance->item_room_id);
 
-            // change datetime to date for $maintenance->date_completed
+            $items->status = 'Running';
+
             $date_completed = date('Y-m-d', strtotime($maintenance->date_completed));
             $condition = strtotime($date_completed) - strtotime($items->maintenance_date);
             // 2592000 = 30 days
@@ -363,16 +367,17 @@ class MaintenancesController extends Controller
         $maintenance = Maintenances::find($id);
         $maintenance->remarks = $request->remarks;
         $maintenance->description = $request->description;
-        $maintenance->status = $request->status;
         $maintenance->evidence = $request->evidence;
 
         $items = Items_units::find($maintenance->item_room_id);
-        if ($request->status == 2) {
-            $items->status = "System Down";
-        } elseif ($request->status == 3) {
-            $items->status = "Running";
-        } else {
-            $items->status = "Restricted";
+        $items->status = $request->status;
+
+        if ($request->status == 'Running') {
+            $maintenance->status = 3;
+        } elseif ($request->status == 'System Down') {
+            $maintenance->status = 2;
+        } elseif ($request->status == 'Restricted') {
+            $maintenance->status = 4;
         }
 
         $maintenance->save();
