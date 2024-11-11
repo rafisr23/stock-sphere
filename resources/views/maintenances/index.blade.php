@@ -34,6 +34,15 @@
                                         <span class="d-none d-sm-inline">Maintenance Detail</span>
                                     </a>
                                 </li>
+                                @if (auth()->user()->hasRole('technician'))
+                                    <li class="nav-item" data-target-form="#maintenanceProcessForm">
+                                        <a href="#maintenanceProcess" data-bs-toggle="tab" data-toggle="tab"
+                                            class="nav-link icon-btn" data-id="process-tab">
+                                            <i class="ph-duotone ph-note"></i>
+                                            <span class="d-none d-sm-inline">Maintenance Worked On</span>
+                                        </a>
+                                    </li>
+                                @endif
                             </ul>
                         </div>
                     </div>
@@ -90,10 +99,10 @@
                                             @if (auth()->user()->can('assign technician') || auth()->user()->hasRole('superadmin'))
                                                 Page 2: List Maintenance
                                             @else
-                                                List Maintenance
+                                                Page 1: List Maintenance
                                             @endif
                                         </h3>
-                                        <small class="text-muted">Describe the issue</small>
+                                        <small class="text-muted">List of items that need maintenance.</small>
                                     </div>
                                     <form action="" method="POST" id="maintenanceSubmissionForm">
                                         @csrf
@@ -116,25 +125,58 @@
                                         </div>
                                     </form>
                                 </div>
-                                @if (auth()->user()->can('assign technician') || auth()->user()->hasRole('superadmin'))
-                                    <div class="d-flex wizard justify-content-between mt-3">
-                                        <div class="d-flex">
-                                            <div class="previous">
-                                                <a href="javascript:void(0);" class="btn btn-secondary me-1"
-                                                    id="previousButton">Previous</a>
-                                            </div>
-                                            <div class="next">
-                                                <a href="javascript:void(0);" class="btn btn-secondary"
-                                                    id="nextButton">Next</a>
-                                            </div>
+                                @if (auth()->user()->hasRole('technician'))
+                                    <div class="tab-pane" id="maintenanceProcess">
+                                        <div class="text-center">
+                                            <h3 class="mb-2">
+                                                @if (auth()->user()->can('assign technician') || auth()->user()->hasRole('superadmin'))
+                                                    Page 3: List Maintenance Process
+                                                @else
+                                                    Page 2: List Maintenance Process
+                                                @endif
+                                            </h3>
+                                            <small class="text-muted">Describe the issue</small>
                                         </div>
-                                        {{-- <div class="submit">
+                                        <form action="" method="POST" id="maintenanceProcessForm">
+                                            @csrf
+                                            <input type="hidden" name="selectedId" id="selectedId">
+                                            <div class="row mt-4">
+                                                <div class="col-sm-12">
+                                                    <table class="table table-bordered" id="maintenanceProcessTable">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>No</th>
+                                                                <th>Item Name</th>
+                                                                <th>Status</th>
+                                                                <th>Remarks</th>
+                                                                <th>Description</th>
+                                                                <th>Evidence</th>
+                                                                <th>Action</th>
+                                                            </tr>
+                                                        </thead>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                @endif
+                                <div class="d-flex wizard justify-content-between mt-3">
+                                    <div class="d-flex">
+                                        <div class="previous">
+                                            <a href="javascript:void(0);" class="btn btn-secondary me-1"
+                                                id="previousButton">Previous</a>
+                                        </div>
+                                        <div class="next">
+                                            <a href="javascript:void(0);" class="btn btn-secondary"
+                                                id="nextButton">Next</a>
+                                        </div>
+                                    </div>
+                                    {{-- <div class="submit">
                                         <button class="btn btn-success" type="button" id="submitButton">
                                             Submit
                                         </button>
                                     </div> --}}
-                                    </div>
-                                @endif
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -181,6 +223,59 @@
         </div>
     </div>
     {{-- end modal for assign technician --}}
+
+    {{-- modal for start maintaining --}}
+    <div id="startMaintainingModal" class="modal fade" tabindex="-1" role="dialog"
+        aria-labelledby="startMaintainingModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <form action="{{ route('maintenances.update', ':id') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="startMaintainingModalLabel">Detail Maintaining</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <div class="form-group row mb-4">
+                            <label for="remarks" class="col-sm-3 col-form-label">Remarks</label>
+                            <div class="col-sm-9">
+                                <textarea name="remarks" id="remarks" class="form-control" required></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group row mb-4">
+                            <label for="description" class="col-sm-3 col-form-label">Description</label>
+                            <div class="col-sm-9">
+                                <textarea name="description" id="description" class="form-control" required></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group row mb-4">
+                            <label for="status" class="col-sm-3 col-form-label">Status</label>
+                            <div class="col-sm-9">
+                                <select name="status" id="status" class="form-control" required>
+                                    <option value="" selected disabled>Select Status</option>
+                                    <option value="2">Worked On Delay</option>
+                                    <option value="3">Completed</option>
+                                    <option value="4">Need Repair</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row mb-4">
+                            <label for="evidence" class="col-sm-3 col-form-label">Evidence</label>
+                            <div class="col-sm-9">
+                                <input type="file" name="evidence" id="evidence" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Done</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {{-- end modal for start maintaining --}}
 @endsection
 
 @section('scripts')
@@ -191,4 +286,21 @@
         });
     </script>
     <script src="{{ URL::asset('js/maintenance.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            $(document).on('click', '.btn[data-bs-target="#startMaintainingModal"]', function() {
+                // Get the data-id value from the clicked button
+                var itemId = $(this).data('id');
+
+                // Set the hidden input in the modal with this value
+                $('#item_unit_id').val(itemId);
+
+                // Update the form action URL with the new ID
+                var actionUrl = "{{ route('maintenances.update', ':id') }}";
+                actionUrl = actionUrl.replace(':id', itemId);
+                $('#startMaintainingModal form').attr('action', actionUrl);
+
+            });
+        });
+    </script>
 @endsection

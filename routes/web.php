@@ -143,8 +143,19 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/finish/{id}', 'finish')->name('finish');
             Route::get('/showSparepartUsed/{id}', 'showSparepartUsed')->name('showSparepartUsed');
         });
-
-        Route::resource('maintenances', MaintenancesController::class);
+        
+        Route::controller(MaintenancesController::class)->prefix('maintenances')->name('maintenances.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::post('/store', 'store')->name('store');
+            Route::get('show/{id}', 'show')->name('show');
+            Route::put('/acceptMaintenances/{id}', 'acceptMaintenances')->name('acceptMaintenances');
+            Route::put('/cancelMaintenances/{id}', 'cancelMaintenances')->name('cancelMaintenances');
+            Route::put('/startMaintenances/{id}', 'startMaintenances')->name('startMaintenances');
+            Route::put('/finishMaintenances/{id}', 'finishMaintenances')->name('finishMaintenances');
+            Route::put('/update/{id}', 'update')->name('update');
+            Route::post('/store/temporary-file', 'storeTemporaryFile')->name('store.temporary-file');
+            
+        });
         Route::controller(MaintenancesController::class)->name('maintenances.')->group(function () {
             Route::get('/history', 'history')->name('history');
         });
