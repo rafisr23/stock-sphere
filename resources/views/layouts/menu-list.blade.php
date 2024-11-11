@@ -80,13 +80,20 @@
 @endif
 
 @if (auth()->user()->hasRole('technician') || auth()->user()->hasRole('superadmin'))
-    <li class="pc-item ">
-        <a href="{{ route('maintenances.index') }}" class="pc-link">
+    <li class="pc-item pc-hasmenu">
+        <a href="#" class="pc-link">
             <span class="pc-micon">
                 <i class="ph-duotone ph-gear-six"></i>
             </span>
             <span class="pc-mtext">Maintenances</span>
+            <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
         </a>
+        <ul class="pc-submenu">
+            <li class="pc-item {{ request()->routeIs('maintenances.index') ? 'active' : '' }}"><a class="pc-link"
+                    href="{{ route('maintenances.index') }}">List</a></li>
+            <li class="pc-item {{ request()->routeIs('maintenances.history') ? 'active' : '' }}"><a class="pc-link"
+                    href="{{ route('maintenances.history') }}">History</a></li>
+        </ul>
     </li>
     <li class="pc-item {{ request()->routeIs('detail_submission.index') ? 'active' : '' }}">
         <a href="{{ route('repairments.index') }}" class="pc-link">

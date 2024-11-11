@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
-@section('title', 'Maintenance')
-@section('breadcrumb-item', 'Maintenance')
+@section('title', 'List Of Maintenances')
+@section('breadcrumb-item', 'Maintenances')
 
 @section('breadcrumb-item-active', 'List')
 

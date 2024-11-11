@@ -37,9 +37,6 @@ Auth::routes();
 
 // Define a group of routes with 'auth' middleware applied
 Route::middleware(['auth'])->group(function () {
-    // Route::get('/', function () {
-    //     return view('index');
-    // })->name('dashboard');
     Route::controller(HomeController::class)->name('home.')->group(function () {
         Route::get('/', 'index')->name('index');
     });
@@ -148,6 +145,9 @@ Route::middleware(['auth'])->group(function () {
         });
 
         Route::resource('maintenances', MaintenancesController::class);
+        Route::controller(MaintenancesController::class)->name('maintenances.')->group(function () {
+            Route::get('/history', 'history')->name('history');
+        });
     });
 
     // ROUTE FOR SUPERADMIN OR UNIT OR ROOM

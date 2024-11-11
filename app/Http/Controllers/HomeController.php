@@ -35,8 +35,8 @@ class HomeController extends Controller
             $itemsQuery = Items_units::query();
 
             if (auth()->user()->hasRole('superadmin')) {
-                $items = $itemsQuery->where('maintenance_date', '<=', $loginDatePlusMonth)->exists();
                 $items2 = $itemsQuery->get();
+                $items = $itemsQuery->where('maintenance_date', '<=', $loginDatePlusMonth)->where('maintenance_date', '>=', $loginDate->format('Y-m-d'))->exists();
             } else {
                 $technician = auth()->user()->technician;
                 $roomId = Rooms::where('unit_id', $technician->unit_id)->pluck('id');
