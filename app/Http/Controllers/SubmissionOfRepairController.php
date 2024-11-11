@@ -205,8 +205,9 @@ class SubmissionOfRepairController extends Controller
                     }
                 })
                 ->addColumn('action', function ($row) {
+                    $detailUrl = route('submission-of-repair.detail', encrypt($row->id));
                     $btn = '<div class="d-flex justify-content-center align-items-center">';
-                    $btn .= '<a href="#" class="view btn btn-info btn-sm me-2" title="See Details"><i class="ph-duotone ph-eye"></i></a>';
+                    $btn .= '<a href="' . $detailUrl . '" class="view btn btn-info btn-sm me-2" title="See Details"><i class="ph-duotone ph-eye"></i></a>';
                     // $btn .= '<a href="' . route('items_units.edit', $row->id) . '" class="edit btn btn-warning btn-sm me-2" title="Edit Data"><i class="ph-duotone ph-pencil-line"></i></a>';
                     // $btn .= '<a href="#" class="delete btn btn-danger btn-sm" data-id="' . encrypt($row->id) . '" title="Delete Data"><i class="ph-duotone ph-trash"></i></a>';
                     $btn .= '</div>';
@@ -282,7 +283,7 @@ class SubmissionOfRepairController extends Controller
         $details = DetailsOfRepairSubmission::where('submission_of_repair_id', $submissionId)->get();
         $technicians = User::role('technician')->where('id', '!=', auth()->id())->get();
 
-        // return $details;
+        // return $details[0]->technician;
 
         return view('submission.assign', compact('submission', 'technicians', 'details'));
     }
@@ -300,6 +301,25 @@ class SubmissionOfRepairController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Technicians not found!',
+                'data' => []
+            ]);
+        }
+    }
+
+    public function getTechnician(Request $request) {
+        $technicianId = $request->get('technicianId');
+        $technician = Technician::find(decrypt($technicianId));
+
+        if ($technician) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Technician has been fetched successfully!',
+                'data' => $technician
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Technician not found!',
                 'data' => []
             ]);
         }
@@ -341,5 +361,16 @@ class SubmissionOfRepairController extends Controller
                 'message' => $e->getMessage(),
             ]);
         }
+    }
+
+    public function detail($submissionId) {
+        $submissionId = decrypt($submissionId);
+        $submission = SubmissionOfRepair::find($submissionId);
+        $details = DetailsOfRepairSubmission::where('submission_of_repair_id', $submissionId)->get();
+        $technicians = User::role('technician')->where('id', '!=', auth()->id())->get();
+
+        // return $details;
+
+        return view('submission.assign', compact('submission', 'technicians', 'details'));
     }
 }

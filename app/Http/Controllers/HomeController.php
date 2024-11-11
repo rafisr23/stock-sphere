@@ -35,8 +35,8 @@ class HomeController extends Controller
             $itemsQuery = Items_units::query();
 
             if (auth()->user()->hasRole('superadmin')) {
-                $items = $itemsQuery->where('maintenance_date', '<=', $loginDatePlusMonth)->exists();
                 $items2 = $itemsQuery->get();
+                $items = $itemsQuery->where('maintenance_date', '<=', $loginDatePlusMonth)->where('maintenance_date', '>=', $loginDate->format('Y-m-d'))->exists();
             } else {
                 $technician = auth()->user()->technician;
                 $roomId = Rooms::where('unit_id', $technician->unit_id)->pluck('id');
@@ -49,11 +49,10 @@ class HomeController extends Controller
 
             foreach ($items2 as $item) {
                 if (Carbon::parse($loginDate)->greaterThan($item->maintenance_date)) {
-                    $maintenanceMonth = Carbon::parse($item->maintenance_date)->format('Y-m');
                     $existingMaintenance = Maintenances::where('item_room_id', $item->id)
                         ->whereBetween('created_at', [
-                            Carbon::parse($maintenanceMonth)->startOfMonth(),
-                            Carbon::parse($maintenanceMonth)->endOfMonth()
+                            Carbon::parse($loginDate)->startOfMonth(),
+                            Carbon::parse($loginDate)->endOfMonth()
                         ])
                         ->exists();
 

@@ -72,5 +72,8 @@
                 },
             ]
         });
+
+        sessionStorage.setItem('previous_url', window.location.href);
+
     </script>
 @endsection

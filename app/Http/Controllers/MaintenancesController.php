@@ -45,6 +45,8 @@ class MaintenancesController extends Controller
                     $items = Items_units::all();
                 }
 
+                $items = $items->sortBy('maintenance_date');
+
                 return DataTables::of($items)
                     ->addIndexColumn()
                     ->addColumn('item', function ($row) {
@@ -75,7 +77,7 @@ class MaintenancesController extends Controller
                             ->first()->status ?? null;
 
                         if (($loginDate->isSameDay($row->maintenance_date) && $status === null) || ($loginDate->greaterThan($row->maintenance_date) && $count == 0 && $status === null)) {
-                            return '<button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#assignTechnicianModal" title="Assign Technician" data-id="' . encrypt($row->id) . '" data-name="' . $row->items->item_name . ' (' . $row->serial_number . ')"><i class="ph ph-duotone ph-wrench"></i></button>';
+                            return '<button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#assignTechnicianModal" title="Assign Technician" data-id="' . encrypt($row->id) . '" data-name="' . $row->items->item_name . ' (' . $row->serial_number . ')"><i class="ph-duotone ph-user-plus"></i></button>';
                         } elseif ($status !== null) {
                             return '<span class="badge rounded-pill text-bg-success">Already Assigned</span>';
                         } else {
@@ -93,8 +95,6 @@ class MaintenancesController extends Controller
                 } elseif (auth()->user()->hasRole('technician')) {
                     $maintenances = Maintenances::where('technician_id', auth()->user()->technician->id)->get();
                 }
-
-                $maintenances = $maintenances->sortByDesc('created_at');
 
                 return DataTables::of($maintenances)
                     ->addIndexColumn()
@@ -245,8 +245,8 @@ class MaintenancesController extends Controller
             return redirect()->back()->with('error', 'You are not authorized to assign maintenance to technician');
         }
 
-
         if ($create) {
+            createLog(3, $create->id, 'assign maintenance to technician', null, Items_units::where('id', $create->item_room_id)->get('maintenance_date')->toJson());
             return redirect()->back()->with('success', 'Maintenance assigned to technician');
         } else {
             return redirect()->back()->with('error', 'Failed to assign maintenance to technician');
@@ -387,5 +387,58 @@ class MaintenancesController extends Controller
     public function destroy(Maintenances $maintenances)
     {
         //
+    }
+
+    public function history()
+    {
+        if (request()->ajax()) {
+            if (auth()->user()->hasRole('superadmin')) {
+                $maintenances = Maintenances::all();
+            } elseif (auth()->user()->can('assign technician') && auth()->user()->hasRole('technician')) {
+                $allTechnicians = Technician::where('unit_id', auth()->user()->technician->unit_id)->pluck('id');
+                $maintenances = Maintenances::whereIn('technician_id', $allTechnicians)->get();
+            } elseif (auth()->user()->hasRole('technician')) {
+                $maintenances = Maintenances::where('technician_id', auth()->user()->technician->id)->get();
+            }
+
+            return DataTables::of($maintenances)
+                ->addIndexColumn()
+                ->addColumn('item', function ($row) {
+                    return $row->item_room->items->item_name;
+                })
+                ->addColumn('room', function ($row) {
+                    return $row->room->name;
+                })
+                ->addColumn('serial_number', function ($row) {
+                    return $row->item_room->serial_number;
+                })
+                ->addColumn('maintenance_date', function ($row) {
+                    return Carbon::parse($row->item_room->maintenance_date)->isoFormat('D MMMM Y');
+                })
+                ->addColumn('technician', function ($row) {
+                    return $row->technician->name;
+                })
+                ->addColumn('worked_on', function ($row) {
+                    if ($row->date_worked_on) {
+                        return Carbon::parse($row->date_worked_on)->isoFormat('D MMMM Y, HH:mm');
+                    } else {
+                        return '<span class="badge rounded-pill text-bg-info">Not Started Yet</span>';
+                    }
+                })
+                ->addColumn('completed', function ($row) {
+                    if ($row->date_completed) {
+                        return Carbon::parse($row->date_completed)->isoFormat('D MMMM Y, HH:mm');
+                    } else {
+                        return '<span class="badge rounded-pill text-bg-info">Not Completed Yet</span>';
+                    }
+                })
+                // ->addColumn('action', function ($row) {
+                //     return '<button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#maintenanceDetailModal" title="Detail" data-id="' . encrypt($row->id) . '"><i class="ph ph-duotone ph-eye"></i></button>';
+                // })
+                ->rawColumns(['worked_on', 'completed'])
+                ->make(true);
+        } else {
+            return view('maintenances.history');
+        }
     }
 }

@@ -68,20 +68,20 @@
                     <table class="table table-bordered" id="assign_table">
                         <thead>
                             <tr>
-                                <th>No</th>
+                                <th class="text-center">No</th>
                                 <th>Item Name</th>
                                 <th>Serial Number</th>
                                 <th>Software Version</th>
                                 <th>Repair Description</th>
                                 <th>Technician</th>
-                                <th>Status</th>
+                                <th class="text-center">Status</th>
                                 <th class="text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($details as $detail)
                                 <tr>
-                                    <td>{{ $loop->iteration }}</td>
+                                    <td class="text-center">{{ $loop->iteration }}</td>
                                     <td>{{ $detail->itemUnit->items->item_name }}</td>
                                     <td>{{ $detail->itemUnit->serial_number }}</td>
                                     <td>{{ $detail->itemUnit->software_version }}</td>
@@ -93,7 +93,7 @@
                                             <span class="badge bg-danger">Not Assigned</span>
                                         @endif
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         @if ($detail->status == 0)
                                             <span class="badge bg-warning">Pending</span>
                                         @elseif ($detail->status == 1)
@@ -108,12 +108,62 @@
                                     </td>
                                     <td class="text-center">
                                         <a href="{{ asset('temp/' . $detail->evidence) }}" target="_blank" class="btn btn-primary btn-sm" title="See Evidance"><i class="ph-duotone ph-file-image"></i></a>
-                                        <a href="#" class="view btn btn-info btn-sm btn-assign" title="Assign Technician" data-id="{{ $detail->id }}"><i class="ph-duotone ph-user-plus"></i></a>
+                                        @role('superadmin|technician')
+                                            <a href="#" class="view btn btn-info btn-sm btn-assign" title="Assign Technician" data-id="{{ $detail->id }}"><i class="ph-duotone ph-user-plus"></i></a>
+                                        @elserole('room|unit|superadmin')
+                                            @isset($detail->technician)
+                                                <a href="#" type="button" data-bs-toggle="modal" data-bs-target=".bd-example-modal-lg" class="view btn btn-info btn-sm btn-show" title="Show Technician" data-id="{{ encrypt($detail->technician->id) }}"><i class="ph-duotone ph-user-gear"></i></a>
+                                            @endisset
+                                        @endrole
                                     </td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <a href="#" class="btn btn-primary" id="btn-back">Back</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="myLargeModalLabel">Technician Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-4 d-flex align-items-center justify-content-center mb-3">
+                            <div>
+                                <img src="{{ URL::asset('build/images/user/avatar-1.jpg') }}" alt="user-image" class="user-avtar rounded-circle">
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <div class="input-group">
+                                        <div class="input-group-text"><i class="ph-duotone ph-identification-card"></i></div>
+                                        <input type="text" class="form-control" id="name" placeholder="Name" readonly style="opacity: 1 !important">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="input-group">
+                                        <div class="input-group-text"><i class="ph-duotone ph-phone"></i></div>
+                                        <input type="text" class="form-control" id="phone" placeholder="Phone Number" readonly style="opacity: 1 !important">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -233,5 +283,43 @@
             })
         })
 
+        $('#assign_table').on('click', '.btn-show', function(e) {
+            let technicianId = $(this).data('id');
+
+            $.ajax({
+                url: "{{ route('submission-of-repair.getTechnician') }}",
+                type: 'GET',
+                data: {
+                    technicianId: technicianId
+                },
+                dataType: 'JSON',
+                success: function(response) {
+                    if (response.success) {
+                        let data = response.data
+                        $('#name').val(data.name)
+                        $('#phone').val(data.phone)
+                        $('.bd-example-modal-lg').modal('show')
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            type: 'error',
+                            title: 'Error',
+                            showConfirmButton: true
+                        })
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    Swal.fire({
+                        icon: 'error',
+                        type: 'error',
+                        title: 'Error while getting data',
+                        showConfirmButton: true
+                    })
+                }
+            })
+        })
+
+        // set btn-back href from localstorage
+        $('#btn-back').attr('href', sessionStorage.getItem('previous_url'));
     </script>
 @endsection

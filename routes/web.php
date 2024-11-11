@@ -37,9 +37,6 @@ Auth::routes();
 
 // Define a group of routes with 'auth' middleware applied
 Route::middleware(['auth'])->group(function () {
-    // Route::get('/', function () {
-    //     return view('index');
-    // })->name('dashboard');
     Route::controller(HomeController::class)->name('home.')->group(function () {
         Route::get('/', 'index')->name('index');
     });
@@ -127,7 +124,6 @@ Route::middleware(['auth'])->group(function () {
         Route::controller(SubmissionOfRepairController::class)->prefix('submission-of-repair')->name('submission-of-repair.')->group(function () {
             Route::get('/list', 'viewListOfRepairs')->name('list');
             Route::get('/getList', 'getListOfRepairs')->name('getList');
-            Route::get('/detail/{submissionId}', 'detailSubmission')->name('detail');
             Route::get('/getTechnicians', 'getTechnicians')->name('getTechnicians');
             Route::post('/assignTechnician', 'assignTechnician')->name('assignTechnician');
         });
@@ -145,6 +141,7 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/showSparepart/addSparepart/{idDetail}/{idSparepart}', 'addSparepart')->name('addSparepart');
             Route::post('/showSparepart/removeSparepart/{idDetail}/{idSparepart}', 'removeSparepart')->name('removeSparepart');
             Route::put('/finish/{id}', 'finish')->name('finish');
+            Route::get('/showSparepartUsed/{id}', 'showSparepartUsed')->name('showSparepartUsed');
         });
         
         Route::controller(MaintenancesController::class)->prefix('maintenances')->name('maintenances.')->group(function () {
@@ -159,6 +156,9 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/store/temporary-file', 'storeTemporaryFile')->name('store.temporary-file');
             
         });
+        Route::controller(MaintenancesController::class)->name('maintenances.')->group(function () {
+            Route::get('/history', 'history')->name('history');
+        });
     });
 
     // ROUTE FOR SUPERADMIN OR UNIT OR ROOM
@@ -171,6 +171,11 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/store', 'store')->name('store');
             Route::post('/store/temporary-file', 'storeTemporaryFile')->name('store.temporary-file');
             Route::get('/history', 'history')->name('history');
+            Route::get('/getTechnician', 'getTechnician')->name('getTechnician');
         });
+    });
+
+    Route::controller(SubmissionOfRepairController::class)->prefix('submission-of-repair')->name('submission-of-repair.')->middleware('role:superadmin|room|unit|technician')->group(function () {
+        Route::get('/detail/{submissionId}', 'detailSubmission')->name('detail');
     });
 });
