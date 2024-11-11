@@ -49,11 +49,10 @@ class HomeController extends Controller
 
             foreach ($items2 as $item) {
                 if (Carbon::parse($loginDate)->greaterThan($item->maintenance_date)) {
-                    $maintenanceMonth = Carbon::parse($item->maintenance_date)->format('Y-m');
                     $existingMaintenance = Maintenances::where('item_room_id', $item->id)
                         ->whereBetween('created_at', [
-                            Carbon::parse($maintenanceMonth)->startOfMonth(),
-                            Carbon::parse($maintenanceMonth)->endOfMonth()
+                            Carbon::parse($loginDate)->startOfMonth(),
+                            Carbon::parse($loginDate)->endOfMonth()
                         ])
                         ->exists();
 
