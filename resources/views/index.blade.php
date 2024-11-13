@@ -78,8 +78,14 @@
                         class="form-control form-control-sm w-auto border-0 shadow-none2">
                 </div>
                 <div class="card-body">
-                    <div class="d-flex align-items-center mb-1"></div>
-                    <div id="sparepartsRepairmentGraph"></div>
+                    @if ($sparepart_repairments_count->isEmpty())
+                        <div class="d-flex justify-content-center align-items-center">
+                            <h4 class="text-center">No data available</h4>
+                        </div>
+
+                    @else
+                        <div id="sparepartsRepairmentGraph"></div>
+                    @endif
                 </div>
             </div>
         </div>
