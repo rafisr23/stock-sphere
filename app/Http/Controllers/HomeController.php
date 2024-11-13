@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use DB;
 use App\Models\Items_units;
 use App\Models\Maintenances;
 use App\Models\Rooms;
@@ -34,7 +35,17 @@ class HomeController extends Controller
             $loginDatePlusMonth = Carbon::parse($loginDate)->addMonth()->format('Y-m-d');
             $itemsQuery = Items_units::query();
 
+
             if (auth()->user()->hasRole('superadmin')) {
+                $sparepart_repairments_count = DB::table('spareparts as s')
+                    ->select('s.name as sparepart_name', 'i.id as items_id', 'd.created_at as date')
+                    ->leftJoin('spareparts_of_repairs as sr', 's.id', '=', 'sr.sparepart_id')
+                    ->leftJoin('details_of_repair_submissions as d', 'sr.details_of_repair_submission_id', '=', 'd.id')
+                    ->leftJoin('items_units as iu', 'd.item_unit_id', '=', 'iu.id')
+                    ->leftJoin('items as i', 'iu.item_id', '=', 'i.id')
+                    ->where('sr.sparepart_id', '!=', null)
+                    ->get();
+                $items_units = Items_units::all();
                 $items2 = $itemsQuery->get();
                 $items = $itemsQuery->where('maintenance_date', '<=', $loginDatePlusMonth)->where('maintenance_date', '>=', $loginDate->format('Y-m-d'))->exists();
             } else {
@@ -63,7 +74,7 @@ class HomeController extends Controller
                 }
             }
 
-            return view('index', compact('maintenanceSoon', 'maintenanceExpired'));
+            return view('index', compact('maintenanceSoon', 'maintenanceExpired', 'sparepart_repairments_count', 'items_units'));
         } else {
             return view('index');
         }

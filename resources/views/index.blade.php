@@ -23,11 +23,14 @@
                         <h2 class="mb-0">Dashboard</h2>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
     <!-- Breadcrumb end -->
-    @if (auth()->user()->can('assign technician') && auth()->user()->hasRole('technician') || auth()->user()->hasRole('superadmin'))
+    @if (
+        (auth()->user()->can('assign technician') && auth()->user()->hasRole('technician')) ||
+            auth()->user()->hasRole('superadmin'))
 
         <!-- Alert start -->
         @if ($maintenanceSoon == 'true')
@@ -53,14 +56,56 @@
         <!-- Alert end -->
     @endif
 
+    <!-- [ Main Content ] start -->
+    @if (auth()->user()->hasRole('superadmin'))
+        <div class="col-lg-16">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Notif trend</h4>
+                    <div class="btn-group mb-2 me-2 dropdown">
+                        <select name="selectItem" id="selectItem" class="form-control" style="padding-right: 30px">
+                            <option value="All">All Items </option>
+                            @foreach ($items_units as $items)
+                                <option value="{{ $items->item_id }}">{{ $items->items->item_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <p class="mb-0">From date</p>
+                    <input type="date" name="fromDateSparepart" id="fromDateSparepart"
+                        class="form-control form-control-sm w-auto border-0 shadow-none2">
+                    <p class="mb-0">To date</p>
+                    <input type="date" name="toDateSparepart" id="toDateSparepart"
+                        class="form-control form-control-sm w-auto border-0 shadow-none2">
+                </div>
+                <div class="card-body">
+                    @if ($sparepart_repairments_count->isEmpty())
+                        <div class="d-flex justify-content-center align-items-center">
+                            <h4 class="text-center">No data available</h4>
+                        </div>
+
+                    @else
+                        <div id="sparepartsRepairmentGraph"></div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @endif
+
 @endsection
 
 @section('scripts')
     <!-- [Page Specific JS] start -->
+    <script>
+        window.sparepartsData = @json($sparepart_repairments_count);
+        window.items_units = @json($items_units);
+        $("")
+    </script>
     <script src="{{ URL::asset('build/js/plugins/apexcharts.min.js') }}"></script>
     <script src="{{ URL::asset('build/js/plugins/jsvectormap.min.js') }}"></script>
     <script src="{{ URL::asset('build/js/plugins/world.js') }}"></script>
     <script src="{{ URL::asset('build/js/plugins/world-merc.js') }}"></script>
     <script src="{{ URL::asset('build/js/pages/dashboard-default.js') }}"></script>
+    <script src="{{ URL::asset('js/custom-chart.js') }}"></script>
     <!-- [Page Specific JS] end -->
+
 @endsection
