@@ -78,6 +78,30 @@
                         class="form-control form-control-sm w-auto border-0 shadow-none2">
                 </div>
                 <div class="card-body">
+                    {{-- items chart start here --}}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-16">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Notif trend</h4>
+                    <div class="btn-group mb-2 me-2 dropdown">
+                        <select name="selectItem" id="selectItem" class="form-control" style="padding-right: 30px">
+                            <option value="All">All Items </option>
+                            @foreach ($items_units as $items)
+                                <option value="{{ $items->item_id }}">{{ $items->items->item_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <p class="mb-0">From date</p>
+                    <input type="date" name="fromDateSparepart" id="fromDateSparepart"
+                        class="form-control form-control-sm w-auto border-0 shadow-none2">
+                    <p class="mb-0">To date</p>
+                    <input type="date" name="toDateSparepart" id="toDateSparepart"
+                        class="form-control form-control-sm w-auto border-0 shadow-none2">
+                </div>
+                <div class="card-body">
                     @if ($sparepart_repairments_count->isEmpty())
                         <div class="d-flex justify-content-center align-items-center">
                             <h4 class="text-center">No data available</h4>
