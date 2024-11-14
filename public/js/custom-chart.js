@@ -1,25 +1,14 @@
 'use strict';
-// const spareparts_name = window.sparepartsData.map((sparepart) => sparepart.sparepart_name);
-// const items_id = window.sparepartsData.map((sparepart) => sparepart.items_id);
-// const date = window.sparepartsData.map((sparepart) => sparepart.date);
-const groupedSpareparts = window.sparepartsData.reduce((acc, sparepart) => {
-    const name = sparepart.sparepart_name;
+const groupedSparepartsData = (sparepartsData) => {
+    return sparepartsData.reduce((acc, sparepart) => {
+        const name = sparepart.sparepart_name;
+        acc[name] = (acc[name] || 0) + 1;
+        return acc;
+    }, {});
+};
 
-    // Jika nama sparepart sudah ada di accumulator, tambahkan count-nya
-    if (acc[name]) {
-        acc[name] += 1;
-    } else {
-        // Jika nama sparepart belum ada, inisialisasi dengan count pertama
-        acc[name] = 1;
-    }
-
-    return acc;
-}, {});
-
-console.log(groupedSpareparts);
-
-
-function floatchart() {
+function floatchart(sparepartsData) {
+    const groupedSpareparts = groupedSparepartsData(sparepartsData);
     var sparepart_options = {
         chart: {
             type: 'bar',
@@ -29,20 +18,20 @@ function floatchart() {
             }
         },
         colors: ['#1DE9B6'],
-      stroke: {
-        show: true,
-        width: 1,
-        colors: ['transparent']
-      },
-      fill: {
-        type: 'gradient',
-        gradient: {
-          type: 'vertical',
-          stops: [0, 100],
-          shadeIntensity: 0.5,
-          gradientToColors: ['#1DC4E9']
-        }
-      },
+        stroke: {
+            show: true,
+            width: 1,
+            colors: ['transparent']
+        },
+        fill: {
+            type: 'gradient',
+            gradient: {
+                type: 'vertical',
+                stops: [0, 100],
+                shadeIntensity: 0.5,
+                gradientToColors: ['#1DC4E9']
+            }
+        },
         dataLabels: {
             enabled: false
         },
@@ -61,11 +50,11 @@ function floatchart() {
         series: [
             {
                 name: 'Jumlah Sparepart',
-                data: Object.values(groupedSpareparts) // Jumlah sparepart pada sumbu y
+                data: Object.values(groupedSpareparts)
             }
         ],
         xaxis: {
-            categories: Object.keys(groupedSpareparts), // Nama sparepart pada sumbu x
+            categories: Object.keys(groupedSpareparts),
             labels: {
                 hideOverlappingLabels: true
             },
@@ -77,8 +66,65 @@ function floatchart() {
             }
         }
     };
-    var sparepart_chart = new ApexCharts(document.querySelector('#sparepartsRepairmentGraph'), sparepart_options);
-    sparepart_chart.render().catch(error => console.error("Error rendering chart:", error));
+    if (window.sparepart_chart) {
+        window.sparepart_chart.updateOptions({
+            series: [
+                {
+                    name: 'Jumlah Sparepart',
+                    data: Object.values(groupedSpareparts)
+                }
+            ],
+            xaxis: {
+                categories: Object.keys(groupedSpareparts)
+            }
+        }).catch(error => console.error("Error updating chart:", error));
+    } else {
+        window.sparepart_chart = new ApexCharts(document.querySelector('#sparepartsRepairmentGraph'), sparepart_options);
+        window.sparepart_chart.render().catch(error => console.error("Error rendering chart:", error));
+    }
 }
 
-document.addEventListener("DOMContentLoaded", floatchart);
+function updateSparepartChart(sparepartsData) {
+    const groupedSpareparts = groupedSparepartsData(sparepartsData);
+
+    window.sparepart_chart.updateOptions({
+        series: [
+            {
+                name: 'Jumlah Sparepart',
+                data: Object.values(groupedSpareparts)
+            }
+        ],
+        xaxis: {
+            categories: Object.keys(groupedSpareparts)
+        }
+    }).catch(error => console.error("Error updating chart:", error));
+}
+
+function filterSparepartData() {
+    const item_id = $("#selectItem").val();
+    const fromDate = $("#fromDateSparepart").val();
+    const toDate = $("#toDateSparepart").val();
+
+    let filteredData = window.sparepartsData;
+    if (item_id !== 'All') {
+        filteredData = filteredData.filter(item => item.items_id == item_id);
+    }
+
+    filteredData = filteredData.filter(item => {
+        const itemDate = new Date(item.date);
+        const itemDateStr = itemDate.toISOString().split('T')[0];
+
+        const isAfterFromDate = fromDate ? itemDateStr >= fromDate : true;
+        const isBeforeToDate = toDate ? itemDateStr <= toDate : true;
+
+        return isAfterFromDate && isBeforeToDate;
+    });
+
+    floatchart(filteredData);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    floatchart(window.sparepartsData);
+    $("#selectItem").on('change', filterSparepartData);
+    $("#fromDateSparepart, #toDateSparepart").on('change', filterSparepartData);
+});

@@ -97,8 +97,6 @@
     <!-- [Page Specific JS] start -->
     <script>
         window.sparepartsData = @json($sparepart_repairments_count);
-        window.items_units = @json($items_units);
-        $("")
     </script>
     <script src="{{ URL::asset('build/js/plugins/apexcharts.min.js') }}"></script>
     <script src="{{ URL::asset('build/js/plugins/jsvectormap.min.js') }}"></script>
