@@ -37,6 +37,14 @@ class HomeController extends Controller
 
 
             if (auth()->user()->hasRole('superadmin')) {
+                $items_repairments_count = DB::table('items_units as iu')
+                    // get data items_units from details_of_repair_submissions so we can count the repairments by item
+                    ->leftJoin('details_of_repair_submissions as d', 'iu.id', '=', 'd.item_unit_id')
+                    ->leftJoin('items as i', 'iu.item_id', '=', 'i.id')
+                    ->select('i.item_name', 'd.created_at as date')
+                    ->where('d.item_unit_id', '!=', null)
+                    ->get();
+
                 $sparepart_repairments_count = DB::table('spareparts as s')
                     ->select('s.name as sparepart_name', 'i.id as items_id', 'd.created_at as date')
                     ->leftJoin('spareparts_of_repairs as sr', 's.id', '=', 'sr.sparepart_id')
@@ -74,7 +82,7 @@ class HomeController extends Controller
                 }
             }
 
-            return view('index', compact('maintenanceSoon', 'maintenanceExpired', 'sparepart_repairments_count', 'items_units'));
+            return view('index', compact('maintenanceSoon', 'maintenanceExpired', 'sparepart_repairments_count', 'items_units', 'items_repairments_count'));
         } else {
             return view('index');
         }
