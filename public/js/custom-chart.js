@@ -30,105 +30,118 @@ function generateDynamicColors(count) {
 
 let currentItemChartType = "line"; // Default chart type for items
 
-function floatchart(sparepartsData = [], itemsData = [], data = "") {
-    const groupedItems = groupedItemsData(itemsData);
-    const chartType = currentItemChartType; // Determines the active chart type
-    const dynamicColors = generateDynamicColors(
-        Object.keys(groupedItems).length
-    );
+function floatchart(dataInput, data = "") {
 
-    // Chart configuration options
-    const item_options_line = {
-        chart: {
-            type: "line",
-            height: 500,
-            toolbar: { show: false },
-        },
-        colors: ["#1DE9B6"],
-        series: [
-            {
-                name: "Jumlah Item",
-                data: Object.values(groupedItems),
+    if (data == "Items") {
+        const groupedItems = groupedItemsData(dataInput);
+        const chartType = currentItemChartType; // Determines the active chart type
+        const dynamicColors = generateDynamicColors(
+            Object.keys(groupedItems).length
+        );
+        console.log(groupedItems);
+        // Chart configuration options
+        const item_options_line = {
+            chart: {
+                type: "line",
+                height: 500,
+                toolbar: { show: false },
             },
-        ],
-        xaxis: {
-            categories: Object.keys(groupedItems),
-        },
-        dataLabels: { enabled: false },
-        grid: { strokeDashArray: 4 },
-        stroke: { width: 3, curve: "smooth" },
-    };
+            colors: ["#1DE9B6"],
+            series: [
+                {
+                    name: "Jumlah Item",
+                    data: Object.values(groupedItems),
+                },
+            ],
+            xaxis: {
+                categories: Object.keys(groupedItems),
+            },
+            dataLabels: { enabled: false },
+            grid: { strokeDashArray: 4 },
+            stroke: { width: 3, curve: "smooth" },
+        };
 
-    const item_options_pie = {
-        chart: {
-            type: "pie",
-            height: 500,
-            toolbar: { show: false },
-        },
-        colors: dynamicColors,
-        series: Object.values(groupedItems),
-        labels: Object.keys(groupedItems),
-        legend: { position: "bottom" },
-        dataLabels: { enabled: true },
-        plotOptions: {
-            pie: {
-                donut: {
-                    size: "70%",
+        const item_options_pie = {
+            chart: {
+                type: "pie",
+                height: 500,
+                toolbar: { show: false },
+            },
+            colors: dynamicColors,
+            series: Object.values(groupedItems),
+            labels: Object.keys(groupedItems),
+            legend: { position: "bottom" },
+            dataLabels: {
+                enabled: true,
+                formatter: function (val) {
+                    return val + "%"
+                },
+                dropShadow: {
+                    enabled: true
+                }
+            },
+            plotOptions: {
+                pie: {
+                    donut: {
+                        size: "70%",
+                    },
                 },
             },
-        },
-    };
+        };
 
-    // Dynamically set options based on the chart type
-    const selectedOptions =
-        chartType === "pie" ? item_options_pie : item_options_line;
+        // Dynamically set options based on the chart type
+        const selectedOptions =
+            chartType === "pie" ? item_options_pie : item_options_line;
 
-    if (window.item_chart) {
-        window.item_chart
-            .updateOptions(selectedOptions) // Update based on current type
-            .catch((error) => console.error("Error updating chart:", error));
-    } else {
-        window.item_chart = new ApexCharts(
-            document.querySelector("#itemsRepairmentGraph"),
-            selectedOptions
-        );
-        window.item_chart
-            .render()
-            .catch((error) => console.error("Error rendering chart:", error));
-    }
-
-    // Spareparts chart logic remains as is
-    const groupedSpareparts = groupedSparepartsData(sparepartsData);
-    const sparepart_options = {
-        chart: {
-            type: "bar",
-            height: 500,
-        },
-        series: [
-            {
-                name: "Jumlah Sparepart",
-                data: Object.values(groupedSpareparts),
-            },
-        ],
-        xaxis: {
-            categories: Object.keys(groupedSpareparts),
-        },
-    };
-
-    if (window.sparepart_chart) {
-        window.sparepart_chart
-            .updateOptions(sparepart_options)
-            .catch((error) => console.error("Error updating chart:", error));
-    } else {
-        window.sparepart_chart = new ApexCharts(
-            document.querySelector("#sparepartsRepairmentGraph"),
-            sparepart_options
-        );
-        window.sparepart_chart
-            .render()
-            .catch((error) =>
-                console.error("Error rendering spareparts chart:", error)
+        if (window.item_chart) {
+            console.log(item_options_pie);
+            window.item_chart
+                .updateOptions(selectedOptions) // Update based on current type
+                .catch((error) => console.error("Error updating chart:", error));
+        } else {
+            window.item_chart = new ApexCharts(
+                document.querySelector("#itemsRepairmentGraph"),
+                selectedOptions
             );
+            window.item_chart
+                .render()
+                .catch((error) => console.error("Error rendering chart:", error));
+        }
+    }
+    if (data == "Spareparts") {
+        // Spareparts chart logic remains as is
+        const groupedSpareparts = groupedSparepartsData(dataInput);
+        const sparepart_options = {
+            chart: {
+                type: "bar",
+                height: 500,
+            },
+            series: [
+                {
+                    name: "Jumlah Sparepart",
+                    data: Object.values(groupedSpareparts),
+                },
+            ],
+            xaxis: {
+                categories: Object.keys(groupedSpareparts),
+            },
+        };
+
+        if (window.sparepart_chart) {
+            window.sparepart_chart
+                .updateOptions(sparepart_options)
+                .catch((error) => console.error("Error updating chart:", error));
+        } else {
+            window.sparepart_chart = new ApexCharts(
+                document.querySelector("#sparepartsRepairmentGraph"),
+                sparepart_options
+            );
+            window.sparepart_chart
+                .render()
+                .catch((error) =>
+                    console.error("Error rendering spareparts chart:", error)
+                );
+        }
     }
 }
 
@@ -152,12 +165,12 @@ function updateItemChart(itemsData = []) {
 // Add the correct event listeners for chart switching
 document.querySelector("#chart-line").addEventListener("click", () => {
     currentItemChartType = "line";
-    floatchart(window.sparepartsData, window.itemsData);
+    floatchart(window.itemsData, "Items");
 });
 
 document.querySelector("#chart-pie").addEventListener("click", () => {
     currentItemChartType = "pie";
-    floatchart(window.sparepartsData, window.itemsData);
+    floatchart(window.itemsData, "Items");
 });
 
 function updateSparepartChart(sparepartsData = []) {
@@ -193,8 +206,9 @@ function filterItemData() {
 
         return isAfterFromDate && isBeforeToDate;
     });
+    console.log(filteredDataItem);
 
-    floatchart(filteredDataItem);
+    floatchart(filteredDataItem, "Items");
 }
 
 function filterSparepartData() {
@@ -209,17 +223,17 @@ function filterSparepartData() {
         );
     }
 
-    filteredDataSparepart = filteredDataSparepart.filter((item) => {
-        const itemDate = new Date(item.date);
-        const itemDateStr = itemDate.toISOString().split("T")[0];
+    filteredDataSparepart = filteredDataSparepart.filter((spareparts) => {
+        const sparepartsDate = new Date(spareparts.date);
+        const sparepartsDateStr = sparepartsDate.toISOString().split("T")[0];
 
-        const isAfterFromDate = fromDate ? itemDateStr >= fromDate : true;
-        const isBeforeToDate = toDate ? itemDateStr <= toDate : true;
+        const isAfterFromDate = fromDate ? sparepartsDateStr >= fromDate : true;
+        const isBeforeToDate = toDate ? sparepartsDateStr <= toDate : true;
 
         return isAfterFromDate && isBeforeToDate;
     });
 
-    floatchart(filteredDataSparepart);
+    floatchart(filteredDataSparepart, "Spareparts");
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -227,7 +241,8 @@ document.addEventListener("DOMContentLoaded", () => {
         Array.isArray(window.sparepartsData) &&
         Array.isArray(window.itemsData)
     ) {
-        floatchart(window.sparepartsData, window.itemsData);
+        floatchart(window.sparepartsData, "Spareparts");
+        floatchart(window.itemsData, "Items");
     } else {
         console.error(
             "Ensure window.sparepartsData and window.itemsData are defined as arrays."
