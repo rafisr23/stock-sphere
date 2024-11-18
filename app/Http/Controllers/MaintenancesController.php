@@ -77,8 +77,12 @@ class MaintenancesController extends Controller
                             ->first()->status ?? null;
 
                         if (($loginDate->isSameDay($row->maintenance_date) && $status === null) || ($loginDate->greaterThan($row->maintenance_date) && $count == 0 && $status === null)) {
+                            return '<button class="btn btn-primary btn-sm alertRoom" title="Alert Room" data-id="' . encrypt($row->id) . '" data-name="' . $row->items->item_name . '" data-room="' . $row->rooms->name . '"><i class="ph-duotone ph-info"></i></button>';
+                        } else if ($status == 6 || $status == 7) {
                             return '<button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#assignTechnicianModal" title="Assign Technician" data-id="' . encrypt($row->id) . '" data-name="' . $row->items->item_name . ' (' . $row->serial_number . ')"><i class="ph-duotone ph-user-plus"></i></button>';
-                        } elseif ($status !== null) {
+                        } else if ($status == 5) {
+                            return '<span class="badge rounded-pill text-bg-secondary">Pending Unit</span>';
+                        } else if ($status == 0 && $status != 5 && $status != 6 && $status != 7) {
                             return '<span class="badge rounded-pill text-bg-success">Already Assigned</span>';
                         } else {
                             return '<span class="badge rounded-pill text-bg-info">Not Today</span>';
@@ -105,7 +109,7 @@ class MaintenancesController extends Controller
                         return $row->item_room->serial_number;
                     })
                     ->addColumn('technician', function ($row) {
-                        return $row->technician->name;
+                        return $row->technician->name ?? '<span class="badge rounded-pill text-bg-warning">Not Selected</span>';
                     })
                     ->addColumn('status', function ($row) {
                         if ($row->status == 0) {
@@ -118,6 +122,12 @@ class MaintenancesController extends Controller
                             return '<span class="badge rounded-pill text-bg-success">Completed</span>';
                         } elseif ($row->status == 4) {
                             return '<span class="badge rounded-pill text-bg-danger">Need Repair</span>';
+                        } elseif ($row->status == 5) {
+                            return '<span class="badge rounded-pill text-bg-light">Pending Room</span>';
+                        } elseif ($row->status == 6) {
+                            return '<span class="badge rounded-pill text-bg-primary">Accepted by Room</span>';
+                        } elseif ($row->status == 7) {
+                            return '<span class="badge rounded-pill text-bg-info">Reschedule</span>';
                         } else {
                             return '<span class="badge rounded-pill text-bg-danger">Undefined</span>';
                         }
@@ -134,7 +144,7 @@ class MaintenancesController extends Controller
                         $btn .= '</div>';
                         return $btn;
                     })
-                    ->rawColumns(['action', 'status'])
+                    ->rawColumns(['action', 'status', 'technician'])
                     ->make(true);
             } else if ($type == 'process') {
                 if (auth()->user()->hasRole('superadmin')) {
@@ -228,27 +238,55 @@ class MaintenancesController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'item_unit_id' => 'required',
-            'technician' => 'required',
-        ]);
-
-        if (auth()->user()->can('assign technician') || auth()->user()->hasRole('superadmin')) {
-            $create = Maintenances::create([
-                'room_id' => Items_units::find(decrypt($request->item_unit_id))->room_id,
-                'item_room_id' => decrypt($request->item_unit_id),
-                'technician_id' => decrypt($request->technician),
-                'status' => 0,
+        if ($request->type == 'alert') {
+            $request->validate([
+                'item_unit_id' => 'required',
             ]);
-        } else {
-            return redirect()->back()->with('error', 'You are not authorized to assign maintenance to technician');
-        }
 
-        if ($create) {
-            createLog(3, $create->id, 'assign maintenance to technician', null, Items_units::where('id', $create->item_room_id)->get('maintenance_date')->toJson());
-            return redirect()->back()->with('success', 'Maintenance assigned to technician');
+            if (auth()->user()->can('assign technician') || auth()->user()->hasRole('superadmin')) {
+                $create = Maintenances::create([
+                    'room_id' => Items_units::find(decrypt($request->item_unit_id))->room_id,
+                    'item_room_id' => decrypt($request->item_unit_id),
+                    'status' => 5,
+                ]);
+            } else {
+                return response()->json(['error' => 'You are not authorized to alert room']);
+            }
+
+            if ($create) {
+                createLog(3, $create->id, 'alert maintenance to unit', null, Items_units::where('id', $create->item_room_id)->get('maintenance_date')->toJson());
+                return response()->json(['success' => 'The room has been successfully alerted!']);
+            } else {
+                return response()->json(['error' => 'Failed to alert maintenance to unit']);
+            }
         } else {
-            return redirect()->back()->with('error', 'Failed to assign maintenance to technician');
+            $request->validate([
+                'item_unit_id' => 'required',
+                'technician' => 'required',
+            ]);
+
+            if (auth()->user()->can('assign technician') || auth()->user()->hasRole('superadmin')) {
+                // update or create maintenance
+                $create = Maintenances::updateOrCreate(
+                    [
+                        'item_room_id' => decrypt($request->item_unit_id),
+                    ],
+                    [
+                        'room_id' => Items_units::find(decrypt($request->item_unit_id))->room_id,
+                        'technician_id' => decrypt($request->technician),
+                        'status' => 0,
+                    ]
+                );
+            } else {
+                return redirect()->back()->with('error', 'You are not authorized to assign maintenance to technician');
+            }
+
+            if ($create) {
+                createLog(3, $create->id, 'assign maintenance to technician', null, Items_units::where('id', $create->item_room_id)->get('maintenance_date')->toJson());
+                return redirect()->back()->with('success', 'Maintenance assigned to technician');
+            } else {
+                return redirect()->back()->with('error', 'Failed to assign maintenance to technician');
+            }
         }
     }
 
@@ -313,7 +351,6 @@ class MaintenancesController extends Controller
             $maintenance->date_worked_on = now();
             $maintenance->status = 1;
             $maintenance->save();
-
         } elseif ($state == 'completed' && ($maintenance->status == 2 || $maintenance->status == 3 || $maintenance->status == 4)) {
             $maintenance->date_completed = now();
 

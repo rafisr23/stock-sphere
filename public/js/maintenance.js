@@ -69,6 +69,63 @@ $("#filterMonth").on("change", function () {
     table.ajax.reload();
 });
 
+$(document).on("click", ".alertRoom", function () {
+    const id = $(this).data("id");
+    const room = $(this).data("room");
+    const name = $(this).data("name");
+    Swal.fire({
+        title: "Alert Room",
+        text:
+            "Are you sure you want to notify " +
+            room +
+            " for maintenance of item " +
+            name +
+            "?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, alert it!",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: `/maintenances/store`,
+                type: "POST",
+                data: {
+                    _token: CSRF_TOKEN,
+                    type: "alert",
+                    item_unit_id: id,
+                },
+                success: function (response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Success",
+                            text: response.success,
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true,
+                            allowOutsideClick: false,
+                        }).then((result) => {
+                            if (result.dismiss === Swal.DismissReason.timer) {
+                                table.ajax.reload();
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: response.error,
+                            showConfirmButton: true,
+                            allowOutsideClick: true,
+                        });
+                    }
+                },
+            });
+        }
+    });
+});
+
 $("#assignTechnicianModal").on("show.bs.modal", function (e) {
     let button = $(e.relatedTarget);
     let itemId = button.data("id");
