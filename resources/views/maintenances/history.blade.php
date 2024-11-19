@@ -43,22 +43,15 @@
                 <form id="rescheduleMaintenanceForm" action="" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
+                    <input type="hidden" name="type" id="type" value="reschedule">
                     <div class="modal-header">
                         <h5 class="modal-title" id="rescheduleMaintenanceModalLabel">Reschedule Maintenance</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div class="form-group">
-                            <label for="maintenance_date">Maintenance Date</label>
-                            <input type="date" class="form-control" id="maintenance_date" name="maintenance_date">
-                        </div>
-                        <div class="form-group">
-                            <label for="maintenance_time">Maintenance Time</label>
-                            <input type="time" class="form-control" id="maintenance_time" name="maintenance_time">
-                        </div>
-                        <div class="form-group">
-                            <label for="maintenance_note">Maintenance Note</label>
-                            <textarea class="form-control" id="maintenance_note" name="maintenance_note"></textarea>
+                            <label for="newMaintenance_date">New Maintenance Date</label>
+                            <input type="date" class="form-control" id="newMaintenance_date" name="newMaintenance_date">
                         </div>
                     </div>
                     <div class="modal-footer">

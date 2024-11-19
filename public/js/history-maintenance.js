@@ -109,5 +109,20 @@ table.on("click", ".rescheduleMaintenance", function (e) {
     var url = `/maintenances/update/${id}`;
 
     //show modal
+    $("#rescheduleMaintenanceModalLabel").text(
+        "Reschedule Maintenance of " + name
+    );
+    $("#rescheduleMaintenanceForm").attr("action", url);
     $("#rescheduleMaintenanceModal").modal("show");
 });
+
+const maintenance_date = new Datepicker(
+    document.querySelector("#newMaintenance_date"),
+    {
+        autohide: true,
+        buttonClass: "btn",
+        format: "yyyy-mm-dd",
+        //only can select future dates max 1 week from now
+        maxDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000),
+    }
+);
