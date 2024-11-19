@@ -91,7 +91,7 @@
     </li>
 @endif
 
-@if (auth()->user()->hasRole('technician') || auth()->user()->hasRole('superadmin'))
+@if (auth()->user()->hasRole('technician') || auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('room'))
     <li class="pc-item pc-hasmenu">
         <a href="#" class="pc-link">
             <span class="pc-micon">
@@ -101,8 +101,10 @@
             <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
         </a>
         <ul class="pc-submenu">
-            <li class="pc-item {{ request()->routeIs('maintenances.index') ? 'active' : '' }}"><a class="pc-link"
-                    href="{{ route('maintenances.index') }}">List</a></li>
+            @if (!auth()->user()->hasRole('room'))
+                <li class="pc-item {{ request()->routeIs('maintenances.index') ? 'active' : '' }}"><a class="pc-link"
+                        href="{{ route('maintenances.index') }}">List</a></li>
+            @endif
             <li class="pc-item {{ request()->routeIs('maintenances.history') ? 'active' : '' }}"><a class="pc-link"
                     href="{{ route('maintenances.history') }}">History</a></li>
         </ul>

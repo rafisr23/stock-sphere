@@ -45,7 +45,25 @@
     </div>
     <!-- [ Pre-loader ] End -->
 
-    @yield('content')
+    <div class="auth-main v1">
+        <div class="auth-wrapper">
+            @yield('content')
+            <div class="auth-sidefooter">
+                <img src="{{ asset('build/images/logo-dark.svg') }}" class="img-brand img-fluid" alt="images" />
+                <hr class="mb-3 mt-4" />
+                <div class="row">
+                    <div class="col my-1">
+                        <p class="m-0"> &copy; {{ date('Y') }} Stock Sphere. All Rights Reserved.</p>
+                    </div>
+                    <div class="col-auto my-1">
+                        <ul class="list-inline footer-link mb-0">
+                            <li class="list-inline-item"><a href="{{ route('home.index') }}">Home</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Required Js -->
     <script src="{{ URL::asset('build/js/plugins/popper.min.js') }}"></script>

@@ -8,6 +8,7 @@ use App\Models\Rooms;
 use App\Models\Technician;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use League\Fractal\Resource\Item;
 use Yajra\DataTables\Facades\DataTables;
 
 class MaintenancesController extends Controller
@@ -254,7 +255,7 @@ class MaintenancesController extends Controller
             }
 
             if ($create) {
-                createLog(3, $create->id, 'alert maintenance to unit', null, Items_units::where('id', $create->item_room_id)->get('maintenance_date')->toJson());
+                createLog(3, $create->id, 'alert maintenance to unit', null, now());
                 return response()->json(['success' => 'The room has been successfully alerted!']);
             } else {
                 return response()->json(['error' => 'Failed to alert maintenance to unit']);
@@ -266,7 +267,6 @@ class MaintenancesController extends Controller
             ]);
 
             if (auth()->user()->can('assign technician') || auth()->user()->hasRole('superadmin')) {
-                // update or create maintenance
                 $create = Maintenances::updateOrCreate(
                     [
                         'item_room_id' => decrypt($request->item_unit_id),
@@ -394,6 +394,19 @@ class MaintenancesController extends Controller
     {
         $id = decrypt($id);
 
+        if ($request->type == 'acceptRoom') {
+            $maintenance = Maintenances::find($id);
+            $maintenance->status = 6;
+            $maintenance->schedule_by_room = Items_units::find($maintenance->item_room_id)->maintenance_date;
+
+            if ($maintenance->save()) {
+                createLog(3, $maintenance->id, 'accept maintenance by room', null, now());
+                return response()->json(['success' => 'Maintenance accepted!']);
+            } else {
+                return response()->json(['error' => 'Failed to accept maintenance']);
+            }
+        }
+
         $request->validate([
             'remarks' => 'required',
             'description' => 'required',
@@ -441,6 +454,9 @@ class MaintenancesController extends Controller
                 $maintenances = Maintenances::whereIn('technician_id', $allTechnicians)->get();
             } elseif (auth()->user()->hasRole('technician')) {
                 $maintenances = Maintenances::where('technician_id', auth()->user()->technician->id)->get();
+            } else if (auth()->user()->hasRole('room')) {
+                $room = auth()->user()->room;
+                $maintenances = Maintenances::where('room_id', $room->id)->get();
             }
 
             return DataTables::of($maintenances)
@@ -457,9 +473,6 @@ class MaintenancesController extends Controller
                 ->addColumn('maintenance_date', function ($row) {
                     return Carbon::parse($row->item_room->maintenance_date)->isoFormat('D MMMM Y');
                 })
-                ->addColumn('technician', function ($row) {
-                    return $row->technician->name;
-                })
                 ->addColumn('worked_on', function ($row) {
                     if ($row->date_worked_on) {
                         return Carbon::parse($row->date_worked_on)->isoFormat('D MMMM Y, HH:mm');
@@ -474,10 +487,20 @@ class MaintenancesController extends Controller
                         return '<span class="badge rounded-pill text-bg-info">Not Completed Yet</span>';
                     }
                 })
-                // ->addColumn('action', function ($row) {
-                //     return '<button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#maintenanceDetailModal" title="Detail" data-id="' . encrypt($row->id) . '"><i class="ph ph-duotone ph-eye"></i></button>';
-                // })
-                ->rawColumns(['worked_on', 'completed'])
+                ->addColumn('action', function ($row) {
+                    if (auth()->user()->hasRole('room') && $row->status == 5) {
+                        $btn = '<div class="d-flex justify-content-center align-items-center">';
+                        $btn = '<button type="button" class="btn btn-success btn-sm accMaintenance" title="Accept Maintenance" data-id="' . encrypt($row->id) . '" data-name="' . $row->item_room->items->item_name . '"><i class="ph ph-duotone ph-check"></i></button>';
+                        $btn .= '<button type="button" class="btn btn-warning btn-sm rescheduleMaintenance" title="Reschedule Maintenance" data-id="' . encrypt($row->id) . '" data-name="' . $row->item_room->items->item_name . '"><i class="ph ph-duotone ph-pencil-line"></i></button>';
+                        $btn .= '</div>';
+                    } else if (auth()->user()->hasRole('room') && $row->status != 5) {
+                        $btn = '<span class="badge rounded-pill text-bg-info">Action Has Been Given</span>';
+                    } else {
+                        $btn = '<span class="badge rounded-pill text-bg-info">Nothing To Do Here</span>';
+                    }
+                    return $btn;
+                })
+                ->rawColumns(['worked_on', 'completed', 'action'])
                 ->make(true);
         } else {
             return view('maintenances.history');

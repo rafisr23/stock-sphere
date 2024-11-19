@@ -35,7 +35,6 @@ class HomeController extends Controller
             $loginDatePlusMonth = Carbon::parse($loginDate)->addMonth()->format('Y-m-d');
             $itemsQuery = Items_units::query();
 
-
             if (auth()->user()->hasRole('superadmin')) {
                 $items_repairments_count = DB::table('items_units as iu')
                     // get data items_units from details_of_repair_submissions so we can count the repairments by item
@@ -83,6 +82,14 @@ class HomeController extends Controller
             }
 
             return view('index', compact('maintenanceSoon', 'maintenanceExpired', 'sparepart_repairments_count', 'items_units', 'items_repairments_count'));
+        } else if (auth()->user()->hasRole('room')) {
+            $maintenanceSoonRoom = false;
+
+            if (auth()->user()->hasRole('room')) {
+                $maintenanceSoonRoom = Maintenances::where('room_id', auth()->user()->room->id)->where('status', 5)->exists();
+            }
+
+            return view('index', compact('maintenanceSoonRoom'));
         } else {
             return view('index');
         }
