@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Spareparts;
 use App\Models\Items_units;
+use App\Models\Technician;
 use Illuminate\Http\Request;
 use League\Fractal\Resource\Item;
 use App\Models\SparepartsOfRepair;
@@ -18,13 +19,12 @@ class DetailsOfRepairSubmissionController extends Controller
         if (request()->ajax()) {
             $table = request('table');
             if ($table === 'repairments') {
-                if (auth()->user()->hasRole('technician')) {
-                    $details_of_repair_submission = DetailsOfRepairSubmission::where('technician_id', auth()->user()->id)->get();
-                    dd($details_of_repair_submission);
+                if (auth()->user()->hasRole('technician') && !auth()->user()->can('assign technician')) {
+                    $technician = Technician::where('user_id', auth()->user()->id)->first();
+                    $details_of_repair_submission = DetailsOfRepairSubmission::where('technician_id', $technician->id)->get();
                 } else {
                     $details_of_repair_submission = DetailsOfRepairSubmission::all();
                 }
-                $details_of_repair_submission = DetailsOfRepairSubmission::all();
                 return datatables()->of($details_of_repair_submission)
                     ->addIndexColumn()
                     ->addColumn('items_name', function ($row) {

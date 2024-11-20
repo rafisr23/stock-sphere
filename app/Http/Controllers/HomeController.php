@@ -34,6 +34,11 @@ class HomeController extends Controller
             $maintenanceData = Maintenances::all();
             $loginDatePlusMonth = Carbon::parse($loginDate)->addMonth()->format('Y-m-d');
             $itemsQuery = Items_units::query();
+            // $status_count = DB::table('details_of_repair_submissions')
+            //     ->select('status', DB::raw('COUNT(*) as total'))
+            //     ->whereIn('status', [0, 1])
+            //     ->groupBy('status')
+            //     ->get();
 
 
             if (auth()->user()->hasRole('superadmin')) {
@@ -82,7 +87,16 @@ class HomeController extends Controller
                 }
             }
 
-            return view('index', compact('maintenanceSoon', 'maintenanceExpired', 'sparepart_repairments_count', 'items_units', 'items_repairments_count'));
+            return view(
+                'index',
+                compact(
+                    'maintenanceSoon',
+                    'maintenanceExpired',
+                    'sparepart_repairments_count',
+                    'items_units',
+                    'items_repairments_count',
+                )
+            );
         } else {
             return view('index');
         }
