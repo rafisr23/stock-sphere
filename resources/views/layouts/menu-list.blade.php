@@ -70,6 +70,15 @@
                 <i class="ph-duotone ph-wrench"></i>
             </span>
             <span class="pc-mtext">Repairments</span>
+            {{-- @php
+                dd($status_count)
+            @endphp --}}
+            @foreach ($status_count as $sc)
+                <span class="pc-badge {{ $sc->status == 0 ? 'bg-warning' : ($sc->status == 1 ? 'bg-primary' : '') }}">
+                    {{ $sc->total }}
+                </span>
+            @endforeach
+
         </a>
     </li>
 @endrole
@@ -107,14 +116,6 @@
                     href="{{ route('maintenances.history') }}">History</a></li>
         </ul>
     </li>
-    {{-- <li class="pc-item {{ request()->routeIs('detail_submission.index') ? 'active' : '' }}">
-        <a href="{{ route('repairments.index') }}" class="pc-link">
-            <span class="pc-micon">
-                <i class="ph-duotone ph-wrench"></i>
-            </span>
-            <span class="pc-mtext">Repairments</span>
-        </a>
-    </li> --}}
 @endif
 
 @role('superadmin')
