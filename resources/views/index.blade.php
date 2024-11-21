@@ -62,7 +62,7 @@
                 <svg class="bi flex-shrink-0 me-2" width="24" height="24">
                     <use xlink:href="#exclamation-triangle-fill"></use>
                 </svg>
-                <strong>Perhatian!</strong> Ada barang yang akan di <a href="{{ route('maintenances.history') }}"
+                <strong>Perhatian!</strong> Ada barang yang akan di <a href="{{ route('maintenances.confirmation') }}"
                     class="alert-link">Maintenance</a>. Harap Berikan Konfirmasi.
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
