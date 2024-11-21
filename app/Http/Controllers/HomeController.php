@@ -40,7 +40,6 @@ class HomeController extends Controller
             //     ->groupBy('status')
             //     ->get();
 
-
             if (auth()->user()->hasRole('superadmin')) {
                 $items_repairments_count = DB::table('items_units as iu')
                     // get data items_units from details_of_repair_submissions so we can count the repairments by item
@@ -97,6 +96,12 @@ class HomeController extends Controller
                     'items_repairments_count',
                 )
             );
+        } else if (auth()->user()->hasRole('room')) {
+            $maintenanceSoonRoom = false;
+
+            $maintenanceSoonRoom = Maintenances::where('room_id', auth()->user()->room->id)->where('status', 5)->exists();
+
+            return view('index', compact('maintenanceSoonRoom'));
         } else {
             return view('index');
         }
