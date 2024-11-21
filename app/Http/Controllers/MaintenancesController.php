@@ -392,7 +392,6 @@ class MaintenancesController extends Controller
      */
     public function update(Request $request, $id)
     {
-        dd($request->all());
         $id = decrypt($id);
 
         if ($request->type == 'acceptRoom') {
@@ -409,15 +408,19 @@ class MaintenancesController extends Controller
         }
 
         if ($request->type == 'reschedule') {
+            $request->validate([
+                'newMaintenance_date' => 'required',
+            ]);
+
             $maintenance = Maintenances::find($id);
             $maintenance->status = 7;
             $maintenance->schedule_by_room = $request->newMaintenance_date;
 
             if ($maintenance->save()) {
                 createLog(3, $maintenance->id, 'reschedule maintenance by room', null, $request->newMaintenance_date);
-                return response()->json(['success' => 'Maintenance rescheduled!']);
+                redirect()->back()->with('success', 'Maintenance rescheduled!');
             } else {
-                return response()->json(['error' => 'Failed to reschedule maintenance']);
+                redirect()->back()->with('error', 'Failed to reschedule maintenance');
             }
         }
 

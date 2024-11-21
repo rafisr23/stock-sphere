@@ -50,8 +50,9 @@
                     </div>
                     <div class="modal-body">
                         <div class="form-group">
-                            <label for="newMaintenance_date">New Maintenance Date</label>
-                            <input type="date" class="form-control" id="newMaintenance_date" name="newMaintenance_date">
+                            <label for="newMaintenance_date" class="required">New Maintenance Date</label>
+                            <input type="date" class="form-control" id="newMaintenance_date" name="newMaintenance_date"
+                                readonly required>
                         </div>
                     </div>
                     <div class="modal-footer">

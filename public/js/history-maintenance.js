@@ -72,7 +72,7 @@ table.on("click", ".accMaintenance", function (e) {
                     _token: CSRF_TOKEN,
                     type: "acceptRoom",
                 },
-                success: function (data) {
+                success: function (response) {
                     if (response.success) {
                         Swal.fire({
                             icon: "success",
@@ -122,7 +122,11 @@ const maintenance_date = new Datepicker(
         autohide: true,
         buttonClass: "btn",
         format: "yyyy-mm-dd",
-        //only can select future dates max 1 week from now
-        maxDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000),
+        minDate: new Date(),
+        maxDate: new Date(new Date().setDate(new Date().getDate() + 7)),
     }
 );
+
+$("#rescheduleMaintenanceForm").on("keypress", function (e) {
+    return e.which !== 13;
+});
