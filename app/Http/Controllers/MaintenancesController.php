@@ -62,6 +62,17 @@ class MaintenancesController extends Controller
                     ->addColumn('maintenance_date', function ($row) {
                         return Carbon::parse($row->maintenance_date)->isoFormat('D MMMM Y');
                     })
+                    ->addColumn('reschedule_date', function ($row) {
+                        $date = '';
+                        if ($row->maintenances == null || $row->maintenances->status == 5) {
+                            $date = '<span class="badge text-bg-info">Waiting Room Confirmation</span>';
+                        } elseif ($row->maintenances->schedule_by_room == $row->maintenance_date) {
+                            $date = '<span class="badge text-bg-success">According To The Schedule</span>';
+                        } elseif ($row->maintenances->schedule_by_room != $row->maintenance_date) {
+                            $date = Carbon::parse($row->maintenances->schedule_by_room)->isoFormat('D MMMM Y');
+                        }
+                        return $date;
+                    })
                     ->addColumn('action', function ($row) use ($loginDate, $extData) {
                         $count = $extData->where('item_id', $row->item_id)
                             ->filter(function ($item) use ($loginDate) {
@@ -82,14 +93,14 @@ class MaintenancesController extends Controller
                         } else if ($status == 6 || $status == 7) {
                             return '<button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#assignTechnicianModal" title="Assign Technician" data-id="' . encrypt($row->id) . '" data-name="' . $row->items->item_name . ' (' . $row->serial_number . ')"><i class="ph-duotone ph-user-plus"></i></button>';
                         } else if ($status == 5) {
-                            return '<span class="badge rounded-pill text-bg-secondary">Pending Unit</span>';
+                            return '<span class="badge rounded-pill text-bg-secondary">Pending Room</span>';
                         } else if ($status == 0 && $status != 5 && $status != 6 && $status != 7) {
                             return '<span class="badge rounded-pill text-bg-success">Already Assigned</span>';
                         } else {
                             return '<span class="badge rounded-pill text-bg-info">Not Today</span>';
                         }
                     })
-                    ->rawColumns(['action'])
+                    ->rawColumns(['action', 'reschedule_date'])
                     ->make(true);
             } else if ($type == 'maintenance') {
                 if (auth()->user()->hasRole('superadmin')) {
@@ -104,10 +115,10 @@ class MaintenancesController extends Controller
                 return DataTables::of($maintenances)
                     ->addIndexColumn()
                     ->addColumn('item', function ($row) {
-                        return $row->item_room->items->item_name;
+                        return $row->item_room->first()->items->item_name;
                     })
                     ->addColumn('serial_number', function ($row) {
-                        return $row->item_room->serial_number;
+                        return $row->item_room->first()->serial_number;
                     })
                     ->addColumn('technician', function ($row) {
                         return $row->technician->name ?? '<span class="badge rounded-pill text-bg-warning">Not Selected</span>';
@@ -162,7 +173,7 @@ class MaintenancesController extends Controller
                 return DataTables::of($maintenances)
                     ->addIndexColumn()
                     ->addColumn('item', function ($row) {
-                        return $row->item_room->items->item_name;
+                        return $row->item_room->first()->items->item_name;
                     })
                     ->addColumn('status', function ($row) {
                         $statusOptions = ['Running', 'System Down', 'Restricted'];
@@ -170,7 +181,7 @@ class MaintenancesController extends Controller
                         $status .= '<select class="form-control" name="status" id="status" required>';
 
                         foreach ($statusOptions as $option) {
-                            $selected = $row->item_room->status == $option ? 'selected' : '';
+                            $selected = $row->item_room->first()->status == $option ? 'selected' : '';
                             $status .= '<option value="' . $option . '" ' . $selected . '>' . $option . '</option>';
                         }
 
@@ -180,7 +191,7 @@ class MaintenancesController extends Controller
                     })
                     ->addColumn('remarks', function ($row) {
                         $remark = '<textarea type="text" name="remarks" rows="4" id="remarks" class="form-control" data-id="' . encrypt($row->id);
-                        $remark .= '"placeholder="Enter repairment remark for ' . $row->item_room->items->item_name . '">';
+                        $remark .= '"placeholder="Enter repairment remark for ' . $row->item_room->first()->items->item_name . '">';
                         $remark .= old('remarks', $row->remarks);
                         $remark .= '</textarea>';
 
@@ -188,14 +199,14 @@ class MaintenancesController extends Controller
                     })
                     ->addColumn('description', function ($row) {
                         $description = '<textarea type="text" name="description" rows="4" id="description" class="form-control" data-id="' . encrypt($row->id);
-                        $description .= '"placeholder="Enter repairment description for ' . $row->item_room->items->item_name . '">';
+                        $description .= '"placeholder="Enter repairment description for ' . $row->item_room->first()->items->item_name . '">';
                         $description .= old('description', $row->description);
                         $description .= '</textarea>';
 
                         return $description;
                     })
                     ->addColumn('evidence', function ($row) {
-                        $evidence = '<input type="file" name="evidence" class="form-control" id="evidence" placeholder="Upload evidence for ' . $row->item_room->items->item_name . '">';
+                        $evidence = '<input type="file" name="evidence" class="form-control" id="evidence" placeholder="Upload evidence for ' . $row->item_room->first()->items->item_name . '">';
                         return $evidence;
                     })
                     ->addColumn('action', function ($row) {
@@ -479,16 +490,17 @@ class MaintenancesController extends Controller
             return DataTables::of($maintenances)
                 ->addIndexColumn()
                 ->addColumn('item', function ($row) {
-                    return $row->item_room->items->item_name;
+                    $items = $row->item_room->first()->items->item_name;
+                    return $items;
                 })
                 ->addColumn('room', function ($row) {
                     return $row->room->name;
                 })
                 ->addColumn('serial_number', function ($row) {
-                    return $row->item_room->serial_number;
+                    return $row->item_room->first()->serial_number;
                 })
                 ->addColumn('maintenance_date', function ($row) {
-                    return Carbon::parse($row->item_room->maintenance_date)->isoFormat('D MMMM Y');
+                    return Carbon::parse($row->item_room->first()->maintenance_date)->isoFormat('D MMMM Y');
                 })
                 ->addColumn('worked_on', function ($row) {
                     if ($row->date_worked_on) {
@@ -507,11 +519,13 @@ class MaintenancesController extends Controller
                 ->addColumn('action', function ($row) {
                     if (auth()->user()->hasRole('room') && $row->status == 5) {
                         $btn = '<div class="d-flex justify-content-center align-items-center">';
-                        $btn = '<button type="button" class="btn btn-success btn-sm accMaintenance" title="Accept Maintenance" data-id="' . encrypt($row->id) . '" data-name="' . $row->item_room->items->item_name . '"><i class="ph ph-duotone ph-check"></i></button>';
-                        $btn .= '<button type="button" class="btn btn-warning btn-sm rescheduleMaintenance" title="Reschedule Maintenance" data-id="' . encrypt($row->id) . '" data-name="' . $row->item_room->items->item_name . '"><i class="ph ph-duotone ph-pencil-line"></i></button>';
+                        $btn = '<button type="button" class="btn btn-success btn-sm accMaintenance" title="Accept Maintenance" data-id="' . encrypt($row->id) . '" data-name="' . $row->item_room->first()->items->item_name . '"><i class="ph ph-duotone ph-check"></i></button>';
+                        $btn .= '<button type="button" class="btn btn-warning btn-sm rescheduleMaintenance" title="Reschedule Maintenance" data-id="' . encrypt($row->id) . '" data-name="' . $row->item_room->first()->items->item_name . '"><i class="ph ph-duotone ph-pencil-line"></i></button>';
                         $btn .= '</div>';
-                    } else if (auth()->user()->hasRole('room') && $row->status != 5) {
-                        $btn = '<span class="badge rounded-pill text-bg-info">Action Has Been Given</span>';
+                    } else if (auth()->user()->hasRole('room') && $row->schedule_by_room == $row->item_room->first()->maintenance_date) {
+                        $btn = '<span class="badge text-bg-success">According To The Schedule</span>';
+                    } else if (auth()->user()->hasRole('room') && $row->schedule_by_room != $row->item_room->first()->maintenance_date) {
+                        $btn = '<span class="badge text-bg-info">Rescheduled</span>';
                     } else {
                         $btn = '<span class="badge rounded-pill text-bg-info">Nothing To Do Here</span>';
                     }

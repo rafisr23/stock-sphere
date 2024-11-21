@@ -85,6 +85,7 @@
                                                             <th>Room</th>
                                                             <th>Serial Number</th>
                                                             <th>Maintenance Date</th>
+                                                            <th>Reschedule Date</th>
                                                             <th>Action</th>
                                                         </tr>
                                                     </thead>

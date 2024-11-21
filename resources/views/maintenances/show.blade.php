@@ -11,29 +11,29 @@
             <div class="card">
                 <div class="card-header">
                     <div class="row align-items-center">
-                        @if ($maintenance->item_room->items->image != null)
+                        @if ($maintenance->item_room->first()->items->image != null)
                             <div class="col-xl-2 col-md-3 col-sm-5">
                                 <a class="card-gallery" data-fslightbox="gallery"
-                                    href="{{ asset('images/items/' . $maintenance->item_room->items->image) }}">
+                                    href="{{ asset('images/items/' . $maintenance->item_room->first()->items->image) }}">
                                     <img class="img-fluid"
-                                        src="{{ asset('images/items/' . $maintenance->item_room->items->image) }}"
+                                        src="{{ asset('images/items/' . $maintenance->item_room->first()->items->image) }}"
                                         alt="Card image">
                                     <div class="gallery-hover-data card-body justify-content-end">
                                         <div>
                                             <p class="text-white mb-0 text-truncate w-100">Picture
-                                                {{ $maintenance->item_room->items->item_name }}
+                                                {{ $maintenance->item_room->first()->items->item_name }}
                                             </p>
                                             <span
-                                                class="text-white text-opacity-75 mb-0 text-sm text-truncate w-100">{{ $maintenance->item_room->items->updated_at }}</span>
+                                                class="text-white text-opacity-75 mb-0 text-sm text-truncate w-100">{{ $maintenance->item_room->first()->items->updated_at }}</span>
                                         </div>
                                     </div>
                                 </a>
                             </div>
                         @endif
                         <div class="col">
-                            <h4 class="card-title mb-4">{{ $maintenance->item_room->items->item_name }}</h4>
-                            <p class="col-form-p">Serial No: {{ $maintenance->item_room->serial_number }}</p>
-                            <p class="col-form-p">Room name: {{ $maintenance->item_room->rooms->name }}</p>
+                            <h4 class="card-title mb-4">{{ $maintenance->item_room->first()->items->item_name }}</h4>
+                            <p class="col-form-p">Serial No: {{ $maintenance->item_room->first()->serial_number }}</p>
+                            <p class="col-form-p">Room name: {{ $maintenance->item_room->first()->rooms->name }}</p>
                         </div>
                         <div class="col-auto">
                             <a href="{{ route('maintenances.index') }}" class="btn btn-secondary">Back</a>
@@ -49,16 +49,15 @@
                                     <div class="col-sm-9 d-flex align-items-center">
                                         <a class="card-gallery" data-fslightbox="gallery"
                                             href="{{ asset('temp/' . $maintenance->evidence) }}">
-                                            <img class="img-fluid"
-                                                src="{{ asset('temp/' . $maintenance->evidence) }}"
+                                            <img class="img-fluid" src="{{ asset('temp/' . $maintenance->evidence) }}"
                                                 alt="Card image">
                                             <div class="gallery-hover-data card-body justify-content-end">
                                                 <div>
                                                     <p class="text-white mb-0 text-truncate w-100">Picture
-                                                        {{ $maintenance->item_room->items->item_name }}
+                                                        {{ $maintenance->item_room->first()->items->item_name }}
                                                     </p>
                                                     <span
-                                                        class="text-white text-opacity-75 mb-0 text-sm text-truncate w-100">{{ $maintenance->item_room->items->updated_at }}</span>
+                                                        class="text-white text-opacity-75 mb-0 text-sm text-truncate w-100">{{ $maintenance->item_room->first()->items->updated_at }}</span>
                                                 </div>
                                             </div>
                                         </a>

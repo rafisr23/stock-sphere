@@ -28,6 +28,6 @@ class Items_units extends Model
 
     public function maintenances()
     {
-        return $this->hasMany(Maintenances::class, 'item_room_id');
+        return $this->belongsTo(Maintenances::class, 'id', 'item_room_id');
     }
 }

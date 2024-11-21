@@ -49,6 +49,10 @@ let table = $("#items_table").DataTable({
             name: "maintenance_date",
         },
         {
+            data: "reschedule_date",
+            name: "reschedule_date",
+        },
+        {
             data: "action",
             name: "action",
             orderable: false,
