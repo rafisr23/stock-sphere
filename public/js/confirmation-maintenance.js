@@ -1,7 +1,7 @@
 const CSRF_TOKEN = $('meta[name="csrf-token"]').attr("content");
-const getItemsTableUrl = `/maintenances/history`;
+const getItemsTableUrl = `/maintenances/confirmation`;
 
-var table = $("#historyMaintenances_table").DataTable({
+var table = $("#confirmationMaintenances_table").DataTable({
     fixedHeader: true,
     processing: true,
     serverSide: true,
@@ -19,26 +19,12 @@ var table = $("#historyMaintenances_table").DataTable({
             name: "item",
         },
         {
-            data: "room",
-            name: "room",
-        },
-        {
             data: "serial_number",
             name: "serial_number",
         },
         {
             data: "maintenance_date",
             name: "maintenance_date",
-        },
-        {
-            data: "worked_on",
-            name: "worked_on",
-            className: "text-center",
-        },
-        {
-            data: "completed",
-            name: "completed",
-            className: "text-center",
         },
         {
             data: "action",

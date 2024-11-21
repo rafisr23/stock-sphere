@@ -176,6 +176,7 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/update/{id}', 'update')->name('update');
             Route::post('/store/temporary-file', 'storeTemporaryFile')->middleware('role:superadmin|technician')->name('store.temporary-file');
             Route::get('/history', 'history')->name('history');
+            Route::get('/confirmation', 'confirmation')->name('confirmation');
         });
     });
 });

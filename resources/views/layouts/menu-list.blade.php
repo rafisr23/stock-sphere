@@ -116,6 +116,10 @@
             @endif
             <li class="pc-item {{ request()->routeIs('maintenances.history') ? 'active' : '' }}"><a class="pc-link"
                     href="{{ route('maintenances.history') }}">History</a></li>
+            @if (auth()->user()->hasRole('room') || auth()->user()->hasRole('superadmin'))
+                <li class="pc-item {{ request()->routeIs('maintenances.confirmation') ? 'active' : '' }}"><a
+                        class="pc-link" href="{{ route('maintenances.confirmation') }}">Confirmation</a></li>
+            @endif
         </ul>
     </li>
 @endif

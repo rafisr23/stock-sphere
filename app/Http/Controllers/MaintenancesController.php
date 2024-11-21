@@ -502,6 +502,17 @@ class MaintenancesController extends Controller
                 ->addColumn('maintenance_date', function ($row) {
                     return Carbon::parse($row->item_room->first()->maintenance_date)->isoFormat('D MMMM Y');
                 })
+                ->addColumn('reschedule_date', function ($row) {
+                    $date = '';
+                    if ($row->status == 5) {
+                        $date = '<span class="badge rounded-pill text-bg-info">Waiting Room Confirmation</span>';
+                    } elseif ($row->schedule_by_room == $row->item_room->first()->maintenance_date) {
+                        $date = '<span class="badge rounded-pill text-bg-success">According To The Schedule</span>';
+                    } elseif ($row->schedule_by_room != $row->item_room->first()->maintenance_date) {
+                        $date = Carbon::parse($row->schedule_by_room)->isoFormat('D MMMM Y');
+                    }
+                    return $date;
+                })
                 ->addColumn('worked_on', function ($row) {
                     if ($row->date_worked_on) {
                         return Carbon::parse($row->date_worked_on)->isoFormat('D MMMM Y, HH:mm');
@@ -516,25 +527,54 @@ class MaintenancesController extends Controller
                         return '<span class="badge rounded-pill text-bg-info">Not Completed Yet</span>';
                     }
                 })
+                ->rawColumns(['worked_on', 'completed', 'reschedule_date'])
+                ->make(true);
+        } else {
+            return view('maintenances.history');
+        }
+    }
+
+    public function confirmation()
+    {
+        if (request()->ajax()) {
+            if (auth()->user()->hasRole('superadmin')) {
+                $maintenances = Maintenances::where('status', 5)->get();
+            } else if (auth()->user()->hasRole('room')) {
+                $room = auth()->user()->room;
+                $maintenances = Maintenances::where('room_id', $room->id)->where('status', 5)->get();
+            }
+
+            return DataTables::of($maintenances)
+                ->addIndexColumn()
+                ->addColumn('item', function ($row) {
+                    $items = $row->item_room->first()->items->item_name;
+                    return $items;
+                })
+                ->addColumn('serial_number', function ($row) {
+                    return $row->item_room->first()->serial_number;
+                })
+                ->addColumn('maintenance_date', function ($row) {
+                    return Carbon::parse($row->item_room->first()->maintenance_date)->isoFormat('D MMMM Y');
+                })
                 ->addColumn('action', function ($row) {
-                    if (auth()->user()->hasRole('room') && $row->status == 5) {
+                    if ($row->status == 5) {
                         $btn = '<div class="d-flex justify-content-center align-items-center">';
                         $btn = '<button type="button" class="btn btn-success btn-sm accMaintenance" title="Accept Maintenance" data-id="' . encrypt($row->id) . '" data-name="' . $row->item_room->first()->items->item_name . '"><i class="ph ph-duotone ph-check"></i></button>';
                         $btn .= '<button type="button" class="btn btn-warning btn-sm rescheduleMaintenance" title="Reschedule Maintenance" data-id="' . encrypt($row->id) . '" data-name="' . $row->item_room->first()->items->item_name . '"><i class="ph ph-duotone ph-pencil-line"></i></button>';
                         $btn .= '</div>';
-                    } else if (auth()->user()->hasRole('room') && $row->schedule_by_room == $row->item_room->first()->maintenance_date) {
+                    } else if ($row->schedule_by_room == $row->item_room->first()->maintenance_date) {
                         $btn = '<span class="badge text-bg-success">According To The Schedule</span>';
-                    } else if (auth()->user()->hasRole('room') && $row->schedule_by_room != $row->item_room->first()->maintenance_date) {
+                    } else if ($row->schedule_by_room != $row->item_room->first()->maintenance_date) {
                         $btn = '<span class="badge text-bg-info">Rescheduled</span>';
                     } else {
                         $btn = '<span class="badge rounded-pill text-bg-info">Nothing To Do Here</span>';
                     }
                     return $btn;
                 })
-                ->rawColumns(['worked_on', 'completed', 'action'])
+                ->rawColumns(['action'])
                 ->make(true);
         } else {
-            return view('maintenances.history');
+            return view('maintenances.confirmation');
         }
     }
 }
