@@ -131,10 +131,10 @@
 
 @section('scripts')
     <!-- [Page Specific JS] start -->
-    <script>
+    {{-- <script>
         window.sparepartsData = @json($sparepart_repairments_count);
         window.itemsData = @json($items_repairments_count);
-    </script>
+    </script> --}}
     <script src="{{ URL::asset('build/js/plugins/apexcharts.min.js') }}"></script>
     <script src="{{ URL::asset('build/js/plugins/jsvectormap.min.js') }}"></script>
     <script src="{{ URL::asset('build/js/plugins/world.js') }}"></script>

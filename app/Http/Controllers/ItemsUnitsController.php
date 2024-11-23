@@ -16,17 +16,20 @@ class ItemsUnitsController extends Controller
     public function index()
     {
         if (auth()->user()->hasRole('room')) {
-            $rooms = Rooms::where('id', auth()->user()->id)->get();
+            $rooms = Rooms::where('user_id', auth()->user()->id)->get();
             if ($rooms->isEmpty()) {
                 return redirect()->back()->with('error', 'Your account is not assigned to any room.');
             }
             $items_units = Items_units::where('room_id', auth()->user()->room->id)->get();
         } elseif (auth()->user()->hasRole('unit')) {
-            $units = Units::where('id', auth()->user()->id)->get();
+            $units = Units::where('user_id', auth()->user()->id)->get();
             if ($units->isEmpty()) {
                 return redirect()->back()->with('error', 'Your account is not assigned to any unit.');
             }
-            $items_units = Items_units::whereIn('unit_id', auth()->user()->unit->id)->get();
+            // get rooms where the unit_id is equal to the unit_id of the authenticated user
+            $rooms = Rooms::where('unit_id', auth()->user()->unit->id)->get();
+
+            $items_units = Items_units::whereIn('room_id', $rooms->pluck('id'))->get();
         } else {
             $items_units = Items_units::all();
         }

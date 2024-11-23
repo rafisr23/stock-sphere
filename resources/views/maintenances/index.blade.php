@@ -114,7 +114,9 @@
                                                         <tr>
                                                             <th>No</th>
                                                             <th>Item Name</th>
+                                                            <th>Room</th>
                                                             <th>Serial Number</th>
+                                                            <th>Installation Date</th>
                                                             <th>Technician</th>
                                                             <th>Status</th>
                                                             <th>Action</th>

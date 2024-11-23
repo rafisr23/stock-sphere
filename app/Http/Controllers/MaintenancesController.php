@@ -101,8 +101,14 @@ class MaintenancesController extends Controller
                     ->addColumn('item', function ($row) {
                         return $row->item_room->items->item_name;
                     })
+                    ->addColumn('room', function ($row) {
+                        return $row->item_room->rooms->name;
+                    })
                     ->addColumn('serial_number', function ($row) {
                         return $row->item_room->serial_number;
+                    })
+                    ->addColumn('installation_date', function ($row) {
+                        return Carbon::parse($row->item_room->installation_date)->isoFormat('D MMMM Y');
                     })
                     ->addColumn('technician', function ($row) {
                         return $row->technician->name;

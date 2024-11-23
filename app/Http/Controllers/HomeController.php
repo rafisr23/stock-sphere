@@ -82,7 +82,8 @@ class HomeController extends Controller
                 }
             }
 
-            return view('index', compact('maintenanceSoon', 'maintenanceExpired', 'sparepart_repairments_count', 'items_units', 'items_repairments_count'));
+            // return view('index', compact('maintenanceSoon', 'maintenanceExpired', 'sparepart_repairments_count', 'items_units', 'items_repairments_count'));
+            return view('index', compact('maintenanceSoon', 'maintenanceExpired'));
         } else {
             return view('index');
         }
