@@ -56,6 +56,19 @@
         <!-- Alert end -->
     @endif
 
+    @if (auth()->user()->hasRole('room'))
+        @if ($maintenanceSoonRoom == 'true')
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <svg class="bi flex-shrink-0 me-2" width="24" height="24">
+                    <use xlink:href="#exclamation-triangle-fill"></use>
+                </svg>
+                <strong>Perhatian!</strong> Ada barang yang akan di <a href="{{ route('maintenances.confirmation') }}"
+                    class="alert-link">Maintenance</a>. Harap Berikan Konfirmasi.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+    @endif
+
     <!-- [ Main Content ] start -->
     @if (auth()->user()->hasRole('superadmin'))
         <div class="col-lg-16">
@@ -131,10 +144,10 @@
 
 @section('scripts')
     <!-- [Page Specific JS] start -->
-    {{-- <script>
-        window.sparepartsData = @json($sparepart_repairments_count);
-        window.itemsData = @json($items_repairments_count);
-    </script> --}}
+    <script>
+        window.sparepartsData = @json($sparepart_repairments_count ?? null);
+        window.itemsData = @json($items_repairments_count ?? null);
+    </script>
     <script src="{{ URL::asset('build/js/plugins/apexcharts.min.js') }}"></script>
     <script src="{{ URL::asset('build/js/plugins/jsvectormap.min.js') }}"></script>
     <script src="{{ URL::asset('build/js/plugins/world.js') }}"></script>
