@@ -24,9 +24,9 @@
                             <th>Room</th>
                             <th>Serial Number</th>
                             <th>Maintenance Date</th>
+                            <th>Reschedule Date</th>
                             <th>Worked On</th>
                             <th>Completed</th>
-                            {{-- <th>Action</th> --}}
                         </thead>
                     </table>
                 </div>
@@ -38,52 +38,51 @@
 
 @section('scripts')
     <script>
-        let table = $('#historyMaintenances_table').DataTable({
-            fixedHeader: true,
-            processing: true,
-            serverSide: true,
-            responsive: true,
-            ajax: "{{ route('maintenances.history') }}",
-            columns: [{
-                    data: 'DT_RowIndex',
-                    name: 'DT_RowIndex',
-                    searchable: false,
-                    className: 'text-center'
-                },
-                {
-                    data: 'item',
-                    name: 'item'
-                },
-                {
-                    data: 'room',
-                    name: 'room'
-                },
-                {
-                    data: 'serial_number',
-                    name: 'serial_number',
-                },
-                {
-                    data: 'maintenance_date',
-                    name: 'maintenance_date',
-                },
-                {
-                    data: 'worked_on',
-                    name: 'worked_on',
-                    className: 'text-center'
-                },
-                {
-                    data: 'completed',
-                    name: 'completed',
-                    className: 'text-center'
-                },
-                // {
-                //     data: 'action',
-                //     name: 'action',
-                //     orderable: false,
-                //     searchable: false,
-                //     className: 'text-center'
-                // },
-            ]
+        $(document).ready(function() {
+            var table = $("#historyMaintenances_table").DataTable({
+                fixedHeader: true,
+                processing: true,
+                serverSide: true,
+                responsive: true,
+                ajax: "{{ route('maintenances.history') }}",
+                columns: [{
+                        data: "DT_RowIndex",
+                        name: "DT_RowIndex",
+                        searchable: false,
+                        className: "text-center",
+                    },
+                    {
+                        data: "item",
+                        name: "item",
+                    },
+                    {
+                        data: "room",
+                        name: "room",
+                    },
+                    {
+                        data: "serial_number",
+                        name: "serial_number",
+                    },
+                    {
+                        data: "maintenance_date",
+                        name: "maintenance_date",
+                    },
+                    {
+                        data: "reschedule_date",
+                        name: "reschedule_date",
+                    },
+                    {
+                        data: "worked_on",
+                        name: "worked_on",
+                        className: "text-center",
+                    },
+                    {
+                        data: "completed",
+                        name: "completed",
+                        className: "text-center",
+                    },
+                ],
+            });
         });
     </script>
 @endsection

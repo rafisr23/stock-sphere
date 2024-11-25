@@ -70,6 +70,15 @@
                 <i class="ph-duotone ph-wrench"></i>
             </span>
             <span class="pc-mtext">Repairments</span>
+            {{-- @php
+                dd($status_count)
+            @endphp --}}
+            @foreach ($status_count as $sc)
+                <span class="pc-badge {{ $sc->status == 0 ? 'bg-warning' : ($sc->status == 1 ? 'bg-primary' : '') }}">
+                    {{ $sc->total }}
+                </span>
+            @endforeach
+
         </a>
     </li>
 @endrole

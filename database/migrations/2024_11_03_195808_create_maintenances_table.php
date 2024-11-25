@@ -18,7 +18,7 @@ return new class extends Migration
             $table->bigInteger('technician_id')->unsigned();
             $table->string('remarks')->nullable();
             $table->text('description')->nullable();
-            $table->integer('status')->default(0)->description('0 - Pending, 1 - Worked on, 2 - Work On Delay, 3 - Completed, 4 - Need Repair');
+            $table->integer('status')->default(0)->description('0 - Pending, 1 - Worked on, 2 - Work On Delay, 3 - Completed, 4 - Need Repair, 5 - Pending Room, 6 - Accepted by Room, 7 - Reschedule');
             $table->string('evidence')->nullable();
             $table->timestamp('date_worked_on')->nullable();
             $table->timestamp('date_completed')->nullable();

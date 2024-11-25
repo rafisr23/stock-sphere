@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('maintenances', function (Blueprint $table) {
-            $table->dropColumn('date_cancelled');
+            $table->date('schedule_by_room')->nullable()->after('evidence');
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('maintenances', function (Blueprint $table) {
-            $table->timestamp('date_cancelled')->nullable();
+            $table->dropColumn('schedule_by_room');
         });
     }
 };
