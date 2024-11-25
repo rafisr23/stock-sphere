@@ -30,4 +30,9 @@ class Items_units extends Model
     {
         return $this->hasMany(Maintenances::class, 'item_room_id');
     }
+
+    public function calibrations()
+    {
+        return $this->belongsTo(Calibrations::class, 'id', 'item_room_id');
+    }
 }

@@ -59,8 +59,11 @@ class HomeController extends Controller
             } else {
                 $technician = auth()->user()->technician;
                 $roomId = Rooms::where('unit_id', $technician->unit_id)->pluck('id');
-                $items = $itemsQuery->whereIn('room_id', $roomId)->where('maintenance_date', '<=', $loginDatePlusMonth)->exists();
                 $items2 = $itemsQuery->whereIn('room_id', $roomId)->get();
+                $items = $itemsQuery->whereIn('room_id', $roomId)->where('maintenance_date', '<=', $loginDatePlusMonth)->where('maintenance_date', '>=', $loginDate->format('Y-m-d'))->exists();
+                $sparepart_repairments_count = null;
+                $items_units = null;
+                $items_repairments_count = null;
             }
 
             $maintenanceSoon = $items ? 'true' : 'false';

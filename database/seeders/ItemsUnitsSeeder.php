@@ -25,7 +25,8 @@ class ItemsUnitsSeeder extends Seeder
             'last_checked_date' => '2005-05-20 23:00:00',
             'status' => 'Running',
             'functional_location_no' => '700-40305299-0201',
-            'maintenance_date' => '2006-05-20'
+            'maintenance_date' => '2006-05-20',
+            'calibration_date' => '2006-05-20'
         ]);
         DB::table('items_units')->insert([
             'item_id' => '2',
@@ -39,7 +40,8 @@ class ItemsUnitsSeeder extends Seeder
             'last_checked_date' => '2005-05-20 23:00:00',
             'status' => 'Running',
             'functional_location_no' => '700-40305299-0302',
-            'maintenance_date' => '2006-05-20'
+            'maintenance_date' => '2006-05-20',
+            'calibration_date' => '2006-05-20'
         ]);
         DB::table('items_units')->insert([
             'item_id' => '3',
@@ -53,7 +55,8 @@ class ItemsUnitsSeeder extends Seeder
             'last_checked_date' => '2005-05-20 23:00:00',
             'status' => 'Running',
             'functional_location_no' => '700-40305299-0303',
-            'maintenance_date' => '2006-05-20'
+            'maintenance_date' => '2006-05-20',
+            'calibration_date' => '2006-05-20'
         ]);
     }
 }

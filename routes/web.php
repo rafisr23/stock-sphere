@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CalibrationsController;
 use App\Http\Controllers\DetailsOfRepairSubmissionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -143,22 +144,6 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/finish/{id}', 'finish')->name('finish');
             Route::get('/showSparepartUsed/{id}', 'showSparepartUsed')->name('showSparepartUsed');
         });
-        
-        Route::controller(MaintenancesController::class)->prefix('maintenances')->name('maintenances.')->group(function () {
-            Route::get('/', 'index')->name('index');
-            Route::post('/store', 'store')->name('store');
-            Route::get('show/{id}', 'show')->name('show');
-            Route::put('/acceptMaintenances/{id}', 'acceptMaintenances')->name('acceptMaintenances');
-            Route::put('/cancelMaintenances/{id}', 'cancelMaintenances')->name('cancelMaintenances');
-            Route::put('/startMaintenances/{id}', 'startMaintenances')->name('startMaintenances');
-            Route::put('/finishMaintenances/{id}', 'finishMaintenances')->name('finishMaintenances');
-            Route::put('/update/{id}', 'update')->name('update');
-            Route::post('/store/temporary-file', 'storeTemporaryFile')->name('store.temporary-file');
-            
-        });
-        Route::controller(MaintenancesController::class)->name('maintenances.')->group(function () {
-            Route::get('/history', 'history')->name('history');
-        });
     });
 
     // ROUTE FOR SUPERADMIN OR UNIT OR ROOM
@@ -177,5 +162,28 @@ Route::middleware(['auth'])->group(function () {
 
     Route::controller(SubmissionOfRepairController::class)->prefix('submission-of-repair')->name('submission-of-repair.')->middleware('role:superadmin|room|unit|technician')->group(function () {
         Route::get('/detail/{submissionId}', 'detailSubmission')->name('detail');
+    });
+
+    // ROUTE FOR SUPERADMIN OR TECHNICIAN OR ROOM
+    Route::group(['middleware' => ['role:superadmin|technician|room']], function () {
+        Route::controller(MaintenancesController::class)->prefix('maintenances')->name('maintenances.')->group(function () {
+            Route::get('/', 'index')->middleware('role:superadmin|technician')->name('index');
+            Route::post('/store', 'store')->middleware('role:superadmin|technician')->name('store');
+            Route::get('show/{id}', 'show')->middleware('role:superadmin|technician')->name('show');
+            Route::put('/acceptMaintenances/{id}', 'acceptMaintenances')->middleware('role:superadmin|technician')->name('acceptMaintenances');
+            Route::put('/cancelMaintenances/{id}', 'cancelMaintenances')->middleware('role:superadmin|technician')->name('cancelMaintenances');
+            Route::put('/startMaintenances/{id}', 'startMaintenances')->middleware('role:superadmin|technician')->name('startMaintenances');
+            Route::put('/finishMaintenances/{id}', 'finishMaintenances')->middleware('role:superadmin|technician')->name('finishMaintenances');
+            Route::put('/update/{id}', 'update')->name('update');
+            Route::post('/store/temporary-file', 'storeTemporaryFile')->middleware('role:superadmin|technician')->name('store.temporary-file');
+            Route::get('/history', 'history')->name('history');
+            Route::get('/confirmation', 'confirmation')->name('confirmation');
+        });
+
+        Route::controller(CalibrationsController::class)->prefix('calibrations')->name('calibrations.')->group(function () {
+            Route::get('/history', 'history')->name('history');
+            Route::get('/confirmation', 'confirmation')->name('confirmation');
+        });
+        Route::resource('calibrations', CalibrationsController::class);
     });
 });

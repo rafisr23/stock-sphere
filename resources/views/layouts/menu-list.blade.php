@@ -91,7 +91,7 @@
     </li>
 @endif
 
-@if (auth()->user()->hasRole('technician') || auth()->user()->hasRole('superadmin'))
+@if (auth()->user()->hasRole('technician') || auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('room'))
     <li class="pc-item pc-hasmenu">
         <a href="#" class="pc-link">
             <span class="pc-micon">
@@ -101,20 +101,43 @@
             <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
         </a>
         <ul class="pc-submenu">
-            <li class="pc-item {{ request()->routeIs('maintenances.index') ? 'active' : '' }}"><a class="pc-link"
-                    href="{{ route('maintenances.index') }}">List</a></li>
+            @if (!auth()->user()->hasRole('room'))
+                <li class="pc-item {{ request()->routeIs('maintenances.index') ? 'active' : '' }}"><a class="pc-link"
+                        href="{{ route('maintenances.index') }}">List</a></li>
+            @endif
             <li class="pc-item {{ request()->routeIs('maintenances.history') ? 'active' : '' }}"><a class="pc-link"
                     href="{{ route('maintenances.history') }}">History</a></li>
+            @if (auth()->user()->hasRole('room') || auth()->user()->hasRole('superadmin'))
+                <li class="pc-item {{ request()->routeIs('maintenances.confirmation') ? 'active' : '' }}"><a
+                        class="pc-link" href="{{ route('maintenances.confirmation') }}">Confirmation</a></li>
+            @endif
         </ul>
     </li>
-    {{-- <li class="pc-item {{ request()->routeIs('detail_submission.index') ? 'active' : '' }}">
-        <a href="{{ route('repairments.index') }}" class="pc-link">
-            <span class="pc-micon">
-                <i class="ph-duotone ph-wrench"></i>
-            </span>
-            <span class="pc-mtext">Repairments</span>
-        </a>
-    </li> --}}
+    @if (auth()->user()->can('assign technician') ||
+            auth()->user()->hasRole('superadmin') ||
+            auth()->user()->hasRole('room'))
+        <li class="pc-item pc-hasmenu">
+            <a href="#" class="pc-link">
+                <span class="pc-micon">
+                    <i class="ph-duotone ph-broadcast"></i>
+                </span>
+                <span class="pc-mtext">Calibrations</span>
+                <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
+            </a>
+            <ul class="pc-submenu">
+                @if (!auth()->user()->hasRole('room'))
+                    <li class="pc-item {{ request()->routeIs('calibrations.index') ? 'active' : '' }}"><a
+                            class="pc-link" href="{{ route('calibrations.index') }}">List</a></li>
+                @endif
+                <li class="pc-item {{ request()->routeIs('calibrations.history') ? 'active' : '' }}"><a class="pc-link"
+                        href="{{ route('calibrations.history') }}">History</a></li>
+                @if (auth()->user()->hasRole('room') || auth()->user()->hasRole('superadmin'))
+                    <li class="pc-item {{ request()->routeIs('calibrations.confirmation') ? 'active' : '' }}"><a
+                            class="pc-link" href="{{ route('calibrations.confirmation') }}">Confirmation</a></li>
+                @endif
+            </ul>
+        </li>
+    @endif
 @endif
 
 @role('superadmin')

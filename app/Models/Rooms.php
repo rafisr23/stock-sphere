@@ -35,4 +35,9 @@ class Rooms extends Model
     {
         return $this->hasMany(Maintenances::class, 'room_id');
     }
+
+    public function calibrations()
+    {
+        return $this->hasMany(Calibrations::class, 'room_id');
+    }
 }
