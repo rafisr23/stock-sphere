@@ -56,7 +56,7 @@
         <!-- Alert end -->
     @endif
 
-    @if (auth()->user()->hasRole('room'))
+    @if (auth()->user()->hasRole('room') || auth()->user()->hasRole('superadmin'))
         @if ($maintenanceSoonRoom == 'true')
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <svg class="bi flex-shrink-0 me-2" width="24" height="24">

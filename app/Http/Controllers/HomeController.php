@@ -34,6 +34,7 @@ class HomeController extends Controller
             $maintenanceData = Maintenances::all();
             $loginDatePlusMonth = Carbon::parse($loginDate)->addMonth()->format('Y-m-d');
             $itemsQuery = Items_units::query();
+            $maintenanceSoonRoom = false;
             // $status_count = DB::table('details_of_repair_submissions')
             //     ->select('status', DB::raw('COUNT(*) as total'))
             //     ->whereIn('status', [0, 1])
@@ -60,6 +61,7 @@ class HomeController extends Controller
                 $items_units = Items_units::all();
                 $items2 = $itemsQuery->get();
                 $items = $itemsQuery->where('maintenance_date', '<=', $loginDatePlusMonth)->where('maintenance_date', '>=', $loginDate->format('Y-m-d'))->exists();
+                $maintenanceSoonRoom = Maintenances::where('status', 5)->exists();
             } else {
                 $technician = auth()->user()->technician;
                 $roomId = Rooms::where('unit_id', $technician->unit_id)->pluck('id');
@@ -97,11 +99,10 @@ class HomeController extends Controller
                     'sparepart_repairments_count',
                     'items_units',
                     'items_repairments_count',
+                    'maintenanceSoonRoom',
                 )
             );
         } else if (auth()->user()->hasRole('room')) {
-            $maintenanceSoonRoom = false;
-
             $maintenanceSoonRoom = Maintenances::where('room_id', auth()->user()->room->id)->where('status', 5)->exists();
 
             return view('index', compact('maintenanceSoonRoom'));

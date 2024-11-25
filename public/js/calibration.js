@@ -1,7 +1,6 @@
 const CSRF_TOKEN = $('meta[name="csrf-token"]').attr("content");
 const getItemsTableUrl = `/calibrations`;
-// const getItemsUrl = `/maintenances/getItems`;
-const storeTemporaryFileUrl = `/maintenances/store/temporary-file`;
+const storeTemporaryFileUrl = `/calibrations/store-temporary-file`;
 
 let selectedItems = [];
 let checkAllStatus = false;
@@ -82,7 +81,7 @@ $(document).on("click", ".alertRoom", function () {
         text:
             "Are you sure you want to notify " +
             room +
-            " for maintenance of item " +
+            " for calibration of item " +
             name +
             "?",
         icon: "warning",
@@ -93,7 +92,7 @@ $(document).on("click", ".alertRoom", function () {
     }).then((result) => {
         if (result.isConfirmed) {
             $.ajax({
-                url: `/maintenances/store`,
+                url: `/calibrations`,
                 type: "POST",
                 data: {
                     _token: CSRF_TOKEN,
@@ -130,68 +129,61 @@ $(document).on("click", ".alertRoom", function () {
     });
 });
 
-$("#assignTechnicianModal").on("show.bs.modal", function (e) {
-    let button = $(e.relatedTarget);
-    let itemId = button.data("id");
-    let nameItem = button.data("name");
-
-    $("#item_unit_id").val(itemId);
-    $("#itemName").text(nameItem);
+$(document).on("click", ".callVendor", function () {
+    const id = $(this).data("id");
+    const name = $(this).data("name");
+    Swal.fire({
+        title: "Call Vendor",
+        text:
+            "Are you sure you want to notify the vendor for calibration of item " +
+            name +
+            "?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, call it!",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: `/calibrations/` + id,
+                type: "PUT",
+                data: {
+                    _token: CSRF_TOKEN,
+                    type: "callVendor",
+                    item_unit_id: id,
+                },
+                success: function (response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Success",
+                            text: response.success,
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true,
+                            allowOutsideClick: false,
+                        }).then((result) => {
+                            if (result.dismiss === Swal.DismissReason.timer) {
+                                table.ajax.reload();
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: response.error,
+                            showConfirmButton: true,
+                            allowOutsideClick: true,
+                        });
+                    }
+                },
+            });
+        }
+    });
 });
 
-let maintenanceItemTable = $("#maintenanceItemTable").DataTable({
-    fixedHeader: true,
-    pageLength: 25,
-    lengthChange: true,
-    autoWidth: false,
-    responsive: true,
-    processing: true,
-    serverSide: true,
-    ajax: {
-        url: getItemsTableUrl,
-        data: function (d) {
-            d._token = CSRF_TOKEN;
-            d.type = "maintenance";
-        },
-    },
-    columns: [
-        {
-            data: "DT_RowIndex",
-            name: "DT_RowIndex",
-            className: "text-center",
-            orderable: false,
-            searchable: false,
-        },
-        {
-            data: "item",
-            name: "item",
-        },
-        {
-            data: "serial_number",
-            name: "serial_number",
-        },
-        {
-            data: "technician",
-            name: "technician",
-        },
-        {
-            data: "status",
-            name: "status",
-            className: "text-center",
-            orderable: false,
-            searchable: false,
-        },
-        {
-            data: "action",
-            name: "action",
-            className: "text-center",
-            orderable: false,
-            searchable: false,
-        },
-    ],
-});
-
-let maintenanceProcessTable = $("#maintenanceProcessTable").DataTable({
+let calibrationProcessTable = $("#calibrationProcessTable").DataTable({
     fixedHeader: true,
     pageLength: 25,
     lengthChange: true,
@@ -230,10 +222,6 @@ let maintenanceProcessTable = $("#maintenanceProcessTable").DataTable({
             name: "remarks",
         },
         {
-            data: "description",
-            name: "description",
-        },
-        {
             data: "evidence",
             name: "evidence",
         },
@@ -250,217 +238,52 @@ let maintenanceProcessTable = $("#maintenanceProcessTable").DataTable({
     },
 });
 
-$("#maintenanceItemTable").on("click", ".accept", function (e) {
+$("#calibrationProcessTable").on("click", ".update", function (e) {
     e.preventDefault();
     let id = $(this).data("id");
-    let url = "maintenances/acceptMaintenances/" + id;
-    $.ajax({
-        url: url,
-        type: "POST",
-        data: {
-            _method: "PUT",
-            _token: CSRF_TOKEN,
-            id: id,
-        },
-        success: function (response) {
-            if (response.success) {
-                Swal.fire({
-                    icon: "success",
-                    title: "Success",
-                    text: "The maintenance has been successfully accepted!",
-                    showConfirmButton: false,
-                    timer: 3000,
-                    timerProgressBar: true,
-                    allowOutsideClick: false,
-                }).then((result) => {
-                    if (result.dismiss === Swal.DismissReason.timer) {
-                        window.location.reload();
-                    }
-                });
-            } else {
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text:
-                        "An error occurred while accepting the maintenance: " +
-                        response.message,
-                    showConfirmButton: true,
-                    allowOutsideClick: true,
-                });
-            }
-        },
-    });
-});
-
-$("#maintenanceItemTable").on("click", ".cancel", function (e) {
-    e.preventDefault();
-    let id = $(this).data("id");
-    let url = "maintenances/cancelMaintenances/" + id;
-    $.ajax({
-        url: url,
-        type: "POST",
-        data: {
-            _method: "PUT",
-            _token: CSRF_TOKEN,
-            id: id,
-        },
-        success: function (response) {
-            if (response.success) {
-                Swal.fire({
-                    icon: "success",
-                    title: "Success",
-                    text: "The maintenance has been successfully cancelled!",
-                    showConfirmButton: false,
-                    timer: 3000,
-                    timerProgressBar: true,
-                    allowOutsideClick: false,
-                }).then((result) => {
-                    if (result.dismiss === Swal.DismissReason.timer) {
-                        window.location.reload();
-                    }
-                });
-            } else {
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text:
-                        "An error occurred while accepting the maintenance: " +
-                        response.message,
-                    showConfirmButton: true,
-                    allowOutsideClick: true,
-                });
-            }
-        },
-    });
-});
-
-$("#maintenanceItemTable").on("click", ".start", function (e) {
-    e.preventDefault();
-    let id = $(this).data("id");
-    let url = "maintenances/startMaintenances/" + id;
-    $.ajax({
-        url: url,
-        type: "POST",
-        data: {
-            _method: "PUT",
-            _token: CSRF_TOKEN,
-            id: id,
-        },
-        success: function (response) {
-            if (response.success) {
-                Swal.fire({
-                    icon: "success",
-                    title: "Success",
-                    text: "The maintenance is starting!",
-                    showConfirmButton: false,
-                    timer: 3000,
-                    timerProgressBar: true,
-                    allowOutsideClick: false,
-                }).then((result) => {
-                    if (result.dismiss === Swal.DismissReason.timer) {
-                        window.location.reload();
-                    }
-                });
-            } else {
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text:
-                        "An error occurred while starting the maintenance: " +
-                        response.message,
-                    showConfirmButton: true,
-                    allowOutsideClick: true,
-                });
-            }
-        },
-    });
-});
-
-$("#maintenanceItemTable").on("click", ".finish", function (e) {
-    e.preventDefault();
-    let id = $(this).data("id");
-    console.log(id);
-    let url = "maintenances/finishMaintenances/" + id;
-    $.ajax({
-        url: url,
-        type: "POST",
-        data: {
-            _method: "PUT",
-            _token: CSRF_TOKEN,
-            id: id,
-        },
-        success: function (response) {
-            if (response.success) {
-                Swal.fire({
-                    icon: "success",
-                    title: "Success",
-                    text: "The Maintenance is finished!",
-                    showConfirmButton: false,
-                    timer: 3000,
-                    timerProgressBar: true,
-                    allowOutsideClick: false,
-                }).then((result) => {
-                    if (result.dismiss === Swal.DismissReason.timer) {
-                        window.location.reload();
-                    }
-                });
-            } else {
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text:
-                        "An error occurred while finishing the maintenance: " +
-                        response.message,
-                    showConfirmButton: true,
-                    allowOutsideClick: true,
-                });
-            }
-        },
-    });
-});
-$("#maintenanceProcessTable").on("click", ".update", function (e) {
-    e.preventDefault();
-    let id = $(this).data("id");
-    console.log(id);
-    let url = "maintenances/update/" + id;
-    let formUpdateMaintenance = new FormData();
+    let url = "calibrations/" + id;
+    let formUpdateCalibration = new FormData();
 
     let status = $("#status").val();
-    let description = $("#description").val();
     let remarks = $("#remarks").val();
     let evidence = sessionStorage.getItem("evidence_file");
 
-    formUpdateMaintenance.append("status", status);
-    formUpdateMaintenance.append("description", description);
-    formUpdateMaintenance.append("remarks", remarks);
-    formUpdateMaintenance.append("evidence", evidence);
-    formUpdateMaintenance.append("_token", CSRF_TOKEN);
-    formUpdateMaintenance.append("_method", "PUT");
-
-    console.log(formUpdateMaintenance.get("description"));
-    console.log(formUpdateMaintenance.get("remarks"));
-    console.log(formUpdateMaintenance.get("evidence"));
+    formUpdateCalibration.append("status", status);
+    formUpdateCalibration.append("remarks", remarks);
+    formUpdateCalibration.append("evidence", evidence);
+    formUpdateCalibration.append("_token", CSRF_TOKEN);
+    formUpdateCalibration.append("_method", "PUT");
 
     $.ajax({
         url: url,
-        type: "POST",
-        data: formUpdateMaintenance,
+        type: "PUT",
+        data: formUpdateCalibration,
         processData: false,
         contentType: false,
         success: function (response) {
-            Swal.fire({
-                icon: "success",
-                title: "Success",
-                text: "The Maintenance is updated!",
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-                allowOutsideClick: false,
-            }).then((result) => {
-                if (result.dismiss === Swal.DismissReason.timer) {
-                    window.location.reload();
-                }
-            });
+            if (response.success) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Success",
+                    text: response.success,
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    allowOutsideClick: false,
+                }).then((result) => {
+                    if (result.dismiss === Swal.DismissReason.timer) {
+                        calibrationProcessTable.ajax.reload();
+                    }
+                });
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: response.error,
+                    showConfirmButton: true,
+                    allowOutsideClick: true,
+                });
+            }
         },
         error: function (err) {
             Swal.fire({
@@ -475,6 +298,7 @@ $("#maintenanceProcessTable").on("click", ".update", function (e) {
         },
     });
 });
+
 $("#maintenanceProcessTable").on("click", ".finish", function (e) {
     e.preventDefault();
     let id = $(this).data("id");
@@ -554,7 +378,6 @@ $(document).on("change", 'input[type="file"]', function () {
 });
 
 function loadUploadedFiles() {
-    console.log("loadUploadedFiles");
     $('input[type="file"][id^="evidence"]').each(function () {
         let itemId = $(this).attr("id");
         let fileName = sessionStorage.getItem(itemId + "_file");
@@ -571,13 +394,10 @@ function loadUploadedFiles() {
 
 function navigatePage(step) {
     currentPage += step;
-    // countPage();
-    // saveRepairDescription();
 }
 
 $('a[data-bs-toggle="tab"]').on("click", function (e) {
-    // saveRepairDescription();
-    maintenanceItemTable.ajax.reload();
+    maintenanceProcessTable.ajax.reload();
     table.ajax.reload();
 });
 
@@ -586,13 +406,10 @@ window.onbeforeunload = function () {
 };
 
 $("#nextButton").on("click", function () {
-    navigatePage(1);
-    maintenanceItemTable.ajax.reload();
+    maintenanceProcessTable.ajax.reload();
     table.ajax.reload();
 });
 
 $("#previousButton").on("click", function () {
-    navigatePage(-1);
-    maintenanceItemTable.ajax.reload();
     table.ajax.reload();
 });

@@ -183,6 +183,7 @@ Route::middleware(['auth'])->group(function () {
         Route::controller(CalibrationsController::class)->prefix('calibrations')->name('calibrations.')->group(function () {
             Route::get('/history', 'history')->name('history');
             Route::get('/confirmation', 'confirmation')->name('confirmation');
+            Route::post('/store/temporary-file', 'storeTemporaryFile')->middleware('role:superadmin|technician')->name('store-temporary-file');
         });
         Route::resource('calibrations', CalibrationsController::class);
     });

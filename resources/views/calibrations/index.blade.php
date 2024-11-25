@@ -25,15 +25,8 @@
                                         <span class="d-none d-sm-inline">Item List</span>
                                     </a>
                                 </li>
-                                <li class="nav-item" data-target-form="#maintenanceDescriptionForm">
-                                    <a href="#maintenanceDescription" data-bs-toggle="tab" data-toggle="tab"
-                                        class="nav-link icon-btn" data-id="maintenances-tab">
-                                        <i class="ph-duotone ph-note"></i>
-                                        <span class="d-none d-sm-inline">Calibration Detail</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item" data-target-form="#maintenanceProcessForm">
-                                    <a href="#maintenanceProcess" data-bs-toggle="tab" data-toggle="tab"
+                                <li class="nav-item" data-target-form="#calibrationProcessForm">
+                                    <a href="#calibrationProcess" data-bs-toggle="tab" data-toggle="tab"
                                         class="nav-link icon-btn" data-id="process-tab">
                                         <i class="ph-duotone ph-note"></i>
                                         <span class="d-none d-sm-inline">Calibration Worked On</span>
@@ -83,54 +76,25 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="tab-pane" id="maintenanceDescription">
+                                <div class="tab-pane" id="calibrationProcess">
                                     <div class="text-center">
                                         <h3 class="mb-2">
-                                            Page 2: List Calibration
-                                        </h3>
-                                        <small class="text-muted">List of items that need calibration.</small>
-                                    </div>
-                                    <form action="" method="POST" id="maintenanceSubmissionForm">
-                                        @csrf
-                                        <input type="hidden" name="selectedId" id="selectedId">
-                                        <div class="row mt-4">
-                                            <div class="col-sm-12">
-                                                <table class="table table-bordered" id="maintenanceItemTable">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>No</th>
-                                                            <th>Item Name</th>
-                                                            <th>Serial Number</th>
-                                                            <th>Technician</th>
-                                                            <th>Status</th>
-                                                            <th>Action</th>
-                                                        </tr>
-                                                    </thead>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                                <div class="tab-pane" id="maintenanceProcess">
-                                    <div class="text-center">
-                                        <h3 class="mb-2">
-                                            Page 3: List Calibration Process
+                                            Page 2: List Calibration Process
                                         </h3>
                                         <small class="text-muted">Describe the issue</small>
                                     </div>
-                                    <form action="" method="POST" id="maintenanceProcessForm">
+                                    <form action="" method="POST" id="calibrationProcessForm">
                                         @csrf
                                         <input type="hidden" name="selectedId" id="selectedId">
                                         <div class="row mt-4">
                                             <div class="col-sm-12">
-                                                <table class="table table-bordered" id="maintenanceProcessTable">
+                                                <table class="table table-bordered" id="calibrationProcessTable">
                                                     <thead>
                                                         <tr>
                                                             <th>No</th>
                                                             <th>Item Name</th>
                                                             <th>Status</th>
                                                             <th>Remarks</th>
-                                                            <th>Description</th>
                                                             <th>Evidence</th>
                                                             <th>Action</th>
                                                         </tr>
@@ -147,8 +111,7 @@
                                                 id="previousButton">Previous</a>
                                         </div>
                                         <div class="next">
-                                            <a href="javascript:void(0);" class="btn btn-secondary"
-                                                id="nextButton">Next</a>
+                                            <a href="javascript:void(0);" class="btn btn-secondary" id="nextButton">Next</a>
                                         </div>
                                     </div>
                                 </div>
@@ -159,59 +122,6 @@
             </div>
         </div>
     </div>
-
-    {{-- modal for start maintaining --}}
-    <div id="startMaintainingModal" class="modal fade" tabindex="-1" role="dialog"
-        aria-labelledby="startMaintainingModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <form action="{{ route('maintenances.update', ':id') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    @method('PUT')
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="startMaintainingModalLabel">Detail Maintaining</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body text-center">
-                        <div class="form-group row mb-4">
-                            <label for="remarks" class="col-sm-3 col-form-label">Remarks</label>
-                            <div class="col-sm-9">
-                                <textarea name="remarks" id="remarks" class="form-control" required></textarea>
-                            </div>
-                        </div>
-                        <div class="form-group row mb-4">
-                            <label for="description" class="col-sm-3 col-form-label">Description</label>
-                            <div class="col-sm-9">
-                                <textarea name="description" id="description" class="form-control" required></textarea>
-                            </div>
-                        </div>
-                        <div class="form-group row mb-4">
-                            <label for="status" class="col-sm-3 col-form-label">Status</label>
-                            <div class="col-sm-9">
-                                <select name="status" id="status" class="form-control" required>
-                                    <option value="" selected disabled>Select Status</option>
-                                    <option value="2">Worked On Delay</option>
-                                    <option value="3">Completed</option>
-                                    <option value="4">Need Repair</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group row mb-4">
-                            <label for="evidence" class="col-sm-3 col-form-label">Evidence</label>
-                            <div class="col-sm-9">
-                                <input type="file" name="evidence" id="evidence" class="form-control" required>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Done</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    {{-- end modal for start maintaining --}}
 @endsection
 
 @section('scripts')
@@ -222,21 +132,4 @@
         });
     </script>
     <script src="{{ URL::asset('js/calibration.js') }}"></script>
-    <script>
-        $(document).ready(function() {
-            $(document).on('click', '.btn[data-bs-target="#startMaintainingModal"]', function() {
-                // Get the data-id value from the clicked button
-                var itemId = $(this).data('id');
-
-                // Set the hidden input in the modal with this value
-                $('#item_unit_id').val(itemId);
-
-                // Update the form action URL with the new ID
-                var actionUrl = "{{ route('maintenances.update', ':id') }}";
-                actionUrl = actionUrl.replace(':id', itemId);
-                $('#startMaintainingModal form').attr('action', actionUrl);
-
-            });
-        });
-    </script>
 @endsection

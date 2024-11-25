@@ -8,7 +8,6 @@ use App\Models\Rooms;
 use App\Models\Technician;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use League\Fractal\Resource\Item;
 use Yajra\DataTables\Facades\DataTables;
 
 class MaintenancesController extends Controller
@@ -429,9 +428,9 @@ class MaintenancesController extends Controller
 
             if ($maintenance->save()) {
                 createLog(3, $maintenance->id, 'reschedule maintenance by room', null, $request->newMaintenance_date);
-                redirect()->back()->with('success', 'Maintenance rescheduled!');
+                return redirect()->back()->with('success', 'Maintenance rescheduled!');
             } else {
-                redirect()->back()->with('error', 'Failed to reschedule maintenance');
+                return redirect()->back()->with('error', 'Failed to reschedule maintenance');
             }
         }
 
