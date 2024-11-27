@@ -115,9 +115,11 @@
                                                         <tr>
                                                             <th>No</th>
                                                             <th>Item Name</th>
+                                                            <th>Room</th>
                                                             <th>Serial Number</th>
+                                                            <th>Installation Date</th>
                                                             <th>Technician</th>
-                                                            <th>Status</th>
+                                                            <th>Maintenance Status</th>
                                                             <th>Action</th>
                                                         </tr>
                                                     </thead>
@@ -148,7 +150,7 @@
                                                             <tr>
                                                                 <th>No</th>
                                                                 <th>Item Name</th>
-                                                                <th>Status</th>
+                                                                <th>Item Status</th>
                                                                 <th>Remarks</th>
                                                                 <th>Description</th>
                                                                 <th>Evidence</th>

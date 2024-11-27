@@ -102,6 +102,7 @@ class HomeController extends Controller
             $maintenanceSoonRoom = Maintenances::where('room_id', auth()->user()->room->id)->where('status', 5)->exists();
 
             return view('index', compact('maintenanceSoonRoom'));
+            return view('index', compact('maintenanceSoon', 'maintenanceExpired'));
         } else {
             return view('index');
         }
