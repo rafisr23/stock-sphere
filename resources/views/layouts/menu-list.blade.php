@@ -108,6 +108,11 @@
             </span>
             <span class="pc-mtext">Maintenances</span>
             <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
+            @foreach ($maintenance_count as $mc)
+                <span class="pc-badge {{ $mc->status == 0 ? 'bg-info' : ($mc->status == 1 ? 'bg-secondary' : '') }}">
+                    {{ $mc->total }}
+                </span>
+            @endforeach
         </a>
         <ul class="pc-submenu">
             @if (!auth()->user()->hasRole('room'))
