@@ -104,7 +104,7 @@ class MaintenancesController extends Controller
                         }
                     })
                     ->rawColumns(['action', 'reschedule_date'])
-                    ->make(true);
+                    ->make(mDataSupport: true);
             } else if ($type == 'maintenance') {
                 if (auth()->user()->hasRole('superadmin')) {
                     $maintenances = Maintenances::all();
@@ -120,11 +120,17 @@ class MaintenancesController extends Controller
                     ->addColumn('item', function ($row) {
                         return $row->item_room->first()->items->item_name;
                     })
+                    ->addColumn('room', function ($row) {
+                        return $row->item_room->first()->rooms->name;
+                    })
                     ->addColumn('serial_number', function ($row) {
                         return $row->item_room->first()->serial_number;
                     })
+                    ->addColumn('installation_date', function ($row) {
+                        return Carbon::parse($row->item_room->first()->installation_date)->isoFormat('D MMMM Y');
+                    })
                     ->addColumn('technician', function ($row) {
-                        return $row->technician->name ?? '<span class="badge rounded-pill text-bg-warning">Not Selected</span>';
+                        return $row->technician->first()->name ?? '<span class="badge rounded-pill text-bg-warning">Not Selected</span>';
                     })
                     ->addColumn('status', function ($row) {
                         if ($row->status == 0) {
@@ -327,7 +333,8 @@ class MaintenancesController extends Controller
     {
         $id = decrypt($id);
         $maintenance = Maintenances::find($id);
-        return view('maintenances.show', compact('maintenance'));
+        $items = Items_units::find($maintenance->item_room_id);
+        return view('maintenances.show', compact('maintenance', 'items'));
     }
 
     public function acceptMaintenances(Request $request)
