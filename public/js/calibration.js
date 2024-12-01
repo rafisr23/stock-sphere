@@ -1,6 +1,12 @@
 const CSRF_TOKEN = $('meta[name="csrf-token"]').attr("content");
 const getItemsTableUrl = `/calibrations`;
-const storeTemporaryFileUrl = `/calibrations/store-temporary-file`;
+const storeTemporaryFileUrl = `/calibrations/store/temporary-file`;
+
+$.ajaxSetup({
+    headers: {
+        "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+    },
+});
 
 let selectedItems = [];
 let checkAllStatus = false;
@@ -251,12 +257,13 @@ $("#calibrationProcessTable").on("click", ".update", function (e) {
     formUpdateCalibration.append("status", status);
     formUpdateCalibration.append("remarks", remarks);
     formUpdateCalibration.append("evidence", evidence);
+    formUpdateCalibration.append("type", "updateCalibration");
     formUpdateCalibration.append("_token", CSRF_TOKEN);
     formUpdateCalibration.append("_method", "PUT");
 
     $.ajax({
         url: url,
-        type: "PUT",
+        type: "POST",
         data: formUpdateCalibration,
         processData: false,
         contentType: false,
@@ -285,13 +292,11 @@ $("#calibrationProcessTable").on("click", ".update", function (e) {
                 });
             }
         },
-        error: function (err) {
+        error: function (response) {
             Swal.fire({
                 icon: "error",
                 title: "Error",
-                text:
-                    "An error occurred while updating the maintenance: " +
-                    response.message,
+                text: response.responseJSON.message,
                 showConfirmButton: true,
                 allowOutsideClick: true,
             });
@@ -299,11 +304,10 @@ $("#calibrationProcessTable").on("click", ".update", function (e) {
     });
 });
 
-$("#maintenanceProcessTable").on("click", ".finish", function (e) {
+$("#calibrationProcessTable").on("click", ".finish", function (e) {
     e.preventDefault();
     let id = $(this).data("id");
-    console.log(id);
-    let url = "maintenances/finishMaintenances/" + id;
+    let url = "calibrations/" + id;
     $.ajax({
         url: url,
         type: "POST",
@@ -311,20 +315,21 @@ $("#maintenanceProcessTable").on("click", ".finish", function (e) {
             _method: "PUT",
             _token: CSRF_TOKEN,
             id: id,
+            type: "finishCalibration",
         },
         success: function (response) {
             if (response.success) {
                 Swal.fire({
                     icon: "success",
                     title: "Success",
-                    text: "The Maintenance is finished!",
+                    text: "The calibration is finished!",
                     showConfirmButton: false,
                     timer: 3000,
                     timerProgressBar: true,
                     allowOutsideClick: false,
                 }).then((result) => {
                     if (result.dismiss === Swal.DismissReason.timer) {
-                        window.location.reload();
+                        calibrationProcessTable.ajax.reload();
                     }
                 });
             } else {
@@ -332,25 +337,34 @@ $("#maintenanceProcessTable").on("click", ".finish", function (e) {
                     icon: "error",
                     title: "Error",
                     text:
-                        "An error occurred while finishing the maintenance: " +
+                        "An error occurred while finishing the calibration: " +
                         response.message,
                     showConfirmButton: true,
                     allowOutsideClick: true,
                 });
             }
         },
+        error: function (response) {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: response.responseJSON.message,
+                showConfirmButton: true,
+                allowOutsideClick: true,
+            });
+        },
     });
 });
 
-$(document).on("change", 'input[type="file"]', function () {
+$(document).on("change", "#evidence", function () {
     let fileInput = $(this);
     let itemId = fileInput.attr("id");
     let file = fileInput[0].files[0];
 
     let formData = new FormData();
+    formData.append("_token", CSRF_TOKEN);
     formData.append("evidence", file);
     formData.append("item_id", itemId);
-    formData.append("_token", CSRF_TOKEN);
 
     $.ajax({
         url: storeTemporaryFileUrl,
@@ -360,19 +374,29 @@ $(document).on("change", 'input[type="file"]', function () {
         contentType: false,
         success: function (response) {
             if (response.success) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Success",
+                    text: "File uploaded successfully!",
+                    showConfirmButton: false,
+                    timer: 1500,
+                    timerProgressBar: true,
+                    allowOutsideClick: false,
+                });
                 sessionStorage.setItem(itemId + "_file", response.fileName);
             }
         },
-        error: function (err) {
+        error: function (response) {
             Swal.fire({
                 icon: "error",
                 title: "Error",
-                text: "An error occurred while uploading the file!",
+                text: response.responseJSON.message,
                 showConfirmButton: false,
                 timer: 3000,
                 timerProgressBar: true,
                 allowOutsideClick: true,
             });
+            formData.delete("evidence");
         },
     });
 });
@@ -397,7 +421,7 @@ function navigatePage(step) {
 }
 
 $('a[data-bs-toggle="tab"]').on("click", function (e) {
-    maintenanceProcessTable.ajax.reload();
+    calibrationProcessTable.ajax.reload();
     table.ajax.reload();
 });
 
@@ -406,7 +430,7 @@ window.onbeforeunload = function () {
 };
 
 $("#nextButton").on("click", function () {
-    maintenanceProcessTable.ajax.reload();
+    calibrationProcessTable.ajax.reload();
     table.ajax.reload();
 });
 

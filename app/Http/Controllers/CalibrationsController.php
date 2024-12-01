@@ -8,6 +8,7 @@ use App\Models\Rooms;
 use App\Models\Technician;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 
 class CalibrationsController extends Controller
@@ -64,13 +65,19 @@ class CalibrationsController extends Controller
                         })
                         ->addColumn('reschedule_date', function ($row) {
                             $date = '';
-                            if ($row->calibrations == null || $row->calibrations->status == 5) {
-                                $date = '<span class="badge text-bg-info">Waiting Room Confirmation</span>';
-                            } elseif ($row->calibrations->schedule_by_room == $row->calibration_date) {
+
+                            if ($row->calibrations && Carbon::parse($row->calibration_date)->lessThan(Carbon::parse($row->calibrations->schedule_by_room))) {
+                                if ($row->calibrations == null || $row->calibrations->status == 5) {
+                                    $date = '<span class="badge text-bg-info">Waiting Room Confirmation</span>';
+                                } elseif ($row->calibrations->schedule_by_room == $row->calibration_date) {
+                                    $date = '<span class="badge text-bg-success">According To The Schedule</span>';
+                                } elseif ($row->calibrations->schedule_by_room != $row->calibration_date) {
+                                    $date = Carbon::parse($row->calibrations->schedule_by_room)->isoFormat('D MMMM Y');
+                                }
+                            } else {
                                 $date = '<span class="badge text-bg-success">According To The Schedule</span>';
-                            } elseif ($row->calibrations->schedule_by_room != $row->calibration_date) {
-                                $date = Carbon::parse($row->calibrations->schedule_by_room)->isoFormat('D MMMM Y');
                             }
+
                             return $date;
                         })
                         ->addColumn('action', function ($row) use ($loginDate, $extData) {
@@ -289,6 +296,7 @@ class CalibrationsController extends Controller
 
         if ($request->type == 'callVendor') {
             $calibration = Calibrations::find($id);
+            dd($calibration);
             $calibration->status = 1;
             $calibration->date_worked_on = now();
 
@@ -300,32 +308,64 @@ class CalibrationsController extends Controller
             }
         }
 
-        $request->validate([
-            'remarks' => 'required',
-            'status' => 'required',
-            'evidence' => 'required',
-        ]);
+        if ($request->type == 'updateCalibration') {
+            $request->validate([
+                'status' => 'required',
+                'remarks' => 'required',
+                'evidence' => 'required',
+            ]);
 
-        $calibration = Calibrations::find($id);
-        $calibration->remarks = $request->remarks;
-        $calibration->evidence = $request->evidence;
+            $calibration = Calibrations::find($id);
+            $calibration->remarks = $request->remarks;
+            $calibration->evidence = $request->evidence;
 
-        $items = Items_units::find($calibration->item_room_id);
-        $items->status = $request->status;
+            $items = Items_units::find($calibration->item_room_id);
+            $items->status = $request->status;
 
-        if ($request->status == 'Running') {
-            $calibration->status = 3;
-        } elseif ($request->status == 'System Down') {
-            $calibration->status = 2;
-        } elseif ($request->status == 'Restricted') {
-            $calibration->status = 4;
+            if ($request->status == 'Running') {
+                $calibration->status = 3;
+            } elseif ($request->status == 'System Down') {
+                $calibration->status = 2;
+            } elseif ($request->status == 'Restricted') {
+                $calibration->status = 4;
+            }
+
+            if ($calibration->save() && $items->save()) {
+                createLog(3, $calibration->id, 'update calibration status', null, $request->status);
+                return response()->json(['success' => 'Calibration status updated!']);
+            } else {
+                return response()->json(['error' => 'Failed to update calibration status']);
+            }
         }
 
-        if ($calibration->save() && $items->save()) {
-            createLog(3, $calibration->id, 'update calibration status', null, $request->status);
-            return response()->json(['success' => 'Calibration status updated!']);
-        } else {
-            return response()->json(['error' => 'Failed to update calibration status']);
+        if ($request->type == 'finishCalibration') {
+            $calibration = Calibrations::find($id);
+            $calibration->date_completed = now();
+
+            if ($calibration->status == 2) {
+                $calibration->status = 3;
+            }
+
+            $items = Items_units::find($calibration->item_room_id);
+
+            $items->status = 'Running';
+
+            $date_completed = date('Y-m-d', strtotime($calibration->date_completed));
+            $condition = strtotime($date_completed) - strtotime($items->maintenance_date);
+            // 2592000 = 30 days
+            if ($condition > 25923000) {
+                $items->calibration_date = date('Y-m-d', strtotime($items->date_completed . ' +1 year'));
+            } else {
+                $items->calibration_date = date('Y-m-d', strtotime($items->calibration_date . ' +1 year'));
+            }
+            $items->save();
+
+            if ($calibration->save()) {
+                createLog(3, $calibration->id, 'finish calibration', null, now());
+                return response()->json(['success' => 'Calibration has been finished!']);
+            } else {
+                return response()->json(['error' => 'Failed to finish calibration']);
+            }
         }
     }
 
@@ -421,6 +461,10 @@ class CalibrationsController extends Controller
                     return $row->item_room->first()->serial_number;
                 })
                 ->addColumn('calibration_date', function ($row) {
+                    if (Carbon::parse($row->item_room->first()->calibration_date)->lessThan(now())) {
+                        $info = Carbon::parse($row->item_room->first()->calibration_date)->isoFormat('D MMMM Y') . " (Overdue)";
+                    } else {
+                    }
                     return Carbon::parse($row->item_room->first()->calibration_date)->isoFormat('D MMMM Y');
                 })
                 ->addColumn('action', function ($row) {
@@ -438,7 +482,7 @@ class CalibrationsController extends Controller
                     }
                     return $btn;
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['action', 'calibration_date'])
                 ->make(true);
         } else {
             return view('calibrations.confirmation');
@@ -448,8 +492,13 @@ class CalibrationsController extends Controller
     public function storeTemporaryFile(Request $request)
     {
         if ($request->hasFile('evidence')) {
+
+            $request->validate([
+                'evidence' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            ]);
+
             $file = $request->file('evidence');
-            $fileName = time() . '_temp_' . $file->getClientOriginalName();
+            $fileName = time() . '_temp_calibration_' . $file->getClientOriginalName();
             $file->move(public_path('temp'), $fileName);
 
             return response()->json([

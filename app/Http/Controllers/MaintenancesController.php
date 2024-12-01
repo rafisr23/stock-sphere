@@ -63,12 +63,16 @@ class MaintenancesController extends Controller
                     })
                     ->addColumn('reschedule_date', function ($row) {
                         $date = '';
-                        if ($row->maintenances == null || $row->maintenances->status == 5) {
-                            $date = '<span class="badge text-bg-info">Waiting Room Confirmation</span>';
-                        } elseif ($row->maintenances->schedule_by_room == $row->maintenance_date) {
+                        if ($row->maintenances && Carbon::parse($row->maintenance_date)->lessThan(Carbon::parse($row->maintenances->schedule_by_room))) {
+                            if ($row->maintenances == null || $row->maintenances->status == 5) {
+                                $date = '<span class="badge text-bg-info">Waiting Room Confirmation</span>';
+                            } elseif ($row->maintenances->schedule_by_room == $row->maintenance_date) {
+                                $date = '<span class="badge text-bg-success">According To The Schedule</span>';
+                            } elseif ($row->maintenances->schedule_by_room != $row->maintenance_date) {
+                                $date = Carbon::parse($row->maintenances->schedule_by_room)->isoFormat('D MMMM Y');
+                            }
+                        } else {
                             $date = '<span class="badge text-bg-success">According To The Schedule</span>';
-                        } elseif ($row->maintenances->schedule_by_room != $row->maintenance_date) {
-                            $date = Carbon::parse($row->maintenances->schedule_by_room)->isoFormat('D MMMM Y');
                         }
                         return $date;
                     })
