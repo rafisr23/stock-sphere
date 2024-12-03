@@ -142,6 +142,9 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/showSparepart/removeSparepart/{idDetail}/{idSparepart}', 'removeSparepart')->name('removeSparepart');
             Route::put('/finish/{id}', 'finish')->name('finish');
             Route::get('/showSparepartUsed/{id}', 'showSparepartUsed')->name('showSparepartUsed');
+            Route::get('/showEvidenceTechnician/{id}', 'showEvidenceTechnician')->name('showEvidenceTechnician');
+            Route::post('/store/temporary-file', 'storeTemporaryFile')->name('store.temporary-file');
+            Route::post('/store/temporary-file-evidence/{id}', 'storeEvidenceTechnician')->name('storeEvidenceTechnician');
         });
     });
 

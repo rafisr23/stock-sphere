@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\EvidenceTechnicianRepairments;
 use App\Models\Spareparts;
 use App\Models\Items_units;
 use App\Models\Technician;
@@ -11,6 +12,7 @@ use App\Models\SparepartsOfRepair;
 use App\Models\SubmissionOfRepair;
 use Illuminate\Support\Facades\DB;
 use App\Models\DetailsOfRepairSubmission;
+use Illuminate\Support\Facades\File;
 
 class DetailsOfRepairSubmissionController extends Controller
 {
@@ -107,7 +109,7 @@ class DetailsOfRepairSubmissionController extends Controller
                         $sparepartUsedText = '<div class="d-flex justify-content-center align-items-center">';
                         $sparepartUsedText .= "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
                         data-bs-target='#exampleModal'
-                        data-title='Detail Sparepart Used for ".$row->itemUnit->items->item_name."' data-bs-tooltip='tooltip'
+                        data-title='Detail Sparepart Used for " . $row->itemUnit->items->item_name . "' data-bs-tooltip='tooltip'
                         data-remote=" . route('repairments.showSparepartUsed', ['id' => encrypt($row->id)]) . "
                         title='Number of Sparepart Used'>
                         " . $sparepartUsedCount . "
@@ -120,7 +122,14 @@ class DetailsOfRepairSubmissionController extends Controller
                         $btn = '<div class="d-flex justify-content-center align-items-center">';
                         $btn .= '<a href="#" class="update btn btn-warning btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Update Repairment data"><i class="ph-duotone ph-pencil-line"></i></a>';
                         $btn .= '<a href="' . route('repairments.showSparepart', encrypt($row->id)) . '" class="btn btn-primary btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Add Sparepart"><i class="ph-duotone ph-plus"></i></a>';
-                        $btn .= '<a href="#" class="finish btn btn-success btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Finish Repairment"><i class="ph-duotone ph-check"></i></a>';
+                        $btn .= "<a href='#'class='btn btn-secondary btn-sm me-2' data-bs-toggle='modal'
+                        data-bs-target='#exampleModal' data-title='Evidence for " . $row->itemUnit->items->item_name . "' data-bs-tooltip='tooltip'
+                        data-remote=" . route('repairments.showEvidenceTechnician', ['id' => encrypt($row->id)]) . "
+                        title='Show Evidence'>
+                        <i class='ph-duotone ph-image'></i>
+                            </a>
+                            ";
+                        $btn .= '<a href="#" class="finish btn btn-success btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Finish Repairment"><i class="ph-duotone ph-check"></i></>';
                         $btn .= '</div>';
                         return $btn;
                     })
@@ -361,5 +370,76 @@ class DetailsOfRepairSubmissionController extends Controller
             ];
         });
         return view('repairments.sparepartsModal', compact('sparepartUsed'));
+    }
+
+    public function showEvidenceTechnician($id)
+    {
+        $details_of_repair_submissions = DetailsOfRepairSubmission::find(decrypt($id));
+        // dd($details_of_repair_submissions);
+        $evidence_technician = EvidenceTechnicianRepairments::where('details_of_repair_submission_id', decrypt($id))->get();
+        // dd($evidence_technician);
+        return view('repairments.evidenceTechnicianModal', compact('evidence_technician', 'details_of_repair_submissions'));
+    }
+
+    public function storeTemporaryFile(Request $request)
+    {
+        // dd($request->all());
+        if ($request->hasFile('repairments_evidence')) {
+            $file = $request->file('repairments_evidence');
+            $fileName = time() . '_temp_' . $file->getClientOriginalName();
+            $file->move(public_path('temp'), $fileName);
+            return response()->json([
+                'success' => true,
+                'code' => 200,
+                'message' => 'File has been uploaded successfully!',
+                'fileName' => $fileName
+            ]);
+        }
+    }
+
+    public function storeEvidenceTechnician(Request $request, $id)
+    {
+        // dd($request->all());
+        $evidence = $request->input('repairments_evidence');
+
+        $tempDir = public_path('temp');
+        $targetDir = public_path('images/evidence');
+
+        // Pastikan direktori tujuan ada
+        if (!File::exists($targetDir)) {
+            File::makeDirectory($targetDir, 0755, true);
+        }
+
+        $pattern = "*_temp_" . $evidence; // contoh: "*_temp_Screenshot_2024-11-22-10-08-55-44_5dd0bdc881f4608ad98b5ecfcfb5553a.jpg"
+        $files = glob($tempDir . DIRECTORY_SEPARATOR . $pattern);
+
+        // Periksa apakah file ditemukan
+        if (empty($files)) {
+            return response()->json(['message' => 'File not found'], 404);
+        }
+
+        // Ambil file pertama yang cocok
+        $sourceFile = $files[0];
+
+        // Tentukan nama file tujuan
+        $targetFile = $targetDir . DIRECTORY_SEPARATOR . $evidence;
+        $path = 'images/evidence' . DIRECTORY_SEPARATOR . $evidence;
+        // dd($targetFile, $path);
+
+        if (File::copy($sourceFile, $targetFile)) {
+            $request->validate([
+                'repairments_evidence' => 'required',
+            ]);
+
+            $create = EvidenceTechnicianRepairments::create([
+                'details_of_repair_submission_id' => decrypt($id),
+                'evidence' => $path,
+            ]);
+
+            if ($create) {
+                return redirect()->back()->with('success', 'Evidence uploaded successfully');
+            }
+        }
+        return redirect()->back()->with('error', 'Failed to upload evidence');
     }
 }
