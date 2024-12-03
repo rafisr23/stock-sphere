@@ -46,4 +46,13 @@ class SubmissionOfRepair extends Model
     {
         return $this->belongsTo(Rooms::class);
     }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($user) {
+            $user->norec = \Str::orderedUuid();
+        });
+    }
 }

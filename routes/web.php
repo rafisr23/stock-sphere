@@ -19,6 +19,7 @@ use App\Http\Controllers\TechnicianController;
 use App\Http\Controllers\EditProfileController;
 use App\Http\Controllers\MaintenancesController;
 use App\Http\Controllers\SubmissionOfRepairController;
+use Illuminate\Support\Str;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,6 +34,15 @@ use App\Http\Controllers\SubmissionOfRepairController;
 
 
 Auth::routes();
+
+Route::get('/test-uuid', function () {
+    $uuid = Str::uuid();
+    $orderedUuid = Str::orderedUuid();
+    return response()->json([
+        'uuid' => $uuid,
+        'orderedUuid' => $orderedUuid,
+    ]);
+});
 
 
 // Define a group of routes with 'auth' middleware applied

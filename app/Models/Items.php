@@ -30,4 +30,13 @@ class Items extends Model
     {
         return $this->hasMany(Log::class, 'item_id');
     }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($user) {
+            $user->norec = \Str::orderedUuid();
+        });
+    }
 }

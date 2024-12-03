@@ -158,18 +158,23 @@ if (! function_exists('getVillage')) {
 }
 
 if (! function_exists('createLog')) {
-    function createLog($module, $module_id = null, $action = null, $extra = null, $data = null, $item_id = null)
+    // function createLog($module, $module_id = null, $action = null, $extra = null, $data = null, $item_id = null)
+    function createLog()
     {
         $ipAddr = \Request::ip();
+        // $log = [
+        //     'module' => $module,
+        //     'module_id' => $module_id,
+        //     'action' => $action,
+        //     'extra' => $extra,
+        //     'data' => $data,
+        //     'ip' => $ipAddr,
+        //     'user_id' => auth()->user()->id,
+        //     'item_id' => $item_id,
+        // ];
+
         $log = [
-            'module' => $module,
-            'module_id' => $module_id,
-            'action' => $action,
-            'extra' => $extra,
-            'data' => $data,
-            'ip' => $ipAddr,
-            'user_id' => auth()->user()->id,
-            'item_id' => $item_id,
+            ''
         ];
 
         Log::create($log);

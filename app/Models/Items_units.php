@@ -30,4 +30,18 @@ class Items_units extends Model
     {
         return $this->belongsTo(Maintenances::class, 'id', 'item_room_id');
     }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($user) {
+            $user->norec = \Str::orderedUuid();
+        });
+    }
+
+    public function logs()
+    {
+        return $this->hasMany(NewLog::class, 'technician_id');
+    }
 }

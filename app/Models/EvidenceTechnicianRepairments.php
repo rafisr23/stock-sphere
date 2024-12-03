@@ -15,4 +15,13 @@ class EvidenceTechnicianRepairments extends Model
     {
         return $this->belongsTo(DetailsOfRepairSubmission::class, 'details_of_repair_submission_id');
     }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($user) {
+            $user->norec = \Str::orderedUuid();
+        });
+    }
 }

@@ -14,6 +14,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
         "laravel/ui": "^4.3",
+        "ramsey/uuid": "^4.7",
         "spatie/laravel-permission": "^6.9",
         "yajra/laravel-datatables": "11.0"
     },
