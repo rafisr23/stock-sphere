@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class SparepartsSeeder extends Seeder
 {
@@ -21,6 +22,7 @@ class SparepartsSeeder extends Seeder
                 'serial_no' => 'PSU123',
                 'description' => 'Power supply unit for server',
                 'is_generic' => false,
+                'norec' => Str::orderedUuid(),
             ],
             [
                 'item_id' => 1,
@@ -28,6 +30,7 @@ class SparepartsSeeder extends Seeder
                 'serial_no' => 'HDD500',
                 'description' => '500GB SSD for data storage',
                 'is_generic' => true,
+                'norec' => Str::orderedUuid(),
             ],
             [
                 'item_id' => 1,
@@ -35,6 +38,7 @@ class SparepartsSeeder extends Seeder
                 'serial_no' => 'RAM16',
                 'description' => '16GB RAM for high-performance computing',
                 'is_generic' => true,
+                'norec' => Str::orderedUuid(),
             ],
             [
                 'item_id' => 1,
@@ -42,6 +46,7 @@ class SparepartsSeeder extends Seeder
                 'serial_no' => 'GPU1080',
                 'description' => 'NVIDIA GTX 1080 GPU for image rendering',
                 'is_generic' => false,
+                'norec' => Str::orderedUuid(),
             ],
             [
                 'item_id' => 1,
@@ -49,6 +54,7 @@ class SparepartsSeeder extends Seeder
                 'serial_no' => 'COOLX1',
                 'description' => 'Cooling system for server',
                 'is_generic' => true,
+                'norec' => Str::orderedUuid(),
             ],
 
             // SOMATOM go.Top (Item_ID: 2)
@@ -58,6 +64,7 @@ class SparepartsSeeder extends Seeder
                 'serial_no' => 'XRAYT01',
                 'description' => 'X-ray tube for CT scanner',
                 'is_generic' => false,
+                'norec' => Str::orderedUuid(),
             ],
             [
                 'item_id' => 2,
@@ -65,6 +72,7 @@ class SparepartsSeeder extends Seeder
                 'serial_no' => 'HVG200',
                 'description' => 'High voltage generator for X-ray tube',
                 'is_generic' => false,
+                'norec' => Str::orderedUuid(),
             ],
             [
                 'item_id' => 2,
@@ -72,6 +80,7 @@ class SparepartsSeeder extends Seeder
                 'serial_no' => 'COIL500',
                 'description' => 'Cooling oil for X-ray tube',
                 'is_generic' => true,
+                'norec' => Str::orderedUuid(),
             ],
             [
                 'item_id' => 2,
@@ -79,6 +88,7 @@ class SparepartsSeeder extends Seeder
                 'serial_no' => 'CTDET100',
                 'description' => 'CT scanner detector for image capture',
                 'is_generic' => false,
+                'norec' => Str::orderedUuid(),
             ],
             [
                 'item_id' => 2,
@@ -86,6 +96,7 @@ class SparepartsSeeder extends Seeder
                 'serial_no' => 'TABLEM01',
                 'description' => 'Motor for patient table movement',
                 'is_generic' => false,
+                'norec' => Str::orderedUuid(),
             ],
 
             // MAGNETOM Sempra (CN) (Item_ID: 3)
@@ -95,6 +106,7 @@ class SparepartsSeeder extends Seeder
                 'serial_no' => 'MAGCOOL01',
                 'description' => 'Cooling system for MRI magnet',
                 'is_generic' => false,
+                'norec' => Str::orderedUuid(),
             ],
             [
                 'item_id' => 3,
@@ -102,6 +114,7 @@ class SparepartsSeeder extends Seeder
                 'serial_no' => 'GRADCOIL01',
                 'description' => 'Gradient coil for MRI scanner',
                 'is_generic' => false,
+                'norec' => Str::orderedUuid(),
             ],
             [
                 'item_id' => 3,
@@ -109,6 +122,7 @@ class SparepartsSeeder extends Seeder
                 'serial_no' => 'RFAMP500',
                 'description' => 'Radiofrequency amplifier for MRI scanner',
                 'is_generic' => false,
+                'norec' => Str::orderedUuid(),
             ],
             [
                 'item_id' => 3,
@@ -116,6 +130,7 @@ class SparepartsSeeder extends Seeder
                 'serial_no' => 'RFCOIL100',
                 'description' => 'Radiofrequency coil for signal reception',
                 'is_generic' => false,
+                'norec' => Str::orderedUuid(),
             ],
             [
                 'item_id' => 3,
@@ -123,12 +138,14 @@ class SparepartsSeeder extends Seeder
                 'serial_no' => 'HECOMP200',
                 'description' => 'Helium compressor for magnet cooling',
                 'is_generic' => false,
+                'norec' => Str::orderedUuid(),
             ],[
                 'item_id' => null,
                 'name' => 'Gloves',
                 'serial_no' => 'GLV001',
                 'description' => 'Disposable medical gloves',
                 'is_generic' => true,
+                'norec' => Str::orderedUuid(),
             ],
             [
                 'item_id' => null,
@@ -136,6 +153,7 @@ class SparepartsSeeder extends Seeder
                 'serial_no' => 'FLASH001',
                 'description' => 'LED flashlight for examination',
                 'is_generic' => true,
+                'norec' => Str::orderedUuid(),
             ],
             [
                 'item_id' => null,
@@ -143,6 +161,7 @@ class SparepartsSeeder extends Seeder
                 'serial_no' => 'TOOL001',
                 'description' => 'Screwdriver set for equipment repair',
                 'is_generic' => true,
+                'norec' => Str::orderedUuid(),
             ],
             [
                 'item_id' => null,
@@ -150,6 +169,7 @@ class SparepartsSeeder extends Seeder
                 'serial_no' => 'MASK001',
                 'description' => 'Disposable surgical mask',
                 'is_generic' => true,
+                'norec' => Str::orderedUuid(),
             ],
             [
                 'item_id' => null,
@@ -157,6 +177,7 @@ class SparepartsSeeder extends Seeder
                 'serial_no' => 'THERMO001',
                 'description' => 'Digital thermometer for temperature measurement',
                 'is_generic' => true,
+                'norec' => Str::orderedUuid(),
             ],
         ]);
     }

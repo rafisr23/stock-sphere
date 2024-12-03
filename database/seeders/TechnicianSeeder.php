@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class TechnicianSeeder extends Seeder
 {
@@ -25,6 +26,7 @@ class TechnicianSeeder extends Seeder
             'village' => 'DAGO',
             'user_id' => 4,
             'unit_id' => 1,
+            'norec' => Str::orderedUuid(),
         ]);
 
         DB::table('technicians')->insert([
@@ -39,6 +41,7 @@ class TechnicianSeeder extends Seeder
             'village' => 'DAGO',
             'user_id' => 5,
             'unit_id' => 1,
+            'norec' => Str::orderedUuid(),
         ]);
 
         DB::table('technicians')->insert([
@@ -53,6 +56,7 @@ class TechnicianSeeder extends Seeder
             'village' => 'DAGO',
             'user_id' => 6,
             'unit_id' => 1,
+            'norec' => Str::orderedUuid(),
         ]);
         
         DB::table('technicians')->insert([
