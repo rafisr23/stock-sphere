@@ -70,11 +70,15 @@ class LogController extends Controller
         return view('log.index');
     }
 
-    public function getLog($moduleCode = null, $moduleId = null, $itemId = null) {
-        if ($itemId) {
-            $logs = Log::where('module_id', $moduleId)->where('module', $moduleCode)->orWhere('item_id', $itemId)->orderBy('created_at', 'desc')->get();
+    public function getLog($norec, $module, $status) {
+        if ($status == 'is_generic' && $norec != null) {
+            $logs = NewLog::where('norec', $norec)
+                ->orWhere('norec_parent', $norec)
+                ->where('is_generic', true)
+                ->orderBy('created_at', 'desc')
+                ->get();
         } else {
-            $logs = Log::where('module_id', $moduleId)->where('module', $moduleCode)->orderBy('created_at', 'desc')->get();
+            $logs = [];
         }
 
         return view('log.modal', compact('logs'));

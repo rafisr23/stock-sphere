@@ -10,7 +10,7 @@
         @if (count($logs) > 0)
             @foreach ($logs as $log)
                 <tr>
-                    <td>{{ $log->action }}</td>
+                    <td class="text-wrap">{{ $log->desc }}</td>
                     <td>{{ $log->ip }}</td>
                     <td>{{ $log->user->name }}</td>
                     <td>{{ $log->created_at }}</td>

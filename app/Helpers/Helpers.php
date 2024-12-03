@@ -200,3 +200,17 @@ if (!function_exists('createLog')) {
         NewLog::create($log);
     }
 }
+
+if (!function_exists('getLog')) {
+    function getLog($data)
+    {
+        if ($data['is_generic'] == true) {
+            $logs = NewLog::where('norec', $data['norec'])
+                ->where('is_generic', true)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+
+        return view('log.modal', compact('logs'));
+    }
+}

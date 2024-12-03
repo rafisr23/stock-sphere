@@ -17,7 +17,7 @@ class UserController extends Controller
     public function index()
     {
         if (request()->ajax()) {
-            $users = User::all();
+            $users = User::where('is_enabled', true)->get();
             return datatables()->of($users)
                 ->addIndexColumn()
                 ->addColumn('username', function ($row) {
@@ -30,12 +30,16 @@ class UserController extends Controller
                     // $btn = '<a href="' . route('user.show', encrypt($row->id)) . '" class="view btn btn-info btn-sm me-2"><i class="ph-duotone ph-eye"></i></a>';
                     $btn = '<a href="' . route('user.edit', encrypt($row->id)) . '" class="edit btn btn-warning btn-sm me-2" title="Edit Data"><i class="ph-duotone ph-pencil-line"></i></a>';
                     $btn = $btn . '<a href="#" class="delete btn btn-danger btn-sm me-2"  data-id="' . encrypt($row->id) . '"  title="Edit Data"><i class="ph-duotone ph-trash"></i></a>';
-
+                    $log = [
+                        'norec' => $row->norec ?? null,
+                        'module_id' => 9,
+                        'status' => 'is_generic',
+                    ];
                     $showLogBtn = 
                         "<a href='#'class='btn btn-sm btn-info' data-bs-toggle='modal'
                             data-bs-target='#exampleModal'
                             data-title='Detail Log' data-bs-tooltip='tooltip'
-                            data-remote=" . route('log.getLog', ['moduleCode' => 9, 'moduleId' => $row->id]) . "
+                            data-remote=" . route('log.getLog', ['norec' => $log['norec'], 'module' => $log['module_id'], 'status' => $log['status']]) . "
                             title='Log Information'>
                             <i class='ph-duotone ph-info'></i>
                         </a>
@@ -98,6 +102,7 @@ class UserController extends Controller
 
             $log = [
                 'norec' => $user->norec,
+                'norec_parent' => auth()->user()->norec,
                 'module_id' => 9,
                 'is_generic' => true,
                 'desc' => 'Create a new user: ' . $user->username . ' with role: ' . $role->name . ' by ' . auth()->user()->name,
@@ -183,7 +188,16 @@ class UserController extends Controller
                 }
             }
 
-            createLog(9, $user->id, 'edit a user', null, $oldUser);
+            $log = [
+                'norec' => $user->norec,
+                'norec_parent' => auth()->user()->norec,
+                'module_id' => 9,
+                'is_generic' => true,
+                'desc' => 'Edit an existing user: ' . $user->username . ' with role: ' . $role->name . ' by ' . auth()->user()->name,
+                'old_data' => $oldUser,
+            ];
+
+            createLog($log);
             DB::commit();
             return redirect()->route('user.index')->with('success', 'User updated successfully.');
         } catch (\Exception $e) {
@@ -198,6 +212,7 @@ class UserController extends Controller
     public function destroy(string $id)
     {
         $user = User::find(decrypt($id));
+        $oldUser = $user->toJson();
 
         if ($user->id == auth()->id()) {
             return response()->json([
@@ -215,7 +230,17 @@ class UserController extends Controller
 
         // check if user is technician
         // createLog(9, $user->id, 'delete a user', null, $user->toJson());
-        $user->delete();
+        $log = [
+            'norec' => $user->norec,
+            'module_id' => 9,
+            'is_generic' => true,
+            'desc' => 'Delete an exixting user by ' . auth()->user()->name,
+            'old_data' => $oldUser,
+        ];
+
+        createLog($log);
+        $user->is_enabled = false;
+        $user->save();
         
         return response()->json([
             'success' => true,

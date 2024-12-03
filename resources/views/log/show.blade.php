@@ -42,11 +42,11 @@
                             </tr>
                             <tr>
                                 <th>Activity</th>
-                                <td>{{ $log->desc ?? '-' }}</td>
+                                <td class="text-wrap">{{ $log->desc ?? '-' }}</td>
                             </tr>
                             <tr>
                                 <th>Old Data</th>
-                                <td>{{ $log->old_data ?? '-' }}</td>
+                                <td class="text-wrap">{{ $log->old_data ?? '-' }}</td>
                             </tr>
                             <tr>
                                 <th>Item Unit</th>
