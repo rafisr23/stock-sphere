@@ -20,4 +20,9 @@ class NewLog extends Model
     {
         return $this->belongsTo(Items_units::class, 'item_unit_id');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Log;
+use App\Models\NewLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
@@ -157,26 +158,45 @@ if (! function_exists('getVillage')) {
     }
 }
 
-if (! function_exists('createLog')) {
+// if (! function_exists('createLog')) {
     // function createLog($module, $module_id = null, $action = null, $extra = null, $data = null, $item_id = null)
-    function createLog()
+//     {
+//         $ipAddr = \Request::ip();
+//         // $log = [
+//         //     'module' => $module,
+//         //     'module_id' => $module_id,
+//         //     'action' => $action,
+//         //     'extra' => $extra,
+//         //     'data' => $data,
+//         //     'ip' => $ipAddr,
+//         //     'user_id' => auth()->user()->id,
+//         //     'item_id' => $item_id,
+//         // ];
+
+//         Log::create($log);
+//     }
+// }
+
+if (!function_exists('createLog')) {
+    function createLog($data)
     {
-        $ipAddr = \Request::ip();
-        // $log = [
-        //     'module' => $module,
-        //     'module_id' => $module_id,
-        //     'action' => $action,
-        //     'extra' => $extra,
-        //     'data' => $data,
-        //     'ip' => $ipAddr,
-        //     'user_id' => auth()->user()->id,
-        //     'item_id' => $item_id,
-        // ];
+        $ipAddr = \Request::ip(); // Mendapatkan IP address pengguna
 
         $log = [
-            ''
+            'norec' => $data['norec'],
+            'norec_parent' => $data['norec_parent'] ?? null,
+            'module_id' => $data['module_id'] ?? null,
+            'is_repair' => $data['is_repair'] ?? false,
+            'is_maintenance' => $data['is_maintenance'] ?? false,
+            'is_generic' => $data['is_generic'] ?? false,
+            'desc' => $data['desc'] ?? null,
+            'old_data' => $data['old_data'] ?? null,
+            'ip' => $ipAddr,
+            'item_unit_id' => $data['item_unit_id'] ?? null,
+            'technician_id' => $data['technician_id'] ?? null,
+            'user_id' => auth()->user()->id,
         ];
 
-        Log::create($log);
+        NewLog::create($log);
     }
 }

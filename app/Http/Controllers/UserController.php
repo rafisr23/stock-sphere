@@ -96,7 +96,14 @@ class UserController extends Controller
                 ]);
             }
 
-            createLog(9, $user->id, 'create a new user');
+            $log = [
+                'norec' => $user->norec,
+                'module_id' => 9,
+                'is_generic' => true,
+                'desc' => 'Create a new user: ' . $user->username . ' with role: ' . $role->name . ' by ' . auth()->user()->name,
+            ];
+
+            createLog($log);
             DB::commit();  
             return redirect()->route('user.index')->with('success', 'User created successfully.');
         } catch (\Exception $e) {
@@ -207,7 +214,7 @@ class UserController extends Controller
         }
 
         // check if user is technician
-        createLog(9, $user->id, 'delete a user', null, $user->toJson());
+        // createLog(9, $user->id, 'delete a user', null, $user->toJson());
         $user->delete();
         
         return response()->json([

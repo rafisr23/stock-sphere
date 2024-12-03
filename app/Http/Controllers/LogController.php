@@ -4,17 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Log;
 use App\Models\User;
+use App\Models\NewLog;
 use Illuminate\Http\Request;
 
 class LogController extends Controller
 {
     public function index() {
         if (request()->ajax()) {
-            $logs = Log::orderBy('created_at', 'desc')->get();
+            $logs = NewLog::orderBy('created_at', 'desc')->get();
             return datatables()->of($logs)
                 ->addIndexColumn()
-                ->addColumn('module', function ($row) {
-                    switch ($row->module) {
+                ->addColumn('module_id', function ($row) {
+                    switch ($row->module_id) {
                         case '1':
                             return 'Item';
                             break;
@@ -47,8 +48,8 @@ class LogController extends Controller
                             break;
                     }
                 })
-                ->addColumn('activity', function ($row) {
-                    return $row->action ?? '-';
+                ->addColumn('desc', function ($row) {
+                    return $row->desc ?? '-';
                 })
                 ->addColumn('ip', function ($row) {
                     return $row->ip ?? '-';
@@ -58,7 +59,8 @@ class LogController extends Controller
                     return $user->name ?? '-';
                 })
                 ->addColumn('action', function ($row) {
-                    $btn = '<a href="' . '" class="edit btn btn-info btn-sm me-2"><i class="ph-duotone ph-info"></i></a>';
+                    $showUrl = route('log.show', encrypt($row->id));
+                    $btn = '<a href="' . $showUrl . '" class="edit btn btn-info btn-sm me-2"><i class="ph-duotone ph-info"></i></a>';
                     return $btn;
                 })
                 ->rawColumns(['action'])
@@ -76,5 +78,45 @@ class LogController extends Controller
         }
 
         return view('log.modal', compact('logs'));
+    }
+
+    public function show($id) {
+        $decId = decrypt($id);
+        $log = NewLog::find($decId);
+
+        switch ($log->module_id) {
+            case 1:
+                $log->module_name = 'Item';
+                break;
+            case 2:
+                $log->module_name = 'Repair';
+                break;
+            case 3:
+                $log->module_name = 'Maintenance';
+                break;
+            case 4:
+                $log->module_name = 'Room';
+                break;
+            case 5:
+                $log->module_name = 'Unit';
+                break;
+            case 6:
+                $log->module_name = 'Spare part';
+                break;
+            case 7:
+                $log->module_name = 'Assign Item';
+                break;
+            case 8:
+                $log->module_name = 'Technician';
+                break;
+            case 9:
+                $log->module_name = 'User';
+                break;
+            default:
+                $log->module_name = '-';
+                break;
+        }
+
+        return view('log.show', compact('log'));
     }
 }
