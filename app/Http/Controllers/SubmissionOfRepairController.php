@@ -313,7 +313,24 @@ class SubmissionOfRepairController extends Controller
                 $btn .= '<a href="' . $detailUrl . '" class="view btn btn-info btn-sm me-2" title="Detail Submission"><i class="ph-duotone ph-eye"></i></a>';
                 // $btn .= '<a href="' . route('items_units.edit', $row->id) . '" class="edit btn btn-warning btn-sm me-2" title="Edit Data"><i class="ph-duotone ph-pencil-line"></i></a>';
                 // $btn .= '<a href="#" class="delete btn btn-danger btn-sm" data-id="' . encrypt($row->id) . '" title="Delete Data"><i class="ph-duotone ph-trash"></i></a>';
-                $btn .= '</div>';
+
+                $log = [
+                    'norec' => $row->norec ?? null,
+                    'module_id' => 2,
+                    'status' => 'is_repair',
+                ];
+                $showLogBtn = 
+                    "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
+                        data-bs-target='#exampleModal'
+                        data-title='Detail Log' data-bs-tooltip='tooltip'
+                        data-remote=" . route('log.getLog', ['norec' => $log['norec'], 'module' => $log['module_id'], 'status' => $log['status']]) . "
+                        title='Log Information'>
+                        <i class='ph-duotone ph-info'></i>
+                    </a>
+                ";
+
+                $btn .= $showLogBtn . '</div>';
+                
                 return $btn;
             })
             ->rawColumns(['status', 'action'])
