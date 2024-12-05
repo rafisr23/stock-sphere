@@ -68,14 +68,14 @@ class User extends Authenticatable
     }
 
     public static function boot()
-{
-    parent::boot();
+    {
+        parent::boot();
 
-    static::creating(function ($user) {
-        // Cek apakah kolom norec ada di tabel
-        if (Schema::hasColumn($user->getTable(), 'norec')) {
-            $user->norec = (string) Str::orderedUuid();
-        }
-    });
-}
+        static::creating(function ($user) {
+            // Cek apakah kolom norec ada di tabel
+            if (Schema::hasColumn($user->getTable(), 'norec')) {
+                $user->norec = (string) Str::orderedUuid();
+            }
+        });
+    }
 }

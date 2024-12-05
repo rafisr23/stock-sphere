@@ -71,15 +71,27 @@ class LogController extends Controller
     }
 
     public function getLog($norec, $module, $status) {
-        if ($status == 'is_generic' && $norec != null) {
-            $logs = NewLog::where('norec', $norec)
-                ->orWhere('norec_parent', $norec)
-                ->where('is_generic', true)
-                ->orderBy('created_at', 'desc')
-                ->get();
-        } else {
-            $logs = [];
-        }
+        $logs = NewLog::where('norec', $norec)
+            ->orWhere('norec_parent', $norec)
+            // ->where('is_generic', true)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        // if ($status == 'is_generic' && $norec != null) {
+        // } else if ($status == 'is_repair' && $norec != null) {
+        //     $logs = NewLog::where('norec', $norec)
+        //         ->orWhere('norec_parent', $norec)
+        //         ->where('is_repair', true)
+        //         ->orderBy('created_at', 'desc')
+        //         ->get();
+        // } else if ($status == 'is_maintenance' && $norec != null) {
+        //     $logs = NewLog::where('norec', $norec)
+        //         ->orWhere('norec_parent', $norec)
+        //         ->where('is_maintenance', true)
+        //         ->orderBy('created_at', 'desc')
+        //         ->get();
+        // } else {
+        //     $logs = [];
+        // }
 
         return view('log.modal', compact('logs'));
     }
