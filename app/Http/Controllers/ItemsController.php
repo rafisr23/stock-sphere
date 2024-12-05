@@ -8,6 +8,7 @@ use App\Models\Items_units;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 
 class ItemsController extends Controller
@@ -19,10 +20,10 @@ class ItemsController extends Controller
     {
         if (request()->ajax()) {
             if (auth()->user()->hasRole('unit')) {
-                $itemUnits = Items_units::where('unit_id', auth()->user()->unit->id)->get();
-                $items = Items::whereIn('id', $itemUnits->pluck('item_id'))->get();
+                $itemUnits = Items_units::where('unit_id', auth()->user()->unit->id)->where('is_enabled', true)->get();
+                $items = Items::whereIn('id', $itemUnits->pluck('item_id'))->where('is_enabled', true)->get();
             } else {
-                $items = Items::all();
+                $items = Items::where('is_enabled', true)->get();
             }
             return datatables()->of($items)
                 ->addIndexColumn()
@@ -30,11 +31,16 @@ class ItemsController extends Controller
                     $btn = '<a href="' . route('items.show', $row->id) . '" class="view btn btn-info btn-sm me-2"><i class="ph-duotone ph-eye"></i></a>';
                     $btn = $btn . '<a href="' . route('items.edit', $row->id) . '" class="edit btn btn-warning btn-sm me-2"><i class="ph-duotone ph-pencil-line"></i></a>';
                     $btn = $btn . '<a href="#" class="delete btn btn-danger btn-sm me-2"  data-id="' . $row->id . '"><i class="ph-duotone ph-trash"></i></a>';
+                    $log = [
+                        'norec' => $row->norec ?? null,
+                        'module_id' => 1,
+                        'status' => 'is_generic',
+                    ];
                     $showLogBtn =
                         "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
                     data-bs-target='#exampleModal'
                     data-title='Detail Log' data-bs-tooltip='tooltip'
-                    data-remote=" . route('log.getLog', ['moduleCode' => 1, 'moduleId' => $row->id]) . "
+                    data-remote=" . route('log.getLog', ['norec' => $log['norec'], 'module' => $log['module_id'], 'status' => $log['status']]) . "
                     title='Log Information'>
                     <i class='ph-duotone ph-info'></i>
                         </a>
@@ -74,19 +80,26 @@ class ItemsController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $item = Items::create($request->all());
-
-        createLog(1, $item->id, 'create a new item');
-
-        if ($item) {
+        DB::beginTransaction();
+        try {
+            $item = Items::create($request->all());
+            $log = [
+                'norec' => $item->norec,
+                'norec_parent' => auth()->user()->norec,
+                'module_id' => 1,
+                'is_generic' => true,
+                'desc' => 'Create a new item: ' . $item->item_name . ' with description: ' . $item->item_description . ' by ' . auth()->user()->name,
+            ];
+            createLog($log);
+            DB::commit();
             return redirect()->route('items.index')->with('success', 'Item created successfully.');
-        } else {
+        } catch (\Exception $e) {
+            DB::rollBack();
             if (File::exists(public_path('images/items/' . $request->image))) {
                 File::delete(public_path('images/items/' . $request->image));
             }
-            return redirect()->route('items.index')->with('error', 'Item creation failed.');
+            return redirect()->route('items.index')->with('error', 'Item creation failed: ' . $e->getMessage());
         }
-
     }
 
     /**
@@ -112,6 +125,9 @@ class ItemsController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $item = Items::where('id', $id)->first();
+        $oldItem = $item->toJson();
+
         $validator = Validator::make($request->all(), [
             'item_name' => 'required',
             'item_description' => 'required',
@@ -127,17 +143,26 @@ class ItemsController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $item = Items::where('id', $id)->first();
-        $oldItem = $item->toJson();
-
-        $item->update($request->all());
-
-        createLog(1, $item->id, 'update item data', null, $oldItem);
-
-        if ($item) {
+        DB::beginTransaction();
+        try {
+            $item->update($request->all());
+            $log = [
+                'norec' => $item->norec,
+                'norec_parent' => auth()->user()->norec,
+                'module_id' => 1,
+                'is_generic' => true,
+                'desc' => 'Update item data: ' . $item->item_name . ' with description: ' . $item->item_description . ' by ' . auth()->user()->name,
+                'old_data' => $oldItem,
+            ];
+            createLog($log);
+            DB::commit();
             return redirect()->route('items.index')->with('success', 'Item updated successfully.');
-        } else {
-            return redirect()->route('items.index')->with('error', 'Item update failed.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            if (File::exists(public_path('images/items/' . $request->image))) {
+                File::delete(public_path('images/items/' . $request->image));
+            }
+            return redirect()->route('items.index')->with('error', 'Item update failed: ' . $e->getMessage());
         }
     }
 
@@ -147,7 +172,7 @@ class ItemsController extends Controller
     public function destroy(Request $request)
     {
         $item = Items::where('id', $request->id)->first();
-        // check if item is used in items_units table
+        $oldItem = $item->toJson();
         $checkItem = Items_units::where('item_id', $request->id)->exists();
         if ($checkItem) {
             return response()->json(['error' => 'Item is assign in Units Items table.']);
@@ -156,8 +181,17 @@ class ItemsController extends Controller
             if (file_exists($old_image)) {
                 unlink($old_image);
             }
-            createLog(1, $item->id, 'delete item data', $item->toJson());
-            if ($item->delete()) {
+            $log = [
+                'norec' => $item->norec,
+                'norec_parent' => auth()->user()->norec,
+                'module_id' => 1,
+                'is_generic' => true,
+                'desc' => 'Delete item: ' . $item->item_name . ' with description: ' . $item->item_description . ' by ' . auth()->user()->name,
+                'old_data' => $oldItem,
+            ];
+            createLog($log);
+            $soft_delete = $item->update(['is_enabled' => false]);
+            if ($soft_delete) {
                 return response()->json(['success' => 'Item deleted successfully.']);
             }
         }
