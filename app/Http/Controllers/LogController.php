@@ -74,11 +74,20 @@ class LogController extends Controller
     }
 
     public function getLog($norec, $module, $status) {
-        $logs = NewLog::where('norec', $norec)
-            ->orWhere('norec_parent', $norec)
-            // ->where('is_generic', true)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        if ($status == 'is_repair' && $norec != null) {
+            $logs = NewLog::where('norec', $norec)
+                ->where($status, true)
+                ->orWhere('norec_parent', $norec)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        } else {
+            $logs = NewLog::where('norec', $norec)
+                ->orWhere('norec_parent', $norec)
+                // ->where('is_generic', true)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+
         // if ($status == 'is_generic' && $norec != null) {
         // } else if ($status == 'is_repair' && $norec != null) {
         //     $logs = NewLog::where('norec', $norec)

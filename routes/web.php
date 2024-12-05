@@ -105,7 +105,7 @@ Route::middleware(['auth'])->group(function () {
 
         Route::controller(LogController::class)->name('log.')->prefix('log')->middleware('role:superadmin')->group(function () {
             Route::get('/', 'index')->name('index');
-            Route::get('/getLog/{norec?}/{module}/{status}', 'getLog')->name('getLog');
+            // Route::get('/getLog/{norec?}/{module}/{status}', 'getLog')->name('getLog');
             Route::get('/show/{id}', 'show')->name('show');
         });
 
@@ -192,5 +192,9 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/history', 'history')->name('history');
             Route::get('/confirmation', 'confirmation')->name('confirmation');
         });
+    });
+
+    Route::controller(LogController::class)->name('log.')->prefix('log')->middleware('auth')->group(function () {
+        Route::get('/getLog/{norec?}/{module}/{status}', 'getLog')->name('getLog');
     });
 });
