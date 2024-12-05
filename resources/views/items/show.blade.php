@@ -34,7 +34,7 @@
                         @endif
                         <div class="col">
                             <h4 class="card-title mb-4">{{ $item->item_name }}</h4>
-                            <p class="col-form-p">Serial No: {{ $item->item_description }}</p>
+                            <p class="col-form-p">Description : {{ $item->item_description }}</p>
                         </div>
                         <div class="col-auto">
                             <a href="{{ route('items.index') }}" class="btn btn-secondary">Back</a>

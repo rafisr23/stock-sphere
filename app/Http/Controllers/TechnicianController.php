@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class TechnicianController extends Controller
 {
@@ -17,7 +18,7 @@ class TechnicianController extends Controller
     public function index()
     {
         if (request()->ajax()) {
-            $technicians = Technician::all();
+            $technicians = Technician::where('is_enabled', true)->get();
             return datatables()->of($technicians)
                 ->addIndexColumn()
                 ->addColumn('status', function ($row) {
@@ -32,11 +33,16 @@ class TechnicianController extends Controller
                     $btn .= '<a href="' . route('technicians.show', encrypt($row->id)) . '" class="view btn btn-info btn-sm me-2" title="See Details"><i class="ph-duotone ph-eye"></i></a>';
                     $btn .= '<a href="' . route('technicians.edit', encrypt($row->id)) . '" class="edit btn btn-warning btn-sm me-2" title="Edit Data"><i class="ph-duotone ph-pencil-line"></i></a>';
                     $btn .= '<a href="#" class="delete btn btn-danger btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Delete Data"><i class="ph-duotone ph-trash"></i></a>';
+                    $log = [
+                        'norec' => $row->norec ?? null,
+                        'module_id' => 8,
+                        'status' => 'is_generic',
+                    ];
                     $showLogBtn =
                         "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
                     data-bs-target='#exampleModal'
                     data-title='Detail Log' data-bs-tooltip='tooltip'
-                    data-remote=" . route('log.getLog', ['moduleCode' => 8, 'moduleId' => $row->id]) . "
+                    data-remote=" . route('log.getLog', ['norec' => $log['norec'], 'module' => $log['module_id'], 'status' => $log['status']]) . "
                     title='Log Information'>
                     <i class='ph-duotone ph-info'></i>
                         </a></div>
@@ -57,15 +63,15 @@ class TechnicianController extends Controller
      */
     public function create()
     {
-        $technician = Technician::where('user_id', '!=', null)->get();
+        $technician = Technician::where('user_id', '!=', null)->where('is_enabled', true)->get();
         if ($technician->count() > 0) {
             $users = User::whereHas('roles', function ($query) {
                 $query->where('name', 'technician');
-            })->whereNotIn('id', Technician::where('user_id', '!=', null)->pluck('user_id'))->get();
+            })->whereNotIn('id', Technician::where('user_id', '!=', null)->pluck('user_id'))->where('is_enabled', true)->get();
         } else {
             $users = User::whereHas('roles', function ($query) {
                 $query->where('name', 'technician');
-            })->get();
+            })->where('is_enabled', true)->get();
         }
 
         $province = getAllProvince();
@@ -132,24 +138,33 @@ class TechnicianController extends Controller
         $village = json_decode($village->content());
         $request['village'] = $village->village->name;
 
-        $technician = Technician::create($request->all());
+        DB::beginTransaction();
+        try {
+            $technician = Technician::create($request->all());
+            $log = [
+                'norec' => $technician->norec,
+                'norec_parent' => auth()->user()->norec,
+                'module_id' => 8,
+                'is_generic' => true,
+                'desc' => 'Create a new technician: ' . $technician->name . ' from ' . $technician->city . ' by ' . auth()->user()->name,
+            ];
+            createLog($log);
+            DB::commit();
 
-        createLog(8, $technician->id, 'create a new technician');
-
-        if ($technician) {
             return redirect()->route('technicians.index')->with('success', 'Technician created successfully.');
-        } else {
+        } catch (\Exception $e) {
+            DB::rollBack();
             if (File::exists(public_path('images/technicians/' . $request->image))) {
                 File::delete(public_path('images/technicians/' . $request->image));
             }
-            return redirect()->route('technicians.index')->with('error', 'Technician creation failed.');
+            return redirect()->back()->with('error', 'Technician creation failed: ' . $e->getMessage());
         }
     }
 
     public function assign()
     {
-        $technicians = Technician::where('unit_id', null)->get();
-        $units = Units::all();
+        $technicians = Technician::where('unit_id', null)->where('is_enabled', true)->get();
+        $units = Units::where('is_enabled', true)->get();
         return view('technicians.assign', compact('technicians', 'units'));
     }
 
@@ -162,14 +177,28 @@ class TechnicianController extends Controller
 
         $unit = Units::find($request->unit_id);
 
-        foreach ($request->technician_id as $technician_id) {
-            $technician = Technician::find($technician_id);
-            $technician->unit_id = $request->unit_id;
-            $technician->save();
-            createLog(8, $technician->id, 'assign technician to unit', 'unit : ' . $unit->customer_name, $technician->toJson());
+        DB::beginTransaction();
+        try {
+            foreach ($request->technician_id as $technician_id) {
+                $technician = Technician::find($technician_id);
+                $technician->unit_id = $request->unit_id;
+                $technician->save();
+                $log = [
+                    'norec' => $technician->norec,
+                    'norec_parent' => auth()->user()->norec,
+                    'module_id' => 8,
+                    'is_generic' => true,
+                    'desc' => 'Assign technician: ' . $technician->name . ' to unit: ' . $unit->customer_name . ' by ' . auth()->user()->name,
+                ];
+                createLog($log);
+            }
+            DB::commit();
+            return redirect()->route('technicians.index')->with('success', 'Technician assigned successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Technician assignment failed: ' . $e->getMessage());
         }
 
-        return redirect()->route('technicians.index')->with('success', 'Technician assigned successfully.');
     }
 
     /**
@@ -191,11 +220,11 @@ class TechnicianController extends Controller
         if ($technician->user_id) {
             $users = User::whereHas('roles', function ($query) {
                 $query->where('name', 'technician');
-            })->where('id', '!=', $technician->user_id)->get();
+            })->where('id', '!=', $technician->user_id)->where('is_enabled', true)->get();
         } else {
             $users = User::whereHas('roles', function ($query) {
                 $query->where('name', 'technician');
-            })->whereNotIn('id', Technician::where('user_id', '!=', null)->pluck('user_id'))->get();
+            })->whereNotIn('id', Technician::where('user_id', '!=', null)->pluck('user_id'))->where('is_enabled', true)->get();
         }
         $province_id = null;
         $city_id = null;
@@ -235,7 +264,6 @@ class TechnicianController extends Controller
             }
         }
 
-
         return view('technicians.edit', compact('technician', 'users', 'selected_user', 'province_id', 'city_id', 'district_id', 'village_id', 'province_all'));
     }
 
@@ -244,6 +272,9 @@ class TechnicianController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $technician = Technician::find($id);
+        $oldTechnician = $technician->toJson();
+
         $request->validate([
             'name' => 'required',
             'phone' => 'required',
@@ -277,22 +308,28 @@ class TechnicianController extends Controller
             $request['user_id'] = $request->user_id;
         }
 
-        $technician = Technician::find($id);
-        $oldTechnician = $technician->toJson();
+        DB::beginTransaction();
+        try {
+            $technician->update($request->all());
+            $log = [
+                'norec' => $technician->norec,
+                'norec_parent' => auth()->user()->norec,
+                'module_id' => 8,
+                'is_generic' => true,
+                'desc' => 'Update technician data: ' . $technician->name . 'from' . $technician->city . ' by ' . auth()->user()->name,
+                'old_data' => $oldTechnician,
+            ];
+            createLog($log);
+            DB::commit();
 
-        $technician->update($request->all());
-
-        createLog(8, $technician->id, 'update technician data', null, $oldTechnician);
-
-        if ($technician) {
             return redirect()->route('technicians.index')->with('success', 'Technician updated successfully.');
-        } else {
+        } catch (\Exception $e) {
+            DB::rollBack();
             if (File::exists(public_path('images/technicians/' . $request->image))) {
                 File::delete(public_path('images/technicians/' . $request->image));
             }
-            return redirect()->route('technicians.index')->with('error', 'Technician update failed.');
+            return redirect()->back()->with('error', 'Technician update failed: ' . $e->getMessage());
         }
-
     }
 
     /**
@@ -301,16 +338,29 @@ class TechnicianController extends Controller
     public function destroy($id)
     {
         $technician = Technician::find(decrypt($id));
+        $oldTechnician = $technician->toJson();
         if ($technician->unit) {
             return response()->json(['error' => 'Technician has unit.']);
         } else {
             if ($technician->user) {
-                // delete user
-                $technician->user->delete();
+                $log = [
+                    'norec' => $technician->norec,
+                    'norec_parent' => auth()->user()->norec,
+                    'module_id' => 8,
+                    'is_generic' => true,
+                    'desc' => 'Delete an existing technician: ' . $technician->name . ' by ' . auth()->user()->name,
+                    'old_data' => $oldTechnician,
+                ];
+                createLog($log);
+                $soft_delete = $technician->update(['is_enabled' => false]);
+                if ($soft_delete) {
+                    return response()->json(['success' => 'Technician deleted successfully.']);
+                } else {
+                    return response()->json(['error' => 'Technician delete failed.']);
+                }
+            } else {
+                return response()->json(['error' => 'Technician has no user.']);
             }
-            createLog(8, $technician->id, 'delete technician data', $technician->toJson());
-            $technician->delete();
-            return response()->json(['success' => 'Technician deleted successfully.']);
         }
     }
 }
