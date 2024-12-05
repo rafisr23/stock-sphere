@@ -43,6 +43,9 @@ class LogController extends Controller
                         case '9':
                             return 'User';
                             break;
+                        case '10':
+                            return 'Calibration';
+                            break;
                         default:
                             return '-';
                             break;
