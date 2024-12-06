@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Rooms;
+use App\Models\Units;
+use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreRoomsRequest;
 use App\Http\Requests\UpdateRoomsRequest;
-use App\Models\User;
-use App\Models\Units;
 
 class RoomsController extends Controller
 {
@@ -16,15 +17,36 @@ class RoomsController extends Controller
     public function index()
     {
         if (request()->ajax()) {
-            $room = Rooms::all();
+            if (auth()->user()->hasRole('superadmin')) {
+                $room = Rooms::where('is_enabled', true)->get();
+            } else {
+                $room = Rooms::where('user_id', auth()->user()->id)->where('is_enabled', true)->get();
+            }
             return datatables()->of($room)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
                     $btn = '<div class="d-flex justify-content-center align-items-center">';
                     $btn .= '<a href="' . route('rooms.show', encrypt($row->id)) . '" class="view btn btn-info btn-sm me-2" title="See Details"><i class="ph-duotone ph-eye"></i></a>';
                     $btn .= '<a href="' . route('rooms.edit', encrypt($row->id)) . '" class="edit btn btn-warning btn-sm me-2" title="Edit Data"><i class="ph-duotone ph-pencil-line"></i></a>';
-                    $btn .= '<a href="#" class="delete btn btn-danger btn-sm" data-id="' . encrypt($row->id) . '" title="Delete Data"><i class="ph-duotone ph-trash"></i></a>';
-                    $btn .= '</div>';
+                    $btn .= '<a href="#" class="delete btn btn-danger btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Delete Data"><i class="ph-duotone ph-trash"></i></a>';
+                    
+                    $log = [
+                        'norec' => $row->norec ?? null,
+                        'module_id' => 4,
+                        'status' => 'is_generic',
+                    ];
+                    $showLogBtn = 
+                        "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
+                            data-bs-target='#exampleModal'
+                            data-title='Detail Log' data-bs-tooltip='tooltip'
+                            data-remote=" . route('log.getLog', ['norec' => $log['norec'], 'module' => $log['module_id'], 'status' => $log['status']]) . "
+                            title='Log Information'>
+                            <i class='ph-duotone ph-info'></i>
+                        </a>
+                    ";
+
+                    $btn .= $showLogBtn . '</div>';
+                    
                     return $btn;
                 })
                 ->rawColumns(['action'])
@@ -50,31 +72,36 @@ class RoomsController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(StoreRoomsRequest $request)
-    {
+    {   
+        DB::beginTransaction();
+
         try {
-            $request->validate([
-                'name' => 'required',
-                'description' => 'required',
-                'serial_no' => 'required',
-                'unit_id' => 'required',
-                'user_id' => 'required',
+            $request = array_filter($request->all());
+            $rooms = Rooms::create([
+                'name' => $request['name'],
+                'description' => $request['description'],
+                'serial_no' => $request['serial_no'],
+                'unit_id' => decrypt($request['unit_id'][1]),
+                'user_id' => decrypt($request['user_id']),
             ]);
 
-            $rooms = Rooms::create([
-                'name' => $request->name,
-                'description' => $request->description,
-                'serial_no' => $request->serial_no,
-                'unit_id' => decrypt($request->unit_id),
-                'user_id' => decrypt($request->user_id),
-            ]);
-            if ($rooms) {
-                createLog(4, $rooms->id, 'create new room');
-                return redirect()->route('rooms.index')->with('success', 'Room created successfully.');
-            } else {
-                return redirect()->route('rooms.index')->with('error', 'Room creation failed.');
-            }
+            $unit = Units::find(decrypt($request['unit_id'][1]));
+
+            $log = [
+                'norec' => $rooms->norec,
+                'norec_parent' => auth()->user()->norec,
+                'module_id' => 4,
+                'is_generic' => true,
+                'desc' => 'Create a new room: ' . $rooms->name . ' in ' . $unit->customer_name . ' by ' . auth()->user()->name,
+            ];
+
+            createLog($log);
+            DB::commit();
+
+            return redirect()->route('rooms.index')->with('success', 'Room created successfully.');
         } catch (\Exception $e) {
-            return redirect()->route('rooms.index')->with('error', 'Room creation failed.');
+            DB::rollBack();
+            return redirect()->route('rooms.index')->with('error', 'Room creation failed: ' . $e->getMessage());
         }
     }
 
@@ -109,31 +136,38 @@ class RoomsController extends Controller
      */
     public function update(UpdateRoomsRequest $request, $id)
     {
-        $request->validate([
-            'name' => 'required',
-            'description' => 'required',
-            'serial_no' => 'required',
-            'unit_id' => 'required',
-            'user_id' => 'required',
-        ]);
+        DB::beginTransaction();
 
-        $request = array_filter($request->all());;
+        try {
+            $request = array_filter($request->all());
+            $room = Rooms::find(decrypt($id));
+            $oldRoom = $room->toJson();
+            $room->update([
+                'name' => $request['name'],
+                'description' => $request['description'],
+                'serial_no' => $request['serial_no'],
+                'unit_id' => decrypt($request['unit_id']),
+                'user_id' => decrypt($request['user_id']),
+            ]);
 
-        $room = Rooms::find(decrypt($id));
-        $oldRoom = $room->toJson();
-        $room->update([
-            'name' => $request['name'],
-            'description' => $request['description'],
-            'serial_no' => $request['serial_no'],
-            'unit_id' => decrypt($request['unit_id']),
-            'user_id' => decrypt($request['user_id']),
-        ]);
+            $unit = Units::find(decrypt($request['unit_id']));
 
-        if ($room) {
-            createLog(4, $room->id, 'update room', null, $oldRoom);
+            $log = [
+                'norec' => $room->norec,
+                'norec_parent' => auth()->user()->norec,
+                'module_id' => 4,
+                'is_generic' => true,
+                'desc' => 'Update room: ' . $room->name . ' in ' . $unit->customer_name . ' by ' . auth()->user()->name,
+                'old_data' => $oldRoom,
+            ];
+
+            createLog($log);
+            DB::commit();
+
             return redirect()->route('rooms.index')->with('success', 'Room updated successfully.');
-        } else {
-            return redirect()->route('rooms.index')->with('error', 'Room update failed.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('rooms.index')->with('error', 'Room update failed: ' . $e->getMessage());
         }
     }
 
@@ -142,18 +176,35 @@ class RoomsController extends Controller
      */
     public function destroy($id)
     {
-        $id = decrypt($id);
+        DB::beginTransaction();
 
-        $room = Rooms::find($id);
-        createLog(4, $room->id, 'delete room', null, $room->toJson());
-        $room->delete();
+        try {
+            $room = Rooms::find(decrypt($id));
+            $oldRoom = $room->toJson();
+            $room->is_enabled = false;
+            $room->save();
 
-        if ($room) {
-            $return = response()->json(['success' => 'Room deleted successfully.']);
-        } else {
-            $return = response()->json(['error' => 'Room deletion failed.']);
+            $log = [
+                'norec' => $room->norec,
+                'module_id' => 4,
+                'is_generic' => true,
+                'desc' => 'Delete room: ' . $room->name . ' in ' . $room->units->customer_name . ' by ' . auth()->user()->name,
+                'old_data' => $oldRoom,
+            ];
+
+            createLog($log);
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Room deleted successfully.',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Room deletion failed: ' . $e->getMessage(),
+            ]);
         }
-
-        return $return;
     }
 }

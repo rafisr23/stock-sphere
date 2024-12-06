@@ -52,7 +52,7 @@ class LogController extends Controller
                     }
                 })
                 ->addColumn('desc', function ($row) {
-                    return $row->desc ?? '-';
+                    return implode(' ', array_slice(explode(' ', $row->desc), 0, 6)) . '...';
                 })
                 ->addColumn('ip', function ($row) {
                     return $row->ip ?? '-';

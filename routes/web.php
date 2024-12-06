@@ -36,12 +36,13 @@ use Illuminate\Support\Str;
 Auth::routes();
 
 Route::get('/test-uuid', function () {
-    $uuid = Str::uuid();
-    $orderedUuid = Str::orderedUuid();
-    return response()->json([
-        'uuid' => $uuid,
-        'orderedUuid' => $orderedUuid,
-    ]);
+    // $uuid = Str::uuid();
+    // $orderedUuid = Str::orderedUuid();
+    // return response()->json([
+    //     'uuid' => $uuid,
+    //     'orderedUuid' => $orderedUuid,
+    // ]);
+    return 1;
 });
 
 

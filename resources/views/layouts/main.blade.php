@@ -17,8 +17,8 @@
         @include('layouts.head-css')
     </head>
 
-    <body data-pc-preset="preset-1" data-pc-sidebar-theme="default" data-pc-sidebar-caption="true" data-pc-direction="ltr"
-        data-pc-theme="default">
+    <body data-pc-preset="preset-1" data-pc-sidebar-theme="dark" data-pc-sidebar-caption="true" data-pc-direction="ltr"
+        data-pc-theme="dark">
         @include('layouts.loader')
         @include('layouts.sidebar')
         @include('layouts.topbar')

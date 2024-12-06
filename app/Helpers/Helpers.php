@@ -214,3 +214,17 @@ if (!function_exists('getLog')) {
         return view('log.modal', compact('logs'));
     }
 }
+
+if (!function_exists('env')) {
+    /**
+     * Gets the value of an environment variable.
+     *
+     * @param  string  $key
+     * @param  mixed  $default
+     * @return mixed
+     */
+    function env($key, $default = null)
+    {
+        return Env::get($key, $default);
+    }
+}

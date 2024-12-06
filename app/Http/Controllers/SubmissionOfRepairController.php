@@ -407,7 +407,16 @@ class SubmissionOfRepairController extends Controller
 
             $submission = SubmissionOfRepair::find($detail->submission_of_repair_id);
 
-            createLog(2, $submission->id, 'Assign Technician', 'Assign technician for submission of repair', null, $request->technicianId);
+            // $submissionLog = [
+            //     'norec' => $submission->norec,
+            //     'norec_parent' => auth()->user()->norec,
+            //     'module_id' => 2,
+            //     'is_repair' => true,
+            //     'desc' => 'Technician ' . $detail->technician->name . ' has been assigned for repair of ' . $detail->items->item_name . ' by ' . auth()->user()->name . ' from ' . $submission->room->name . ' (' . $submission->unit->customer_name . ')',
+            //     'item_unit_id' => $detail->item_unit_id,
+            // ];
+
+            // createLog(2, $submission->id, 'Assign Technician', 'Assign technician for submission of repair', null, $request->technicianId);
 
             DB::commit();
             return response()->json([
