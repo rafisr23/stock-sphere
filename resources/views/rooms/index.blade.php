@@ -94,7 +94,7 @@
                             if (response.success) {
                                 Swal.fire({
                                     title: 'Success!',
-                                    text: response.message,
+                                    text: response.success,
                                     icon: 'success',
                                     showConfirmButton: false,
                                     timer: 2000,
@@ -105,7 +105,7 @@
                             } else {
                                 Swal.fire({
                                     title: 'Error!',
-                                    text: response.message,
+                                    text: response.error,
                                     icon: 'error',
                                     showConfirmButton: false,
                                     timer: 2000,

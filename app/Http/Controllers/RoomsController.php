@@ -196,14 +196,12 @@ class RoomsController extends Controller
             DB::commit();
 
             return response()->json([
-                'success' => true,
-                'message' => 'Room deleted successfully.',
+                'success' => 'Room deleted successfully.',
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
-                'success' => false,
-                'message' => 'Room deletion failed: ' . $e->getMessage(),
+                'error' => 'Room deletion failed: ' . $e->getMessage(),
             ]);
         }
     }

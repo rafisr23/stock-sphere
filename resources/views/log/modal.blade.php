@@ -27,7 +27,20 @@
 @section('scripts')
     <script>
         $().ready(function() {
-            $('#log_table').dataTable();
+            $('#log_table').DataTable({
+                "paging": true,
+                "lengthChange": true,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "autoWidth": true,
+                "responsive": true,
+                "scrollX": true,
+                "scrollY": true,
+                "scrollCollapse": true,
+                "pagingType": "full_numbers",
+                "pageLength": 10,
+            });
             $("#log_table").css('width', '100%');
             $.fn.dataTable.ext.errMode = function(settings, helpPage, message) {
                 console.log(message);

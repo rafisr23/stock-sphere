@@ -18,7 +18,7 @@ class Items extends Model
 
     public function sparepart()
     {
-        return $this->belongsTo(Spareparts::class);
+        return $this->hasMany(Spareparts::class);
     }
 
     public function vendor()
