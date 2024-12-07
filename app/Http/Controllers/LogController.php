@@ -4,17 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Log;
 use App\Models\User;
+use App\Models\NewLog;
 use Illuminate\Http\Request;
 
 class LogController extends Controller
 {
     public function index() {
         if (request()->ajax()) {
-            $logs = Log::orderBy('created_at', 'desc')->get();
+            $logs = NewLog::orderBy('created_at', 'desc')->get();
             return datatables()->of($logs)
                 ->addIndexColumn()
-                ->addColumn('module', function ($row) {
-                    switch ($row->module) {
+                ->addColumn('module_id', function ($row) {
+                    switch ($row->module_id) {
                         case '1':
                             return 'Item';
                             break;
@@ -42,13 +43,16 @@ class LogController extends Controller
                         case '9':
                             return 'User';
                             break;
+                        case '10':
+                            return 'Calibration';
+                            break;
                         default:
                             return '-';
                             break;
                     }
                 })
-                ->addColumn('activity', function ($row) {
-                    return $row->action ?? '-';
+                ->addColumn('desc', function ($row) {
+                    return implode(' ', array_slice(explode(' ', $row->desc), 0, 6)) . '...';
                 })
                 ->addColumn('ip', function ($row) {
                     return $row->ip ?? '-';
@@ -58,7 +62,8 @@ class LogController extends Controller
                     return $user->name ?? '-';
                 })
                 ->addColumn('action', function ($row) {
-                    $btn = '<a href="' . '" class="edit btn btn-info btn-sm me-2"><i class="ph-duotone ph-info"></i></a>';
+                    $showUrl = route('log.show', encrypt($row->id));
+                    $btn = '<a href="' . $showUrl . '" class="edit btn btn-info btn-sm me-2"><i class="ph-duotone ph-info"></i></a>';
                     return $btn;
                 })
                 ->rawColumns(['action'])
@@ -68,13 +73,78 @@ class LogController extends Controller
         return view('log.index');
     }
 
-    public function getLog($moduleCode = null, $moduleId = null, $itemId = null) {
-        if ($itemId) {
-            $logs = Log::where('module_id', $moduleId)->where('module', $moduleCode)->orWhere('item_id', $itemId)->orderBy('created_at', 'desc')->get();
+    public function getLog($norec, $module, $status) {
+        if ($status == 'is_repair' && $norec != null) {
+            $logs = NewLog::where('norec', $norec)
+                ->where($status, true)
+                ->orWhere('norec_parent', $norec)
+                ->orderBy('created_at', 'desc')
+                ->get();
         } else {
-            $logs = Log::where('module_id', $moduleId)->where('module', $moduleCode)->orderBy('created_at', 'desc')->get();
+            $logs = NewLog::where('norec', $norec)
+                ->orWhere('norec_parent', $norec)
+                // ->where('is_generic', true)
+                ->orderBy('created_at', 'desc')
+                ->get();
         }
 
+        // if ($status == 'is_generic' && $norec != null) {
+        // } else if ($status == 'is_repair' && $norec != null) {
+        //     $logs = NewLog::where('norec', $norec)
+        //         ->orWhere('norec_parent', $norec)
+        //         ->where('is_repair', true)
+        //         ->orderBy('created_at', 'desc')
+        //         ->get();
+        // } else if ($status == 'is_maintenance' && $norec != null) {
+        //     $logs = NewLog::where('norec', $norec)
+        //         ->orWhere('norec_parent', $norec)
+        //         ->where('is_maintenance', true)
+        //         ->orderBy('created_at', 'desc')
+        //         ->get();
+        // } else {
+        //     $logs = [];
+        // }
+
         return view('log.modal', compact('logs'));
+    }
+
+    public function show($id) {
+        $decId = decrypt($id);
+        $log = NewLog::find($decId);
+
+        switch ($log->module_id) {
+            case 1:
+                $log->module_name = 'Item';
+                break;
+            case 2:
+                $log->module_name = 'Repair';
+                break;
+            case 3:
+                $log->module_name = 'Maintenance';
+                break;
+            case 4:
+                $log->module_name = 'Room';
+                break;
+            case 5:
+                $log->module_name = 'Unit';
+                break;
+            case 6:
+                $log->module_name = 'Spare part';
+                break;
+            case 7:
+                $log->module_name = 'Assign Item';
+                break;
+            case 8:
+                $log->module_name = 'Technician';
+                break;
+            case 9:
+                $log->module_name = 'User';
+                break;
+            default:
+                $log->module_name = '-';
+                break;
+        }
+
+        return view('log.show', compact('log'));
     }
 }

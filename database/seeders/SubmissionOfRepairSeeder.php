@@ -3,8 +3,9 @@
 namespace Database\Seeders;
 
 use DB;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class SubmissionOfRepairSeeder extends Seeder
 {
@@ -23,6 +24,7 @@ class SubmissionOfRepairSeeder extends Seeder
             'estimated_date_completed' => null,
             'date_completed' => null,
             'date_cancelled' => null,
+            'norec' => Str::orderedUuid(),
         ]);
     }
 }

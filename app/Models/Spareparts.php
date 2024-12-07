@@ -20,4 +20,13 @@ class Spareparts extends Model
     {
         return $this->hasMany(SparepartsOfRepair::class);
     }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($user) {
+            $user->norec = \Str::orderedUuid();
+        });
+    }
 }

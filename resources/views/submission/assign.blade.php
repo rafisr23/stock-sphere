@@ -115,6 +115,13 @@
                                                 <a href="#" type="button" data-bs-toggle="modal" data-bs-target=".bd-example-modal-lg" class="view btn btn-info btn-sm btn-show" title="Show Technician" data-id="{{ encrypt($detail->technician->id) }}"><i class="ph-duotone ph-user-gear"></i></a>
                                             @endisset
                                         @endrole
+                                        <a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
+                                            data-bs-target='#exampleModal'
+                                            data-title='Detail Log' data-bs-tooltip='tooltip'
+                                            data-remote="{{ route('log.getLog', ['norec' => $detail->norec, 'module' => 2, 'status' => 'is_repair']) }}"
+                                            title='Log Information'>
+                                            <i class='ph-duotone ph-info'></i>
+                                        </a>
                                     </td>
                                 </tr>
                             @endforeach

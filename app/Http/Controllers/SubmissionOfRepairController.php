@@ -17,16 +17,18 @@ class SubmissionOfRepairController extends Controller
     public function index() {
         if (request()->ajax()) {
             if (auth()->user()->hasRole('unit')) {
-                $room = Rooms::where('unit_id', auth()->user()->unit->id)->pluck('id');
-                $items_units = Items_units::whereIn('room_id', $room)->get();
+                $submission = SubmissionOfRepair::where('room_id', auth()->user()->unit->id)->whereIn('status', [0, 1, 2])->pluck('id');
+                $itemInRepair = DetailsOfRepairSubmission::whereIn('submission_of_repair_id', $submission)->pluck('item_unit_id');
+                $items_units = Items_units::whereIn('room_id', $room)->whereNotIn('id', $itemInRepair)->get();
             } elseif (auth()->user()->hasRole('room')) {
                 $submission = SubmissionOfRepair::where('room_id', auth()->user()->room->id)->whereIn('status', [0, 1, 2])->pluck('id');
                 $itemInRepair = DetailsOfRepairSubmission::whereIn('submission_of_repair_id', $submission)->pluck('item_unit_id');
-                // return $itemInRepair;
                 $items_units = Items_units::whereNotIn('id', $itemInRepair)->where('room_id', auth()->user()->room->id)->get();
             }
             else {
-                $items_units = Items_units::all();
+                $submission = SubmissionOfRepair::whereIn('status', [0, 1, 2])->pluck('id');
+                $itemInRepair = DetailsOfRepairSubmission::whereIn('submission_of_repair_id', $submission)->pluck('item_unit_id');
+                $items_units = Items_units::whereNotIn('id', $itemInRepair)->get();
             }
             return datatables()->of($items_units)
                 ->addIndexColumn()
@@ -63,7 +65,9 @@ class SubmissionOfRepairController extends Controller
                 ->make(true);
         }
 
-        return view('submission.index');
+        $rooms = Rooms::all();
+
+        return view('submission.index', compact('rooms'));
     }
 
     public function getItems(Request $request) {
@@ -127,7 +131,11 @@ class SubmissionOfRepairController extends Controller
         DB::beginTransaction();
 
         try {
-            $room = Rooms::find(auth()->user()->room->id);
+            if (auth()->user()->hasRole('superadmin')) {
+                $room = Rooms::where('id', $request->room_id)->first();
+            } else {
+                $room = Rooms::find(auth()->user()->room->id);
+            }
             $unit = Units::find($room->unit_id);
             $submissionOfRepair = SubmissionOfRepair::create([
                 'unit_id' => $unit->id,
@@ -145,15 +153,44 @@ class SubmissionOfRepairController extends Controller
 
                 $item = Items_units::find($value);
                 $evidence = $request->evidence ?  $request->evidence[$value] : '';
-                $submissionOfRepair->details()->create([
+                $detail = $submissionOfRepair->details()->create([
                     'submission_of_repair_id' => $submissionOfRepair->id,
                     'item_unit_id' => $item->id,
                     'description' => $request->description[$value] ?? '-',
                     'evidence' => $evidence,
                 ]);
 
-                createLog(2, $submissionOfRepair->id, 'Create Submission of Repair', 'Create submission of repair for ' . $item->items->item_name ?? '-', null, $item->id);
+                $log = [
+                    'norec' => $item->norec,
+                    'norec_parent' => auth()->user()->norec,
+                    'module_id' => 2,
+                    'is_repair' => true,
+                    'desc' => 'Item ' . $item->items->item_name . ' has been submitted for repair by ' . auth()->user()->name . ' from ' . $room->name . ' (' . $unit->customer_name . ')' . ' with description: ' . $request->description[$value],
+                    'item_unit_id' => $item->id,
+                ];
+
+                $detailLog = [
+                    'norec' => $detail->norec,
+                    'norec_parent' => $submissionOfRepair->norec,
+                    'module_id' => 2,
+                    'is_repair' => true,
+                    'desc' => 'Item ' . $item->items->item_name . ' has been submitted for repair by ' . auth()->user()->name . ' from ' . $room->name . ' (' . $unit->customer_name . ')' . ' with description: ' . $request->description[$value],
+                    'item_unit_id' => $item->id,
+                ];
+                
+                createLog($log);
+                createLog($detailLog);
             }
+
+            $submissionLog = [
+                'norec' => $submissionOfRepair->norec,
+                'norec_parent' => auth()->user()->norec,
+                'module_id' => 2,
+                'is_repair' => true,
+                'desc' => 'Submission of repair has been submitted by ' . auth()->user()->name . ' from ' . $room->name . ' (' . $unit->customer_name . ')' . ' with ' . count($itemUnitId) . ' item(s)',
+            ];
+
+            createLog($submissionLog);
 
             DB::commit();
             return response()->json([
@@ -172,8 +209,8 @@ class SubmissionOfRepairController extends Controller
     public function history() {
         if (request()->ajax()) {
             $submission = auth()->user()->hasRole('unit')
-                ? SubmissionOfRepair::where('unit_id', auth()->user()->unit->id)->get()
-                : SubmissionOfRepair::all();
+                ? SubmissionOfRepair::where('unit_id', auth()->user()->unit->id)->orderBy('created_at', 'desc')->get()
+                : SubmissionOfRepair::orderBy('created_at', 'desc')->get();
             return datatables()->of($submission)
                 ->addIndexColumn()
                 ->addColumn('count', function ($row) {
@@ -210,7 +247,23 @@ class SubmissionOfRepairController extends Controller
                     $btn .= '<a href="' . $detailUrl . '" class="view btn btn-info btn-sm me-2" title="See Details"><i class="ph-duotone ph-eye"></i></a>';
                     // $btn .= '<a href="' . route('items_units.edit', $row->id) . '" class="edit btn btn-warning btn-sm me-2" title="Edit Data"><i class="ph-duotone ph-pencil-line"></i></a>';
                     // $btn .= '<a href="#" class="delete btn btn-danger btn-sm" data-id="' . encrypt($row->id) . '" title="Delete Data"><i class="ph-duotone ph-trash"></i></a>';
-                    $btn .= '</div>';
+
+                    $log = [
+                        'norec' => $row->norec ?? null,
+                        'module_id' => 2,
+                        'status' => 'is_repair',
+                    ];
+                    $showLogBtn = 
+                        "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
+                            data-bs-target='#exampleModal'
+                            data-title='Detail Log' data-bs-tooltip='tooltip'
+                            data-remote=" . route('log.getLog', ['norec' => $log['norec'], 'module' => $log['module_id'], 'status' => $log['status']]) . "
+                            title='Log Information'>
+                            <i class='ph-duotone ph-info'></i>
+                        </a>
+                    ";
+
+                    $btn .= $showLogBtn . '</div>';
                     return $btn;
                 })
                 ->rawColumns(['status', 'action'])
@@ -226,8 +279,8 @@ class SubmissionOfRepairController extends Controller
 
     public function getListOfRepairs() {
         $submission = auth()->user()->hasRole('unit')
-            ? SubmissionOfRepair::where('unit_id', auth()->user()->unit->id)->get()
-            : SubmissionOfRepair::all();
+            ? SubmissionOfRepair::where('unit_id', auth()->user()->unit->id)->orderBy('created_at', 'desc')->get()
+            : SubmissionOfRepair::orderBy('created_at', 'desc')->get();
         return datatables()->of($submission)
             ->addIndexColumn()
             ->addColumn('count', function ($row) {
@@ -270,7 +323,24 @@ class SubmissionOfRepairController extends Controller
                 $btn .= '<a href="' . $detailUrl . '" class="view btn btn-info btn-sm me-2" title="Detail Submission"><i class="ph-duotone ph-eye"></i></a>';
                 // $btn .= '<a href="' . route('items_units.edit', $row->id) . '" class="edit btn btn-warning btn-sm me-2" title="Edit Data"><i class="ph-duotone ph-pencil-line"></i></a>';
                 // $btn .= '<a href="#" class="delete btn btn-danger btn-sm" data-id="' . encrypt($row->id) . '" title="Delete Data"><i class="ph-duotone ph-trash"></i></a>';
-                $btn .= '</div>';
+
+                $log = [
+                    'norec' => $row->norec ?? null,
+                    'module_id' => 2,
+                    'status' => 'is_repair',
+                ];
+                $showLogBtn = 
+                    "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
+                        data-bs-target='#exampleModal'
+                        data-title='Detail Log' data-bs-tooltip='tooltip'
+                        data-remote=" . route('log.getLog', ['norec' => $log['norec'], 'module' => $log['module_id'], 'status' => $log['status']]) . "
+                        title='Log Information'>
+                        <i class='ph-duotone ph-info'></i>
+                    </a>
+                ";
+
+                $btn .= $showLogBtn . '</div>';
+                
                 return $btn;
             })
             ->rawColumns(['status', 'action'])
@@ -346,8 +416,29 @@ class SubmissionOfRepairController extends Controller
             ]);
 
             $submission = SubmissionOfRepair::find($detail->submission_of_repair_id);
+            $technician = Technician::find($request->technicianId);
 
-            createLog(2, $submission->id, 'Assign Technician', 'Assign technician for submission of repair', null, $request->technicianId);
+            $detailLog = [
+                'norec' => $detail->norec,
+                'norec_parent' => $submission->norec,
+                'module_id' => 2,
+                'is_repair' => true,
+                'desc' => 'Technician ' . $detail->technician->name . ' has been assigned for repair of ' . $detail->itemUnit->items->item_name . ' by ' . auth()->user()->name . ' from ' . $submission->room->name . ' (' . $submission->unit->customer_name . ')',
+                'item_unit_id' => $detail->item_unit_id,
+                'technician_id' => $detail->technician_id,
+            ];
+
+            $technicianLog = [
+                'norec' => $detail->technician->norec,
+                'norec_parent' => auth()->user()->norec,
+                'module_id' => 8,
+                'desc' => $technician->name . ' has been assigned for repair of ' . $detail->itemUnit->items->item_name . ' by ' . auth()->user()->name . ' from ' . $submission->room->name . ' (' . $submission->unit->customer_name . ')',
+                'is_repair' => true,
+                'item_unit_id' => $detail->item_unit_id,
+            ];
+
+            createLog($detailLog);
+            createLog($technicianLog);
 
             DB::commit();
             return response()->json([

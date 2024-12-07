@@ -3,14 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Units;
-use App\Http\Requests\StoreUnitsRequest;
-use App\Http\Requests\UpdateUnitsRequest;
-use App\Models\Items_units;
 use App\Models\Rooms;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class UnitsController extends Controller
 {
@@ -20,15 +18,29 @@ class UnitsController extends Controller
     public function index()
     {
         if (request()->ajax()) {
-            $units = Units::all();
+            $units = Units::where('is_enabled', true)->get();
             return datatables()->of($units)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    $btn = '<div class="d-flex justify-content-center align-items-center">';
-                    $btn .= '<a href="' . route('units.show', encrypt($row->id)) . '" class="view btn btn-info btn-sm me-2" title="See Details"><i class="ph-duotone ph-eye"></i></a>';
+                    $btn = '<a href="' . route('units.show', encrypt($row->id)) . '" class="view btn btn-info btn-sm me-2" title="See Details"><i class="ph-duotone ph-eye"></i></a>';
                     $btn .= '<a href="' . route('units.edit', encrypt($row->id)) . '" class="edit btn btn-warning btn-sm me-2" title="Edit Data"><i class="ph-duotone ph-pencil-line"></i></a>';
-                    $btn .= '<a href="#" class="delete btn btn-danger btn-sm" data-id="' . encrypt($row->id) . '" title="Delete Data"><i class="ph-duotone ph-trash"></i></a>';
-                    $btn .= '</div>';
+                    $btn .= '<a href="#" class="delete btn btn-danger btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Delete Data"><i class="ph-duotone ph-trash"></i></a>';
+                    $log = [
+                        'norec' => $row->norec ?? null,
+                        'module_id' => 5,
+                        'status' => 'is_generic',
+                    ];
+                    $showLogBtn =
+                        "<a href='#'class='btn btn-sm btn-info' data-bs-toggle='modal'
+                            data-bs-target='#exampleModal'
+                            data-title='Detail Log' data-bs-tooltip='tooltip'
+                            data-remote=" . route('log.getLog', ['norec' => $log['norec'], 'module' => $log['module_id'], 'status' => $log['status']]) . "
+                            title='Log Information'>
+                            <i class='ph-duotone ph-info'></i>
+                        </a>
+                    ";
+
+                    $btn = $btn . $showLogBtn;
                     return $btn;
                 })
                 ->rawColumns(['action'])
@@ -113,19 +125,29 @@ class UnitsController extends Controller
 
         $request['serial_no'] = rand(100000, 999999);
 
-        $unit = Units::create($request->all());
-
-        if ($unit) {
-            createLog(5, $unit->id, 'create a new unit');
+        DB::beginTransaction();
+        try {
+            $unit = Units::create($request->all());
+            $log = [
+                'norec' => $unit->norec,
+                'norec_parent' => auth()->user()->norec,
+                'module_id' => 5,
+                'status' => 'is_generic',
+                'desc' => 'Create a new unit: ' . $unit->customer_name . ' with address: ' . $unit->street . ', ' . $unit->city . ', ' . $unit->province . ' by ' . auth()->user()->name,
+            ];
+            createLog($log);
+            DB::commit();
 
             return redirect()->route('units.index')->with('success', 'Unit created successfully.');
-        } else {
+
+        } catch (\Exception $e) {
+            DB::rollBack();
             if (File::exists(public_path('images/units/' . $request->image))) {
                 File::delete(public_path('images/units/' . $request->image));
             }
-
-            return redirect()->route('units.index')->with('error', 'Unit creation failed.');
+            return redirect()->route('units.index')->with('error', 'Unit creation failed: ' . $e->getMessage());
         }
+
     }
 
     /**
@@ -180,6 +202,9 @@ class UnitsController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $unit = Units::find(decrypt($id));
+        $oldUnit = $unit->toJson();
+
         $validator = Validator::make($request->all(), [
             'customer_name' => 'required',
             'province' => 'required',
@@ -238,15 +263,27 @@ class UnitsController extends Controller
 
         $request = array_filter($request->all());
 
-        $unit = Units::find(decrypt($id));
-        $unit->update($request);
-
-        if ($unit) {
-            createLog(5, $unit->id, 'update unit data', null, $unit->toJson());
+        DB::beginTransaction();
+        try {
+            $unit->update($request);
+            $log = [
+                'norec' => $unit->norec,
+                'norec_parent' => auth()->user()->norec,
+                'module_id' => 5,
+                'status' => 'is_generic',
+                'desc' => 'Update unit data: ' . $unit->customer_name . ' with address: ' . $unit->street . ', ' . $unit->city . ', ' . $unit->province . ' by ' . auth()->user()->name,
+                'old_data' => $oldUnit,
+            ];
+            createLog($log);
+            DB::commit();
 
             return redirect()->route('units.index')->with('success', 'Unit updated successfully.');
-        } else {
-            return redirect()->route('units.index')->with('error', 'Unit update failed.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            if (File::exists(public_path('images/units/' . $request->image))) {
+                File::delete(public_path('images/units/' . $request->image));
+            }
+            return redirect()->route('units.index')->with('error', 'Unit update failed: ' . $e->getMessage());
         }
     }
 
@@ -263,11 +300,19 @@ class UnitsController extends Controller
         }
 
         $unit = Units::find($id);
-        createLog(5, $unit->id, 'delete unit data', null, $unit->toJson());
+        $oldUnit = $unit->toJson();
+        $log = [
+            'norec' => $unit->norec,
+            'norec_parent' => auth()->user()->norec,
+            'module_id' => 5,
+            'status' => 'is_generic',
+            'desc' => 'Delete unit data: ' . $unit->customer_name . ' with address: ' . $unit->street . ', ' . $unit->city . ', ' . $unit->province . ' by ' . auth()->user()->name,
+            'old_data' => $oldUnit,
+        ];
+        createLog($log);
+        $soft_delete = $unit->update(['is_enabled' => false]);
 
-        $unit->delete();
-
-        if ($unit) {
+        if ($soft_delete) {
             return response()->json(['success' => 'Unit deleted successfully.']);
         } else {
             return response()->json(['error' => 'Unit deletion failed.']);

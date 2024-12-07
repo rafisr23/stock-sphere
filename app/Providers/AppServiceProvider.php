@@ -27,25 +27,39 @@ class AppServiceProvider extends ServiceProvider
         //
         Schema::defaultStringLength(191);
         View::composer('*', function ($view) {
-            if (Auth::check()){
+            if (Auth::check()) {
 
                 if (auth()->user()->hasRole('technician') && !auth()->user()->can('assign technician')) {
                     $technician = Technician::where('user_id', auth()->user()->id)->first();
-                $status_count = DB::table('details_of_repair_submissions')
-                ->select('status', DB::raw('COUNT(*) as total'))
-                    ->whereIn('status', [0, 1])
-                    ->where('technician_id', $technician->id)
-                    ->groupBy('status')
-                    ->get();
+                    $status_count = DB::table('details_of_repair_submissions')
+                        ->select('status', DB::raw('COUNT(*) as total'))
+                        ->whereIn('status', [0, 1])
+                        ->where('technician_id', $technician->id)
+                        ->groupBy('status')
+                        ->get();
+                    $maintenance_count = DB::table('maintenances')
+                        ->select('status', DB::raw('COUNT(*) as total'))
+                        ->whereIn('status', [0, 1, 2, 3, 4])
+                        ->where('technician_id', $technician->id)
+                        ->groupBy('status')
+                        ->get();
                 } else {
                     $status_count = DB::table('details_of_repair_submissions')
-                    ->select('status', DB::raw('COUNT(*) as total'))
-                    ->whereIn('status', [0, 1])
-                    ->groupBy('status')
-                    ->get();
+                        ->select('status', DB::raw('COUNT(*) as total'))
+                        ->whereIn('status', [0, 1])
+                        ->groupBy('status')
+                        ->get();
+                    $maintenance_count = DB::table('maintenances')
+                        ->select('status', DB::raw('COUNT(*) as total'))
+                        ->whereIn('status', [0, 1, 2, 3, 4, 5, 6, 7])
+                        ->groupBy('status')
+                        ->get();
                 }
 
+
+
                 $view->with('status_count', $status_count);
+                $view->with('maintenance_count', $maintenance_count);
             }
         });
     }

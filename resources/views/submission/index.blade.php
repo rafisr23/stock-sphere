@@ -14,12 +14,6 @@
     <div class="row">
         <div class="col-sm-12">
             <div id="basicwizard" class="form-wizard row justify-content-center">
-                {{-- <div class="col-sm-12 col-md-6 col-xxl-4 text-center">
-                    <h3>Build Your Profile</h3>
-                    <p class="text-muted mb-4">A group of people who collectively are responsible for all of the work
-                        necessary
-                        to produce working, validated assets.</p>
-                </div> --}}
                 <div class="col-12">
                     <div class="card">
                         <div class="card-body p-3">
@@ -36,16 +30,29 @@
                                         <span class="d-none d-sm-inline">Repair Detail</span>
                                     </a>
                                 </li>
-                                {{-- <li class="nav-item" data-target-form="#summarySubmissionForm" onclick="getSummary()">
-                                    <a href="#summarySubmission" data-bs-toggle="tab" data-toggle="tab"
-                                        class="nav-link icon-btn">
-                                        <i class="ph-duotone ph-clipboard-text"></i>
-                                        <span class="d-none d-sm-inline">Summary</span>
-                                    </a>
-                                </li> --}}
                             </ul>
                         </div>
                     </div>
+                    @role('superadmin')
+                    <div class="card">
+                        <div class="card-body">
+                            <label for="room" class="col-sm-3 form-label required">Select Room</label>
+                            <div class="col-sm-6 mb-4">
+                                <select class="form-control" data-trigger name="room_id" id="room_id" required>
+                                    <option value="">-- Select Room --</option>
+                                    @foreach ($rooms as $room)
+                                        <option value="{{ $room->id }}" {{ old('room_id') == $room->id ? 'selected' : '' }}>{{ $room->name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('room')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                    @endrole
                     <div class="card">
                         <div class="card-body">
                             <div class="tab-content">
@@ -149,4 +156,12 @@
         });
     </script>
     <script src="{{ URL::asset('js/submission-of-repair.js') }}"></script>
+    <script src="{{ URL::asset('build/js/plugins/choices.min.js') }}"></script>
+    @role('superadmin')
+    <script>
+        new Choices(document.getElementById('room_id'), {
+            removeItemButton: true,
+        });
+    </script>
+    @endrole
 @endsection

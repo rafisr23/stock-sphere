@@ -1,9 +1,11 @@
 const CSRF_TOKEN = $('meta[name="csrf-token"]').attr("content");
 const getRepairmentsTableUrl = `/repairments`;
 const addSparePartUrl = `/repairment/add-spare-part`;
+const storeTemporaryFileUrl = '/repairments/store/temporary-file';
 
 let selectedItems = [];
-let currentPage = 0;
+let currentPage = localStorage.getItem("lastRepairPage") || 0
+// console.log(currentPage)
 
 let table = $("#details_of_repair_submissions_table").DataTable({
     fixedHeader: true,
@@ -333,8 +335,6 @@ $("#work_on_repairment_table").on("click", ".finish", function (e) {
 function countPage() {
     switch (currentPage) {
         case 1:
-            getItems();
-            loadRepairDescription();
             break;
         default:
             break;
@@ -343,6 +343,9 @@ function countPage() {
 
 function navigatePage(step) {
     currentPage += step;
+    // localStorage.setItem("lastRepairPage", currentPage);
+    // console.log(currentPage)
+    // console.log(localStorage.getItem("lastRepairPage"))
     countPage();
 }
 
@@ -358,91 +361,14 @@ $("#previousButton").on("click", function () {
     navigatePage(-1);
 });
 
-$("#submitButton").on("click", function () {
-    if (selectedItems.length > 0) {
-        let formRepairItem = new FormData();
-
-        formRepairItem.append("items", selectedItems);
-        $('textarea[id^="description"]').each(function () {
-            let itemId = $(this).attr("id");
-            let description = $(this).val();
-            formRepairItem.append(itemId, description);
-        });
-        $('input[type="file"][id^="evidence"]').each(function () {
-            let itemId = $(this).attr("id");
-            let fileName = sessionStorage.getItem(itemId + "_file");
-            if (fileName) {
-                formRepairItem.append(itemId, fileName);
-            }
-        });
-        formRepairItem.append("_token", CSRF_TOKEN);
-
-        $.ajax({
-            url: "/submission-of-repair/store",
-            type: "POST",
-            data: formRepairItem,
-            processData: false,
-            contentType: false,
-            success: function (response) {
-                if (response.success) {
-                    Swal.fire({
-                        icon: "success",
-                        title: "Success",
-                        text: "The repair submission has been successfully submitted!",
-                        showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true,
-                        allowOutsideClick: false,
-                    }).then((result) => {
-                        if (result.dismiss === Swal.DismissReason.timer) {
-                            window.location.href = "/submission-of-repair";
-                        }
-                    });
-                } else {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Error",
-                        text:
-                            "An error occurred while submitting the repair: " +
-                            response.message,
-                        showConfirmButton: true,
-                        allowOutsideClick: true,
-                    });
-                }
-            },
-            error: function (err) {
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: "An error occurred while submitting the repair!",
-                    showConfirmButton: false,
-                    timer: 3000,
-                    timerProgressBar: true,
-                    allowOutsideClick: true,
-                });
-            },
-        });
-        // $("#repairSubmissionForm").submit();
-    } else {
-        Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "Please select at least one item!",
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true,
-            allowOutsideClick: true,
-        });
-    }
-});
-
 $(document).on("change", 'input[type="file"]', function () {
     let fileInput = $(this);
     let itemId = fileInput.attr("id");
     let file = fileInput[0].files[0];
+    let fileName = itemId + "_file";
 
     let formData = new FormData();
-    formData.append("evidence", file);
+    formData.append("repairments_evidence", file);
     formData.append("item_id", itemId);
     formData.append("_token", CSRF_TOKEN);
 
@@ -453,8 +379,17 @@ $(document).on("change", 'input[type="file"]', function () {
         processData: false,
         contentType: false,
         success: function (response) {
+            console.log(response);
             if (response.success) {
+                console.log(itemId + "_file", response.fileName)
                 sessionStorage.setItem(itemId + "_file", response.fileName);
+                let fileName = sessionStorage.getItem(itemId + "_file");
+                console.log(itemId + "_file")
+                $('#' + itemId).after(
+                    '<p>File uploaded: <a href="/temp/' +
+                    response.fileName +
+                    '" target="_blank" id="temp_file" name="temp_file" value="' + response.fileName + '">View file</a></p>'
+                );
             }
         },
         error: function (err) {

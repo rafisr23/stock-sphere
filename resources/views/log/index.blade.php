@@ -47,12 +47,12 @@
                     name: 'DT_RowIndex'
                 },
                 {
-                    data: 'module',
-                    name: 'module'
+                    data: 'module_id',
+                    name: 'module_id'
                 },
                 {
-                    data: 'activity',
-                    name: 'activity'
+                    data: 'desc',
+                    name: 'desc'
                 },
                 {
                     data: 'ip',

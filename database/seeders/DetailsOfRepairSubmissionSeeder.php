@@ -3,8 +3,9 @@
 namespace Database\Seeders;
 
 use DB;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class DetailsOfRepairSubmissionSeeder extends Seeder
 {
@@ -24,6 +25,7 @@ class DetailsOfRepairSubmissionSeeder extends Seeder
             'date_completed' => null,
             'date_cancelled' => null,
             'created_at' => now(),
+            'norec' => Str::orderedUuid(),
         ]);
 
         DB::table('details_of_repair_submissions')->insert([
@@ -37,19 +39,22 @@ class DetailsOfRepairSubmissionSeeder extends Seeder
             'date_completed' => null,
             'date_cancelled' => null,
             'created_at' => now(),
+            'norec' => Str::orderedUuid(),
         ]);
 
-        DB::table('details_of_repair_submissions')->insert([
-            'submission_of_repair_id' => 1,
-            'item_unit_id' => 3,
-            'technician_id' => 1,
-            'quantity' => 1,
-            'status' => 0,
-            'description' => 'Description 3',
-            'date_worked_on' => null,
-            'date_completed' => null,
-            'date_cancelled' => null,
-            'created_at' => now(),
-        ]);
+        // sisain 1 item
+        // DB::table('details_of_repair_submissions')->insert([
+        //     'submission_of_repair_id' => 1,
+        //     'item_unit_id' => 3,
+        //     'technician_id' => 1,
+        //     'quantity' => 1,
+        //     'status' => 0,
+        //     'description' => 'Description 3',
+        //     'date_worked_on' => null,
+        //     'date_completed' => null,
+        //     'date_cancelled' => null,
+        //     'created_at' => now(),
+        //     'norec' => Str::orderedUuid(),
+        // ]);
     }
 }

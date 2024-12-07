@@ -167,8 +167,16 @@ let maintenanceItemTable = $("#maintenanceItemTable").DataTable({
             name: "item",
         },
         {
+            data: "room",
+            name: "room",
+        },
+        {
             data: "serial_number",
             name: "serial_number",
+        },
+        {
+            data: "installation_date",
+            name: "installation_date",
         },
         {
             data: "technician",

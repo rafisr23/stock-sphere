@@ -240,6 +240,8 @@ $("#submitButton").on("click", function () {
                 formRepairItem.append(itemId, fileName);
             }
         });
+        let room_id = $("#room_id").val();
+        formRepairItem.append("room_id", room_id);
         formRepairItem.append("_token", CSRF_TOKEN);
 
         $.ajax({
