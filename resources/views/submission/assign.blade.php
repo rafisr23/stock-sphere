@@ -118,7 +118,7 @@
                                         <a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
                                             data-bs-target='#exampleModal'
                                             data-title='Detail Log' data-bs-tooltip='tooltip'
-                                            data-remote="{{ route('log.getLog', ['norec' => $detail->itemUnit->norec, 'module' => 2, 'status' => 'is_repair']) }}"
+                                            data-remote="{{ route('log.getLog', ['norec' => $detail->norec, 'module' => 2, 'status' => 'is_repair']) }}"
                                             title='Log Information'>
                                             <i class='ph-duotone ph-info'></i>
                                         </a>

@@ -153,7 +153,7 @@ class SubmissionOfRepairController extends Controller
 
                 $item = Items_units::find($value);
                 $evidence = $request->evidence ?  $request->evidence[$value] : '';
-                $submissionOfRepair->details()->create([
+                $detail = $submissionOfRepair->details()->create([
                     'submission_of_repair_id' => $submissionOfRepair->id,
                     'item_unit_id' => $item->id,
                     'description' => $request->description[$value] ?? '-',
@@ -168,8 +168,18 @@ class SubmissionOfRepairController extends Controller
                     'desc' => 'Item ' . $item->items->item_name . ' has been submitted for repair by ' . auth()->user()->name . ' from ' . $room->name . ' (' . $unit->customer_name . ')' . ' with description: ' . $request->description[$value],
                     'item_unit_id' => $item->id,
                 ];
+
+                $detailLog = [
+                    'norec' => $detail->norec,
+                    'norec_parent' => $submissionOfRepair->norec,
+                    'module_id' => 2,
+                    'is_repair' => true,
+                    'desc' => 'Item ' . $item->items->item_name . ' has been submitted for repair by ' . auth()->user()->name . ' from ' . $room->name . ' (' . $unit->customer_name . ')' . ' with description: ' . $request->description[$value],
+                    'item_unit_id' => $item->id,
+                ];
                 
                 createLog($log);
+                createLog($detailLog);
             }
 
             $submissionLog = [
@@ -269,8 +279,8 @@ class SubmissionOfRepairController extends Controller
 
     public function getListOfRepairs() {
         $submission = auth()->user()->hasRole('unit')
-            ? SubmissionOfRepair::where('unit_id', auth()->user()->unit->id)->get()
-            : SubmissionOfRepair::all();
+            ? SubmissionOfRepair::where('unit_id', auth()->user()->unit->id)->orderBy('created_at', 'desc')->get()
+            : SubmissionOfRepair::orderBy('created_at', 'desc')->get();
         return datatables()->of($submission)
             ->addIndexColumn()
             ->addColumn('count', function ($row) {
@@ -406,17 +416,29 @@ class SubmissionOfRepairController extends Controller
             ]);
 
             $submission = SubmissionOfRepair::find($detail->submission_of_repair_id);
+            $technician = Technician::find($request->technicianId);
 
-            // $submissionLog = [
-            //     'norec' => $submission->norec,
-            //     'norec_parent' => auth()->user()->norec,
-            //     'module_id' => 2,
-            //     'is_repair' => true,
-            //     'desc' => 'Technician ' . $detail->technician->name . ' has been assigned for repair of ' . $detail->items->item_name . ' by ' . auth()->user()->name . ' from ' . $submission->room->name . ' (' . $submission->unit->customer_name . ')',
-            //     'item_unit_id' => $detail->item_unit_id,
-            // ];
+            $detailLog = [
+                'norec' => $detail->norec,
+                'norec_parent' => $submission->norec,
+                'module_id' => 2,
+                'is_repair' => true,
+                'desc' => 'Technician ' . $detail->technician->name . ' has been assigned for repair of ' . $detail->itemUnit->items->item_name . ' by ' . auth()->user()->name . ' from ' . $submission->room->name . ' (' . $submission->unit->customer_name . ')',
+                'item_unit_id' => $detail->item_unit_id,
+                'technician_id' => $detail->technician_id,
+            ];
 
-            // createLog(2, $submission->id, 'Assign Technician', 'Assign technician for submission of repair', null, $request->technicianId);
+            $technicianLog = [
+                'norec' => $detail->technician->norec,
+                'norec_parent' => auth()->user()->norec,
+                'module_id' => 8,
+                'desc' => $technician->name . ' has been assigned for repair of ' . $detail->itemUnit->items->item_name . ' by ' . auth()->user()->name . ' from ' . $submission->room->name . ' (' . $submission->unit->customer_name . ')',
+                'is_repair' => true,
+                'item_unit_id' => $detail->item_unit_id,
+            ];
+
+            createLog($detailLog);
+            createLog($technicianLog);
 
             DB::commit();
             return response()->json([
