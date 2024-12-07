@@ -28,7 +28,6 @@ class ItemsUnitsSeeder extends Seeder
             'functional_location_no' => '700-40305299-0201',
             'maintenance_date' => '2006-05-20',
             'norec' => Str::orderedUuid(),
-        ,
             'calibration_date' => '2006-05-20'
         ]);
         DB::table('items_units')->insert([
@@ -45,7 +44,6 @@ class ItemsUnitsSeeder extends Seeder
             'functional_location_no' => '700-40305299-0302',
             'maintenance_date' => '2006-05-20',
             'norec' => Str::orderedUuid(),
-        ,
             'calibration_date' => '2006-05-20'
         ]);
         DB::table('items_units')->insert([
@@ -62,7 +60,6 @@ class ItemsUnitsSeeder extends Seeder
             'functional_location_no' => '700-40305299-0303',
             'maintenance_date' => '2006-05-20',
             'norec' => Str::orderedUuid(),
-        ,
             'calibration_date' => '2006-05-20'
         ]);
     }
