@@ -214,22 +214,91 @@ class DetailsOfRepairSubmissionController extends Controller
         }
 
         if ($state == 'accepted') {
-            $details_of_repair_submission->date_worked_on = now();
+            DB::beginTransaction();
+            try {
+                $details_of_repair_submission->date_worked_on = now();
 
-            if ($submission_of_repair->date_worked_on == null) {
-                $submission_of_repair->date_worked_on = now();
-                $submission_of_repair->save();
+                if ($submission_of_repair->date_worked_on == null) {
+                    $submission_of_repair->date_worked_on = now();
+                    $submission_of_repair->save();
+                }
+                
+                $detailLog = [
+                    'norec' => $details_of_repair_submission->norec,
+                    'norec_parent' => $submission_of_repair->norec,
+                    'module_id' => 2,
+                    'is_repair' => true,
+                    'desc' => 'Technician ' . $details_of_repair_submission->technician->name . ' has been accepted for repair of ' . $details_of_repair_submission->itemUnit->items->item_name . ' by ' . auth()->user()->name . ' from ' . $submission_of_repair->room->name . ' (' . $submission_of_repair->unit->customer_name . ')',
+                    'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                    'technician_id' => $details_of_repair_submission->technician_id,
+                ];
+
+                $technicianLog = [
+                    'norec' => auth()->user()->technician->norec,
+                    'module_id' => 8,
+                    'is_repair' => true,
+                    'desc' => 'Repair of ' . $details_of_repair_submission->itemUnit->items->item_name . ' has been accepted by ' . $details_of_repair_submission->technician->name . ' from ' . $submission_of_repair->room->name . ' (' . $submission_of_repair->unit->customer_name . ')',
+                    'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                    'technician_id' => $details_of_repair_submission->technician_id,
+                ];
+    
+                createLog($detailLog);
+                createLog($technicianLog);
+
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json(['error' => 'Failed to accept repairments']);
             }
-
         } elseif ($state == 'canceled') {
-            $details_of_repair_submission->date_cancelled = now();
+            DB::beginTransaction();
 
-            $allCancelled = DetailsOfRepairSubmission::where('submission_of_repair_id', $details_of_repair_submission->submission_of_repair_id)
-                ->whereNull('date_cancelled')
-                ->doesntExist();
+            try {
+                $details_of_repair_submission->date_cancelled = now();
+    
+                $allCancelled = DetailsOfRepairSubmission::where('submission_of_repair_id', $details_of_repair_submission->submission_of_repair_id)
+                    ->whereNull('date_cancelled')
+                    ->doesntExist();
+    
+                if ($allCancelled) {
+                    $submission_of_repair->date_cancelled = now();
 
-            if ($allCancelled) {
-                $submission_of_repair->date_cancelled = now();
+                    $submissionLog = [
+                        'norec' => $submission_of_repair->norec,
+                        'module_id' => 2,
+                        'is_repair' => true,
+                        'desc' => 'Submission of repair for ' . $submission_of_repair->room->name . ' (' . $submission_of_repair->unit->customer_name . ') has been canceled by ' . $details_of_repair_submission->technician->name,
+                    ];
+
+                    createLog($submissionLog);
+                }
+
+                $detailLog = [
+                    'norec' => $details_of_repair_submission->norec,
+                    'norec_parent' => $submission_of_repair->norec,
+                    'module_id' => 2,
+                    'is_repair' => true,
+                    'desc' => 'Technician ' . $details_of_repair_submission->technician->name . ' has been canceled for repair of ' . $details_of_repair_submission->itemUnit->items->item_name . ' by ' . $details_of_repair_submission->technician->name . ' from ' . $submission_of_repair->room->name . ' (' . $submission_of_repair->unit->customer_name . ')',
+                    'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                    'technician_id' => $details_of_repair_submission->technician_id,
+                ];
+
+                $technicianLog = [
+                    'norec' => auth()->user()->technician->norec,
+                    'module_id' => 2,
+                    'is_repair' => true,
+                    'desc' => 'Repair of ' . $details_of_repair_submission->itemUnit->items->item_name . ' has been canceled by ' . $details_of_repair_submission->technician->name . ' from ' . $submission_of_repair->room->name . ' (' . $submission_of_repair->unit->customer_name . ')',
+                    'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                    'technician_id' => $details_of_repair_submission->technician_id,
+                ];
+
+                createLog($detailLog);
+                createLog($technicianLog);
+                
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json(['error' => 'Failed to cancel repairments']);
             }
         } elseif ($state == 'completed') {
             $details_of_repair_submission->date_completed = now();
@@ -253,18 +322,51 @@ class DetailsOfRepairSubmissionController extends Controller
     public function startRepairments(Request $req)
     {
         // dd($req->all());
-        $details_of_repair_submission = $this->getRepairmentsById($req);
-        if ($details_of_repair_submission->date_worked_on == null) {
-            return response()->json(['error', 'message' => 'Repairments not yet accepted']);
+        DB::beginTransaction();
+
+        try {
+            $details_of_repair_submission = $this->getRepairmentsById($req);
+            if ($details_of_repair_submission->date_worked_on == null) {
+                return response()->json(['error', 'message' => 'Repairments not yet accepted']);
+            }
+            if ($details_of_repair_submission->date_completed != null) {
+                return response()->json(['error', 'message' => 'Repairments already completed']);
+            }
+            $details_of_repair_submission->status = 1;
+
+            $detailLog = [
+                'norec' => $details_of_repair_submission->norec,
+                'norec_parent' => $details_of_repair_submission->submission->norec,
+                'module_id' => 2,
+                'is_repair' => true,
+                'desc' => 'Technician ' . $details_of_repair_submission->technician->name . ' has started repairing ' . $details_of_repair_submission->itemUnit->items->item_name . ' from ' . $details_of_repair_submission->submission->room->name . ' (' . $details_of_repair_submission->submission->unit->customer_name . ')',
+                'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                'technician_id' => $details_of_repair_submission->technician_id,
+            ];
+
+            $technicianLog = [
+                'norec' => auth()->user()->technician->norec,
+                'module_id' => 2,
+                'is_repair' => true,
+                'desc' => 'Repair of ' . $details_of_repair_submission->itemUnit->items->item_name . ' has been started by ' . $details_of_repair_submission->technician->name . ' from ' . $details_of_repair_submission->submission->room->name . ' (' . $details_of_repair_submission->submission->unit->customer_name . ')',
+                'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                'technician_id' => $details_of_repair_submission->technician_id,
+            ];
+
+            createLog($detailLog);
+            createLog($technicianLog);
+
+            if ($details_of_repair_submission->save()) {
+                DB::commit();
+                return response()->json(['success' => 'Repairments completed successfully']);
+            }
+            
+            DB::rollBack();
+            return response()->json(['error' => 'Failed to complete repairments']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Failed to start repairments']);
         }
-        if ($details_of_repair_submission->date_completed != null) {
-            return response()->json(['error', 'message' => 'Repairments already completed']);
-        }
-        $details_of_repair_submission->status = 1;
-        if ($details_of_repair_submission->save()) {
-            return response()->json(['success' => 'Repairments completed successfully']);
-        }
-        return response()->json(['error' => 'Failed to complete repairments']);
     }
 
     public function update(Request $request)
