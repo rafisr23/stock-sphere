@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -21,6 +20,8 @@ return new class extends Migration
             $table->date('schedule_by_room')->nullable();
             $table->timestamp('date_worked_on')->nullable();
             $table->timestamp('date_completed')->nullable();
+            $table->string('norec')->nullable();
+            $table->boolean('is_enabled')->nullable()->default(true);
             $table->timestamps();
         });
     }

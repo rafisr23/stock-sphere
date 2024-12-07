@@ -20,4 +20,13 @@ class Calibrations extends Model
     {
         return $this->hasMany(Items_units::class, 'id', 'item_room_id');
     }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($user) {
+            $user->norec = \Str::orderedUuid();
+        });
+    }
 }
