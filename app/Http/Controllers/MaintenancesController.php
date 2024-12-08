@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Items_units;
-use App\Models\Maintenances;
+use App\Models\Items;
 use App\Models\Rooms;
 use App\Models\Technician;
+use App\Models\Items_units;
+use App\Models\Maintenances;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use League\Fractal\Resource\Item;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
 class MaintenancesController extends Controller
@@ -257,25 +259,51 @@ class MaintenancesController extends Controller
     public function store(Request $request)
     {
         if ($request->type == 'alert') {
-            $request->validate([
-                'item_unit_id' => 'required',
-            ]);
+            DB::beginTransaction();
 
-            if (auth()->user()->can('assign technician') || auth()->user()->hasRole('superadmin')) {
-                $create = Maintenances::create([
-                    'room_id' => Items_units::find(decrypt($request->item_unit_id))->room_id,
-                    'item_room_id' => decrypt($request->item_unit_id),
-                    'status' => 5,
+            try {
+                $request->validate([
+                    'item_unit_id' => 'required',
                 ]);
-            } else {
-                return response()->json(['error' => 'You are not authorized to alert room']);
-            }
+    
+                if (auth()->user()->can('assign technician') || auth()->user()->hasRole('superadmin')) {
+                    $itemUnit = Items_units::find(decrypt($request->item_unit_id));
+                    $create = Maintenances::create([
+                        'room_id' => $itemUnit->room_id,
+                        'item_room_id' => decrypt($request->item_unit_id),
+                        'status' => 5,
+                    ]);
+                } else {
+                    return response()->json(['error' => 'You are not authorized to alert room']);
+                }
 
-            if ($create) {
-                // createLog(3, $create->id, 'alert maintenance to unit', null, now());
+                $room = Rooms::find($itemUnit->room_id);
+                $itemLog = [
+                    'norec' => $itemUnit->norec,
+                    'norec_parent' => auth()->user()->norec,
+                    'module_id' => 3,
+                    'is_maintenance' => true,
+                    'desc' => 'Item ' . $itemUnit->items->item_name . ' has been requested for maintenance by ' . auth()->user()->name . ' from ' . $room->name . ' (' . $room->units->customer_name . ')',
+                    'item_unit_id' => $itemUnit->id,
+                ];
+
+                $maintenanceLog = [
+                    'norec' => $create->norec,
+                    // 'norec_parent' => $submissionOfRepair->norec,
+                    'module_id' => 3,
+                    'is_maintenance' => true,
+                    'desc' => 'Item ' . $itemUnit->items->item_name . ' has been requested for maintenance by ' . auth()->user()->name . ' from ' . $room->name . ' (' . $room->units->customer_name . ')',
+                    'item_unit_id' => $itemUnit->id,
+                ];
+
+                createLog($itemLog);
+                createLog($maintenanceLog);
+
+                DB::commit();
                 return response()->json(['success' => 'The room has been successfully alerted!']);
-            } else {
-                return response()->json(['error' => 'Failed to alert maintenance to unit']);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json(['error' => 'Failed to alert maintenance to unit: ' . $e->getMessage()]);
             }
         } else {
             $request->validate([
@@ -413,26 +441,88 @@ class MaintenancesController extends Controller
         $id = decrypt($id);
 
         if ($request->type == 'acceptRoom') {
-            $maintenance = Maintenances::find($id);
-            $maintenance->status = 6;
-            $maintenance->schedule_by_room = Items_units::find($maintenance->item_room_id)->maintenance_date;
+            DB::beginTransaction();
 
-            if ($maintenance->save()) {
-                // createLog(3, $maintenance->id, 'accept maintenance by room', null, now());
+            try {
+                $maintenance = Maintenances::find($id);
+                $itemUnit = Items_units::find($maintenance->item_room_id);
+                $maintenance->status = 6;
+                $maintenance->schedule_by_room = $itemUnit->maintenance_date;
+
+                $maintenance->save();
+
+                $room = Rooms::find($itemUnit->room_id);
+                $itemLog = [
+                    'norec' => $itemUnit->norec,
+                    'norec_parent' => auth()->user()->norec,
+                    'module_id' => 3,
+                    'is_maintenance' => true,
+                    'desc' => 'Item ' . $itemUnit->items->item_name . ' has been accepted for maintenance by ' . auth()->user()->name . ' from ' . $room->name . ' (' . $room->units->customer_name . ')',
+                    'item_unit_id' => $itemUnit->id,
+                ];
+
+                $maintenanceLog = [
+                    'norec' => $maintenance->norec,
+                    'module_id' => 3,
+                    'is_maintenance' => true,
+                    'desc' => 'Item ' . $itemUnit->items->item_name . ' has been accepted for maintenance by ' . auth()->user()->name . ' from ' . $room->name . ' (' . $room->units->customer_name . ')',
+                    'item_unit_id' => $itemUnit->id,
+                ];
+
+                createLog($itemLog);
+                createLog($maintenanceLog);
+
+                DB::commit();
                 return response()->json(['success' => 'Maintenance accepted!']);
-            } else {
+            } catch (\Exception $e) {
+                DB::rollBack();
                 return response()->json(['error' => 'Failed to accept maintenance']);
             }
         }
 
         if ($request->type == 'reschedule') {
-            $request->validate([
-                'newMaintenance_date' => 'required',
-            ]);
+            DB::beginTransaction();
 
-            $maintenance = Maintenances::find($id);
-            $maintenance->status = 7;
-            $maintenance->schedule_by_room = $request->newMaintenance_date;
+            try {
+                $request->validate([
+                    'newMaintenance_date' => 'required',
+                ]);
+    
+                $maintenance = Maintenances::find($id);
+                $itemUnit = Items_units::find($maintenance->item_room_id);
+                $maintenance->status = 7;
+                $maintenance->schedule_by_room = $request->newMaintenance_date;
+
+                $maintenance->save();
+
+                $room = Rooms::find($maintenance->room_id);
+
+                $itemLog = [
+                    'norec' => $itemUnit->norec,
+                    'norec_parent' => auth()->user()->norec,
+                    'module_id' => 3,
+                    'is_maintenance' => true,
+                    'desc' => 'Item ' . $itemUnit->items->item_name . ' has been rescheduled for maintenance to: ' . $request->newMaintenance_date . ' by ' . auth()->user()->name . ' from ' . $room->name . ' (' . $room->units->customer_name . ')',
+                    'item_unit_id' => $itemUnit->id,
+                ];
+
+                $maintenanceLog = [
+                    'norec' => $maintenance->norec,
+                    'module_id' => 3,
+                    'is_maintenance' => true,
+                    'desc' => 'Item ' . $itemUnit->items->item_name . ' has been rescheduled for maintenance to: ' . $request->newMaintenance_date . ' by ' . auth()->user()->name . ' from ' . $room->name . ' (' . $room->units->customer_name . ')',
+                    'item_unit_id' => $itemUnit->id,
+                ];
+
+                createLog($itemLog);
+                createLog($maintenanceLog);
+
+                DB::commit();
+                return redirect()->back()->with('success', 'Maintenance rescheduled!');
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return redirect()->back()->with('error', 'Failed to reschedule maintenance');
+            }
 
             if ($maintenance->save()) {
                 // createLog(3, $maintenance->id, 'reschedule maintenance by room', null, $request->newMaintenance_date);
@@ -534,7 +624,27 @@ class MaintenancesController extends Controller
                         return '<span class="badge rounded-pill text-bg-info">Not Completed Yet</span>';
                     }
                 })
-                ->rawColumns(['worked_on', 'completed', 'reschedule_date'])
+                ->addColumn('action', function ($row) {
+                    $btn = '<div class="d-flex justify-content-center align-items-center">';
+                    $log = [
+                        'norec' => $row->norec ?? null,
+                        'module_id' => 3,
+                        'status' => 'is_maintenance',
+                    ];
+                    $showLogBtn = 
+                        "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
+                            data-bs-target='#exampleModal'
+                            data-title='Detail Log' data-bs-tooltip='tooltip'
+                            data-remote=" . route('log.getLog', ['norec' => $log['norec'], 'module' => $log['module_id'], 'status' => $log['status']]) . "
+                            title='Log Information'>
+                            <i class='ph-duotone ph-info'></i>
+                        </a>
+                    ";
+
+                    $btn .= $showLogBtn . '</div>';
+                    return $btn;
+                })
+                ->rawColumns(['worked_on', 'completed', 'reschedule_date', 'action'])
                 ->make(true);
         } else {
             return view('maintenances.history');
