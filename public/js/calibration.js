@@ -308,6 +308,7 @@ $("#calibrationProcessTable").on("click", ".finish", function (e) {
     e.preventDefault();
     let id = $(this).data("id");
     let url = "calibrations/" + id;
+    let status = $("#status").val();
     $.ajax({
         url: url,
         type: "POST",
@@ -315,6 +316,7 @@ $("#calibrationProcessTable").on("click", ".finish", function (e) {
             _method: "PUT",
             _token: CSRF_TOKEN,
             id: id,
+            status: status,
             type: "finishCalibration",
         },
         success: function (response) {

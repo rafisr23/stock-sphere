@@ -386,7 +386,7 @@ class MaintenancesController extends Controller
             $date_completed = date('Y-m-d', strtotime($maintenance->date_completed));
             $condition = strtotime($date_completed) - strtotime($items->maintenance_date);
             // 2592000 = 30 days
-            if ($condition > 25923000) {
+            if ($condition > 2592000) {
                 $items->maintenance_date = date('Y-m-d', strtotime($maintenance->date_completed) + ($items->items->downtime * 86400));
             } else {
                 $items->maintenance_date = date('Y-m-d', strtotime($items->maintenance_date) + ($items->items->downtime * 86400));

@@ -89,10 +89,17 @@ class CalibrationsController extends Controller
                                 })
                                 ->first()->status ?? null;
 
+                            $idCalibration = $extData->where('item_room_id', $row->id)
+                                ->filter(function ($item) use ($loginDate) {
+                                    return $item->created_at->year == $loginDate->year &&
+                                        $item->created_at->month == $loginDate->month;
+                                })
+                                ->first()->id ?? null;
+
                             if (($loginDate->isSameDay($row->calibration_date) && $status === null) || ($loginDate->greaterThan($row->calibration_date) && $count == 0 && $status === null)) {
-                                return '<button class="btn btn-primary btn-sm alertRoom" title="Alert Room" data-id="' . encrypt($row->id) . '" data-name="' . $row->items->item_name . '" data-room="' . $row->rooms->name . '"><i class="ph-duotone ph-info"></i></button>';
+                                return '<button class="btn btn-primary btn-sm alertRoom" title="Alert Room" data-id="' . encrypt($idCalibration) . '" data-name="' . $row->items->item_name . '" data-room="' . $row->rooms->name . '"><i class="ph-duotone ph-info"></i></button>';
                             } else if ($status == 6 || $status == 7) {
-                                return '<button type="button" class="btn btn-info btn-sm callVendor" title="Call Vendor" data-id="' . encrypt($row->id) . '" data-name="' . $row->items->item_name . ' (' . $row->serial_number . ')"><i class="ph-duotone ph-phone-plus"></i></button>';
+                                return '<button type="button" class="btn btn-info btn-sm callVendor" title="Call Vendor" data-id="' . encrypt($idCalibration) . '" data-name="' . $row->items->item_name . ' (' . $row->serial_number . ')"><i class="ph-duotone ph-phone-plus"></i></button>';
                             } else if ($status == 5) {
                                 return '<span class="badge rounded-pill text-bg-secondary">Pending Room</span>';
                             } else if ($status == 1 && $status != 5 && $status != 6 && $status != 7) {
@@ -153,10 +160,11 @@ class CalibrationsController extends Controller
                                 $btn .= '<a href="' . asset('/temp/' . $row->evidence) . '" target="_blank" class="btn btn-info btn-sm me-2" title="View Evidence"><i class="ph-duotone ph-eye"></i></a>';
                             }
                             if (!$row->date_completed) {
-                                $btn .= '<a href="#" class="update btn btn-warning btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Update Maintenance"><i class="ph-duotone ph-pencil-line"></i></a>';
+                                $btn .= '<a href="#" class="update btn btn-warning btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Update Calibration"><i class="ph-duotone ph-pencil-line"></i></a>';
                             }
-                            $btn .= '<a href="#" class="finish btn btn-success btn-sm" data-id="' . encrypt($row->id) . '" title="Finish Maintenance"';
-                            $btn .= '><i class="ph-duotone ph-check"></i></a>';
+                            if ($row->evidence && !$row->date_completed && $row->remarks) {
+                                $btn .= '<a href="#" class="finish btn btn-success btn-sm" data-id="' . encrypt($row->id) . '" title="Finish Calibration"><i class="ph-duotone ph-check"></i></a>';
+                            }
                             $btn .= '</div>';
                             return $btn;
                         })
@@ -331,6 +339,9 @@ class CalibrationsController extends Controller
         }
 
         if ($request->type == 'finishCalibration') {
+            $request->validate([
+                'status' => 'required',
+            ]);
             $calibration = Calibrations::find($id);
             $calibration->date_completed = now();
 
@@ -340,12 +351,12 @@ class CalibrationsController extends Controller
 
             $items = Items_units::find($calibration->item_room_id);
 
-            $items->status = 'Running';
+            $items->status = $request->status;
 
             $date_completed = date('Y-m-d', strtotime($calibration->date_completed));
-            $condition = strtotime($date_completed) - strtotime($items->maintenance_date);
+            $condition = strtotime($date_completed) - strtotime($items->calibration_date);
             // 2592000 = 30 days
-            if ($condition > 25923000) {
+            if ($condition > 2592000) {
                 $items->calibration_date = date('Y-m-d', strtotime($items->date_completed . ' +1 year'));
             } else {
                 $items->calibration_date = date('Y-m-d', strtotime($items->calibration_date . ' +1 year'));
@@ -375,8 +386,9 @@ class CalibrationsController extends Controller
             if (auth()->user()->hasRole('superadmin')) {
                 $data = Calibrations::all();
             } elseif (auth()->user()->can('assign technician')) {
-                $allTechnicians = Technician::where('unit_id', auth()->user()->technician->unit_id)->pluck('id');
-                $data = Calibrations::whereIn('technician_id', $allTechnicians)->get();
+                $technician = auth()->user()->technician;
+                $roomId = Rooms::where('unit_id', $technician->unit_id)->pluck('id');
+                $data = Calibrations::whereIn('room_id', $roomId)->get();
             } else if (auth()->user()->hasRole('room')) {
                 $room = auth()->user()->room;
                 $data = Calibrations::where('room_id', $room->id)->get();
