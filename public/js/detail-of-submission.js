@@ -1,10 +1,10 @@
 const CSRF_TOKEN = $('meta[name="csrf-token"]').attr("content");
 const getRepairmentsTableUrl = `/repairments`;
 const addSparePartUrl = `/repairment/add-spare-part`;
-const storeTemporaryFileUrl = '/repairments/store/temporary-file';
+const storeTemporaryFileUrl = "/repairments/store/temporary-file";
 
 let selectedItems = [];
-let currentPage = localStorage.getItem("lastRepairPage") || 0
+let currentPage = localStorage.getItem("lastRepairPage") || 0;
 // console.log(currentPage)
 
 let table = $("#details_of_repair_submissions_table").DataTable({
@@ -247,8 +247,10 @@ $("#work_on_repairment_table").on("click", ".update", function (e) {
     e.preventDefault();
     let id = $(this).data("id");
     let url = "repairments/update/" + id;
-    console.log($("#status").val());
-    console.log($("#remarks").val());
+    let status = $(this).closest("tr").find(".status").val();
+    let remarks = $(this).closest("tr").find(".remarks").val();
+
+    console.log(status, remarks);
     $.ajax({
         url: url,
         type: "POST",
@@ -256,8 +258,8 @@ $("#work_on_repairment_table").on("click", ".update", function (e) {
             _method: "PUT",
             _token: CSRF_TOKEN,
             id: id,
-            remarks: $("#remarks").val(),
-            status: $("#status").val(),
+            remarks: remarks,
+            status: status,
         },
         success: function (response) {
             if (response.success) {
@@ -331,7 +333,6 @@ $("#work_on_repairment_table").on("click", ".finish", function (e) {
     });
 });
 
-
 function countPage() {
     switch (currentPage) {
         case 1:
@@ -381,14 +382,16 @@ $(document).on("change", 'input[type="file"]', function () {
         success: function (response) {
             console.log(response);
             if (response.success) {
-                console.log(itemId + "_file", response.fileName)
+                console.log(itemId + "_file", response.fileName);
                 sessionStorage.setItem(itemId + "_file", response.fileName);
                 let fileName = sessionStorage.getItem(itemId + "_file");
-                console.log(itemId + "_file")
-                $('#' + itemId).after(
+                console.log(itemId + "_file");
+                $("#" + itemId).after(
                     '<p>File uploaded: <a href="/temp/' +
-                    response.fileName +
-                    '" target="_blank" id="temp_file" name="temp_file" value="' + response.fileName + '">View file</a></p>'
+                        response.fileName +
+                        '" target="_blank" id="temp_file" name="temp_file" value="' +
+                        response.fileName +
+                        '">View file</a></p>'
                 );
             }
         },

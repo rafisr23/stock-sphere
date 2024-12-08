@@ -83,7 +83,7 @@ class DetailsOfRepairSubmissionController extends Controller
                     ->addColumn('status', function ($row) {
                         $statusOptions = ['Running', 'System Down', 'Restricted'];
                         $status = '<div class="btn-group mb-2 me-2 dropdown">';
-                        $status .= '<select class="form-control" name="status" id="status" required>';
+                        $status .= '<select class="form-control status" name="status" id="" required>';
 
                         foreach ($statusOptions as $option) {
                             $selected = $row->itemUnit->status == $option ? 'selected' : '';
@@ -96,7 +96,7 @@ class DetailsOfRepairSubmissionController extends Controller
                     })
 
                     ->addColumn('remark', function ($row) {
-                        $remark = '<textarea type="text" name="remarks" rows="4" id="remarks" class="form-control" data-id="' . encrypt($row->id);
+                        $remark = '<textarea type="text" name="remarks" rows="4" id="" class="form-control remarks" data-id="' . encrypt($row->id);
                         $remark .= '"placeholder="Enter repairment remark for ' . $row->itemUnit->items->item_name . '">';
                         $remark .= old('remarks', $row->remarks);
                         $remark .= '</textarea>';
@@ -371,15 +371,50 @@ class DetailsOfRepairSubmissionController extends Controller
 
     public function update(Request $request)
     {
-        // dd($request->all());
-        $details_of_repair_submission = $this->getRepairmentsById($request);
-        $item_unit = Items_units::find($details_of_repair_submission->item_unit_id);
-        $item_unit->status = $request->status;
-        $details_of_repair_submission->remarks = $request->remarks;
-        if ($details_of_repair_submission->save() && $item_unit->save()) {
+        DB::beginTransaction();
+
+        try {
+            $details_of_repair_submission = $this->getRepairmentsById($request);
+            $item_unit = Items_units::find($details_of_repair_submission->item_unit_id);
+            $oldDetail = $details_of_repair_submission->toJson();
+            $oldItemUnit = $item_unit->toJson();
+            $oldData = json_encode(array_merge(json_decode($oldDetail, true), json_decode($oldItemUnit, true)));
+            $oldStatus = $item_unit->status;
+            $item_unit->status = $request->status;
+            $details_of_repair_submission->remarks = $request->remarks;
+
+            $details_of_repair_submission->save();
+            $item_unit->save();
+
+            $detailLog = [
+                'norec' => $details_of_repair_submission->norec,
+                'norec_parent' => $details_of_repair_submission->submission->norec,
+                'module_id' => 2,
+                'is_repair' => true,
+                'desc' => 'Technician ' . $details_of_repair_submission->technician->name . ' has UPDATED THE STATUS and REMARKS of ' . $details_of_repair_submission->itemUnit->items->item_name . ' to ' . $request->status . ' from ' . $oldStatus . ' by ' . auth()->user()->name . ' from ' . $details_of_repair_submission->submission->room->name . ' (' . $details_of_repair_submission->submission->unit->customer_name . ')',
+                'old_data' => $oldData,
+                'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                'technician_id' => $details_of_repair_submission->technician_id,
+            ];
+
+            $technicianLog = [
+                'norec' => auth()->user()->technician->norec,
+                'module_id' => 2,
+                'is_repair' => true,
+                'desc' => $details_of_repair_submission->technician->name . ' has UPDATED THE STATUS and REMARKS of ' . $details_of_repair_submission->itemUnit->items->item_name . ' to ' . $request->status . ' from ' . $oldStatus,
+                'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                'technician_id' => $details_of_repair_submission->technician_id,
+            ];
+
+            createLog($detailLog);
+            createLog($technicianLog);
+
+            DB::commit();
             return response()->json(['success' => 'Repairments updated successfully']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Failed to update repairments']);
         }
-        return response()->json(['error' => 'Failed to update repairments']);
     }
 
     public function showSparepart($id)
