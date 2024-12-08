@@ -63,19 +63,13 @@ class CalibrationsController extends Controller
                         ->addColumn('calibration_date', function ($row) {
                             return Carbon::parse($row->calibration_date)->isoFormat('D MMMM Y');
                         })
-                        ->addColumn('reschedule_date', function ($row) {
+                        ->addColumn('reschedule_date', function ($row) use ($loginDate) {
                             $date = '';
 
-                            if ($row->calibrations && Carbon::parse($row->calibration_date)->lessThan(Carbon::parse($row->calibrations->schedule_by_room))) {
-                                if ($row->calibrations == null || $row->calibrations->status == 5) {
-                                    $date = '<span class="badge text-bg-info">Waiting Room Confirmation</span>';
-                                } elseif ($row->calibrations->schedule_by_room == $row->calibration_date) {
-                                    $date = '<span class="badge text-bg-success">According To The Schedule</span>';
-                                } elseif ($row->calibrations->schedule_by_room != $row->calibration_date) {
-                                    $date = Carbon::parse($row->calibrations->schedule_by_room)->isoFormat('D MMMM Y');
-                                }
+                            if ($row->calibrations && $row->calibrations->schedule_by_room && Carbon::parse($row->calibrations->created_at)->isSameMonth($loginDate) && $row->calibrations->schedule_by_room != $row->calibration_date) {
+                                $date = Carbon::parse($row->calibrations->schedule_by_room)->isoFormat('D MMMM Y');
                             } else {
-                                $date = '<span class="badge text-bg-success">According To The Schedule</span>';
+                                $date = '<span class="badge text-bg-info">According To The Schedule</span>';
                             }
 
                             return $date;
@@ -201,15 +195,14 @@ class CalibrationsController extends Controller
                     'item_room_id' => decrypt($request->item_unit_id),
                     'status' => 5,
                 ]);
+                if ($create) {
+                    // createLog(3, $create->id, 'alert calibration to unit', null, now());
+                    return response()->json(['success' => 'The room has been successfully alerted!']);
+                } else {
+                    return response()->json(['error' => 'Failed to alert calibration to unit']);
+                }
             } else {
                 return response()->json(['error' => 'You are not authorized to alert room']);
-            }
-
-            if ($create) {
-                createLog(3, $create->id, 'alert calibration to unit', null, now());
-                return response()->json(['success' => 'The room has been successfully alerted!']);
-            } else {
-                return response()->json(['error' => 'Failed to alert calibration to unit']);
             }
         } else {
             // $request->validate([
@@ -270,7 +263,7 @@ class CalibrationsController extends Controller
             $calibration->schedule_by_room = Items_units::find($calibration->item_room_id)->calibration_date;
 
             if ($calibration->save()) {
-                createLog(3, $calibration->id, 'accept calibration by room', null, now());
+                // createLog(3, $calibration->id, 'accept calibration by room', null, now());
                 return response()->json(['success' => 'Calibration accepted!']);
             } else {
                 return response()->json(['error' => 'Failed to accept calibration']);
@@ -287,7 +280,7 @@ class CalibrationsController extends Controller
             $calibration->schedule_by_room = $request->newCalibration_date;
 
             if ($calibration->save()) {
-                createLog(3, $calibration->id, 'reschedule calibration by room', null, $request->newCalibration_date);
+                // createLog(3, $calibration->id, 'reschedule calibration by room', null, $request->newCalibration_date);
                 return redirect()->back()->with('success', 'Calibration rescheduled!');
             } else {
                 return redirect()->back()->with('error', 'Failed to reschedule calibration');
@@ -296,12 +289,11 @@ class CalibrationsController extends Controller
 
         if ($request->type == 'callVendor') {
             $calibration = Calibrations::find($id);
-            dd($calibration);
             $calibration->status = 1;
             $calibration->date_worked_on = now();
 
             if ($calibration->save()) {
-                createLog(3, $calibration->id, 'call vendor for calibration', null, now());
+                // createLog(3, $calibration->id, 'call vendor for calibration', null, now());
                 return response()->json(['success' => 'Vendor has been called!']);
             } else {
                 return response()->json(['error' => 'Failed to call vendor']);
@@ -331,7 +323,7 @@ class CalibrationsController extends Controller
             }
 
             if ($calibration->save() && $items->save()) {
-                createLog(3, $calibration->id, 'update calibration status', null, $request->status);
+                // createLog(3, $calibration->id, 'update calibration status', null, $request->status);
                 return response()->json(['success' => 'Calibration status updated!']);
             } else {
                 return response()->json(['error' => 'Failed to update calibration status']);
@@ -361,7 +353,7 @@ class CalibrationsController extends Controller
             $items->save();
 
             if ($calibration->save()) {
-                createLog(3, $calibration->id, 'finish calibration', null, now());
+                // createLog(3, $calibration->id, 'finish calibration', null, now());
                 return response()->json(['success' => 'Calibration has been finished!']);
             } else {
                 return response()->json(['error' => 'Failed to finish calibration']);
@@ -462,15 +454,18 @@ class CalibrationsController extends Controller
                 })
                 ->addColumn('calibration_date', function ($row) {
                     if (Carbon::parse($row->item_room->first()->calibration_date)->lessThan(now())) {
-                        $info = Carbon::parse($row->item_room->first()->calibration_date)->isoFormat('D MMMM Y') . " (Overdue)";
+                        $info = Carbon::parse($row->item_room->first()->calibration_date)->isoFormat('D MMMM Y') . '  <span class="badge rounded-pill text-bg-danger">Overdue</span>';
                     } else {
+                        $info = Carbon::parse($row->item_room->first()->calibration_date)->isoFormat('D MMMM Y');
                     }
-                    return Carbon::parse($row->item_room->first()->calibration_date)->isoFormat('D MMMM Y');
+                    return $info;
                 })
                 ->addColumn('action', function ($row) {
                     if ($row->status == 5) {
                         $btn = '<div class="d-flex justify-content-center align-items-center">';
-                        $btn = '<button type="button" class="btn btn-success btn-sm accCalibration" title="Accept Calibration" data-id="' . encrypt($row->id) . '" data-name="' . $row->item_room->first()->items->item_name . '"><i class="ph ph-duotone ph-check"></i></button>';
+                        if (Carbon::parse($row->item_room->first()->calibration_date)->greaterThan(now())) {
+                            $btn = '<button type="button" class="btn btn-success btn-sm accCalibration" title="Accept Calibration" data-id="' . encrypt($row->id) . '" data-name="' . $row->item_room->first()->items->item_name . '"><i class="ph ph-duotone ph-check"></i></button>';
+                        }
                         $btn .= '<button type="button" class="btn btn-warning btn-sm rescheduleCalibration" title="Reschedule Calibration" data-id="' . encrypt($row->id) . '" data-name="' . $row->item_room->first()->items->item_name . '"><i class="ph ph-duotone ph-pencil-line"></i></button>';
                         $btn .= '</div>';
                     } else if ($row->schedule_by_room == $row->item_room->first()->calibration_date) {
