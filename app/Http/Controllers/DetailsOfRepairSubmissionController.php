@@ -457,13 +457,44 @@ class DetailsOfRepairSubmissionController extends Controller
 
     public function addSparepart($idDetails, $idSparepart)
     {
-        $details_of_repair_submission = $this->getRepairmentsById($idDetails);
-        $sparepart = Spareparts::where('id', decrypt($idSparepart))->first();
-        $spareparts_of_repair = new SparepartsOfRepair();
-        $spareparts_of_repair->details_of_repair_submission_id = $details_of_repair_submission->id;
-        $spareparts_of_repair->sparepart_id = $sparepart->id;
-        $spareparts_of_repair->save();
-        return response()->json(['success' => 'Sparepart added successfully']);
+        DB::beginTransaction();
+
+        try {
+            $details_of_repair_submission = $this->getRepairmentsById($idDetails);
+            $sparepart = Spareparts::where('id', decrypt($idSparepart))->first();
+            $spareparts_of_repair = new SparepartsOfRepair();
+            $spareparts_of_repair->details_of_repair_submission_id = $details_of_repair_submission->id;
+            $spareparts_of_repair->sparepart_id = $sparepart->id;
+            $spareparts_of_repair->save();
+
+            $detailLog = [
+                'norec' => $details_of_repair_submission->norec,
+                'norec_parent' => $details_of_repair_submission->submission->norec,
+                'module_id' => 2,
+                'is_repair' => true,
+                'desc' => 'Technician ' . $details_of_repair_submission->technician->name . ' has added sparepart ' . $sparepart->name . ' to ' . $details_of_repair_submission->itemUnit->items->item_name . ' by ' . auth()->user()->name . ' from ' . $details_of_repair_submission->submission->room->name . ' (' . $details_of_repair_submission->submission->unit->customer_name . ')',
+                'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                'technician_id' => $details_of_repair_submission->technician_id,
+            ];
+
+            $technicianLog = [
+                'norec' => auth()->user()->technician->norec,
+                'module_id' => 2,
+                'is_repair' => true,
+                'desc' => $details_of_repair_submission->technician->name . ' has added sparepart ' . $sparepart->name . ' to ' . $details_of_repair_submission->itemUnit->items->item_name,
+                'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                'technician_id' => $details_of_repair_submission->technician_id,
+            ];
+
+            createLog($detailLog);
+            createLog($technicianLog);
+
+            DB::commit();
+            return response()->json(['success' => 'Sparepart added successfully']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Failed to add sparepart']);
+        }
     }
 
     public function removeSparepart($idDetails, $idSparepart)
