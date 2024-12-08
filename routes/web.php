@@ -20,6 +20,7 @@ use App\Http\Controllers\TechnicianController;
 use App\Http\Controllers\EditProfileController;
 use App\Http\Controllers\MaintenancesController;
 use App\Http\Controllers\SubmissionOfRepairController;
+use Illuminate\Support\Str;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,6 +35,16 @@ use App\Http\Controllers\SubmissionOfRepairController;
 
 
 Auth::routes();
+
+Route::get('/test-uuid', function () {
+    // $uuid = Str::uuid();
+    // $orderedUuid = Str::orderedUuid();
+    // return response()->json([
+    //     'uuid' => $uuid,
+    //     'orderedUuid' => $orderedUuid,
+    // ]);
+    return 1;
+});
 
 
 // Define a group of routes with 'auth' middleware applied
@@ -96,7 +107,8 @@ Route::middleware(['auth'])->group(function () {
 
         Route::controller(LogController::class)->name('log.')->prefix('log')->middleware('role:superadmin')->group(function () {
             Route::get('/', 'index')->name('index');
-            Route::get('/getLog/{moduleCode}/{moduleId}/{itemId?}', 'getLog')->name('getLog');
+            // Route::get('/getLog/{norec?}/{module}/{status}', 'getLog')->name('getLog');
+            Route::get('/show/{id}', 'show')->name('show');
         });
 
         Route::controller(UserController::class)->prefix('user')->name('user.')->group(function () {
@@ -143,6 +155,9 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/showSparepart/removeSparepart/{idDetail}/{idSparepart}', 'removeSparepart')->name('removeSparepart');
             Route::put('/finish/{id}', 'finish')->name('finish');
             Route::get('/showSparepartUsed/{id}', 'showSparepartUsed')->name('showSparepartUsed');
+            Route::get('/showEvidenceTechnician/{id}', 'showEvidenceTechnician')->name('showEvidenceTechnician');
+            Route::post('/store/temporary-file', 'storeTemporaryFile')->name('store.temporary-file');
+            Route::post('/store/temporary-file-evidence/{id}', 'storeEvidenceTechnician')->name('storeEvidenceTechnician');
         });
     });
 
@@ -186,5 +201,9 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/store/temporary-file', 'storeTemporaryFile')->middleware('role:superadmin|technician')->name('store-temporary-file');
         });
         Route::resource('calibrations', CalibrationsController::class);
+    });
+
+    Route::controller(LogController::class)->name('log.')->prefix('log')->middleware('auth')->group(function () {
+        Route::get('/getLog/{norec?}/{module}/{status}', 'getLog')->name('getLog');
     });
 });

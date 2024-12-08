@@ -3,8 +3,9 @@
 namespace Database\Seeders;
 
 use DB;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class ItemsUnitsSeeder extends Seeder
 {
@@ -26,6 +27,7 @@ class ItemsUnitsSeeder extends Seeder
             'status' => 'Running',
             'functional_location_no' => '700-40305299-0201',
             'maintenance_date' => '2006-05-20',
+            'norec' => Str::orderedUuid(),
             'calibration_date' => '2006-05-20'
         ]);
         DB::table('items_units')->insert([
@@ -41,6 +43,7 @@ class ItemsUnitsSeeder extends Seeder
             'status' => 'Running',
             'functional_location_no' => '700-40305299-0302',
             'maintenance_date' => '2006-05-20',
+            'norec' => Str::orderedUuid(),
             'calibration_date' => '2006-05-20'
         ]);
         DB::table('items_units')->insert([
@@ -56,6 +59,7 @@ class ItemsUnitsSeeder extends Seeder
             'status' => 'Running',
             'functional_location_no' => '700-40305299-0303',
             'maintenance_date' => '2006-05-20',
+            'norec' => Str::orderedUuid(),
             'calibration_date' => '2006-05-20'
         ]);
     }

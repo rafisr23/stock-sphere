@@ -57,6 +57,7 @@ class EditProfileController extends Controller
     {
         try {
             $user = User::find(decrypt($id));
+            $oldUser = $user->toJson();
 
             $request->validate([
                 'name' => 'required',
@@ -77,6 +78,18 @@ class EditProfileController extends Controller
                 'email' => $request->email,
                 'username' => $request->username,
             ]);
+
+            $log = [
+                'norec' => $user->norec,
+                'norec_parent' => auth()->user()->norec,
+                'module_id' => 9,
+                'is_generic' => true,
+                'desc' => 'Edit a profile for user: ' . $user->username . ' by ' . auth()->user()->name,
+                'old_data' => $oldUser,
+            ];
+
+            createLog($log);
+
             return back()->with('success', 'User data updated successfully.');
 
         } catch (\Exception $e) {
@@ -94,22 +107,32 @@ class EditProfileController extends Controller
     {
         try {
             $user = User::find(decrypt($id));
+            $oldUser = $user->toJson();
 
             $request->validate([
                 'old_password' => 'required',
-                'new_password' => ['required', 'confirmed', function ($attribute, $value, $fail) use ($request, $user) {
-                    if (Hash::check($value, $user->password)) {
-                        return $fail('New password must be different from the old password.');
-                    }
-                }],
+                'new_password' => 'required|confirmed',
             ]);
 
             if (!Hash::check($request->old_password, $user->password)) {
                 return back()->withErrors(['old_password' => 'Old password is incorrect.']);
             }
+
             $user->update([
                 'password' => Hash::make($request->new_password),
             ]);
+
+            $log = [
+                'norec' => $user->norec,
+                'norec_parent' => auth()->user()->norec,
+                'module_id' => 9,
+                'is_generic' => true,
+                'desc' => 'Edit a password for user: ' . $user->username . ' by ' . auth()->user()->name,
+                'old_data' => $oldUser,
+            ];
+
+            createLog($log);
+
             return back()->with('success', 'Password updated successfully.');
 
         } catch (\Exception $e) {

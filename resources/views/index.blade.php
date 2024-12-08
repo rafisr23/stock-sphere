@@ -74,7 +74,7 @@
         <div class="col-lg-16">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">Notif trend</h4>
+                    <h4 class="mb-0">Notif Trend Repairments</h4>
                     <div class="mb-0">
                         <ul class="list-inline me-auto mb-3 mb-sm-0">
                             <li class="list-inline-item"> Chart Type</li>

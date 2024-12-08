@@ -26,4 +26,13 @@ class Maintenances extends Model
     {
         return $this->belongsTo(Technician::class, 'technician_id');
     }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($user) {
+            $user->norec = \Str::orderedUuid();
+        });
+    }
 }

@@ -10,7 +10,7 @@
         @if (count($logs) > 0)
             @foreach ($logs as $log)
                 <tr>
-                    <td>{{ $log->action }}</td>
+                    <td class="text-wrap">{{ $log->desc }}</td>
                     <td>{{ $log->ip }}</td>
                     <td>{{ $log->user->name }}</td>
                     <td>{{ $log->created_at }}</td>
@@ -27,7 +27,20 @@
 @section('scripts')
     <script>
         $().ready(function() {
-            $('#log_table').dataTable();
+            $('#log_table').DataTable({
+                "paging": true,
+                "lengthChange": true,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "autoWidth": true,
+                "responsive": true,
+                "scrollX": true,
+                "scrollY": true,
+                "scrollCollapse": true,
+                "pagingType": "full_numbers",
+                "pageLength": 10,
+            });
             $("#log_table").css('width', '100%');
             $.fn.dataTable.ext.errMode = function(settings, helpPage, message) {
                 console.log(message);

@@ -3,8 +3,9 @@
 namespace Database\Seeders;
 
 use DB;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class ItemsSeeder extends Seeder
 {
@@ -19,6 +20,7 @@ class ItemsSeeder extends Seeder
             'item_description' => 'Description 1',
             'downtime' => '365',
             'modality' => 'Syngo',
+            'norec' => Str::orderedUuid(),
         ]);
         DB::table('items')->insert([
             'id' => 2,
@@ -26,6 +28,7 @@ class ItemsSeeder extends Seeder
             'item_description' => 'Description 2',
             'downtime' => '365',
             'modality' => 'Computed Tomography',
+            'norec' => Str::orderedUuid(),
         ]);
         DB::table('items')->insert([
             'id' => 3,
@@ -33,6 +36,7 @@ class ItemsSeeder extends Seeder
             'item_description' => 'Description 3',
             'downtime' => '365',
             'modality' => 'Magenetic Resonance',
+            'norec' => Str::orderedUuid(),
         ]);
     }
 }

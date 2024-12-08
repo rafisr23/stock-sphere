@@ -7,6 +7,7 @@ use App\Models\Units;
 use App\Models\Items_units;
 use App\Models\Rooms;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ItemsUnitsController extends Controller
 {
@@ -16,22 +17,21 @@ class ItemsUnitsController extends Controller
     public function index()
     {
         if (auth()->user()->hasRole('room')) {
-            $rooms = Rooms::where('user_id', auth()->user()->id)->get();
+            $rooms = Rooms::where('user_id', auth()->user()->id)->where('is_enabled', true)->get();
             if ($rooms->isEmpty()) {
                 return redirect()->back()->with('error', 'Your account is not assigned to any room.');
             }
-            $items_units = Items_units::where('room_id', auth()->user()->room->id)->get();
+            $items_units = Items_units::where('room_id', auth()->user()->room->id)->where('is_enabled', true)->get();
         } elseif (auth()->user()->hasRole('unit')) {
-            $units = Units::where('user_id', auth()->user()->id)->get();
+            $units = Units::where('user_id', auth()->user()->id)->where('is_enabled', true)->get();
             if ($units->isEmpty()) {
                 return redirect()->back()->with('error', 'Your account is not assigned to any unit.');
             }
             // get rooms where the unit_id is equal to the unit_id of the authenticated user
-            $rooms = Rooms::where('unit_id', auth()->user()->unit->id)->get();
-
-            $items_units = Items_units::whereIn('room_id', $rooms->pluck('id'))->get();
+            $rooms = Rooms::where('unit_id', auth()->user()->unit->id)->where('is_enabled', true)->get();
+            $items_units = Items_units::whereIn('room_id', $rooms->pluck('id'))->where('is_enabled', true)->get();
         } else {
-            $items_units = Items_units::all();
+            $items_units = Items_units::where('is_enabled', true)->get();
         }
         if (request()->ajax()) {
             return datatables()->of($items_units)
@@ -47,11 +47,16 @@ class ItemsUnitsController extends Controller
                     $btn .= '<a href="' . route('items_units.show', $row->id) . '" class="view btn btn-info btn-sm me-2" title="See Details"><i class="ph-duotone ph-eye"></i></a>';
                     $btn .= '<a href="' . route('items_units.edit', $row->id) . '" class="edit btn btn-warning btn-sm me-2" title="Edit Data"><i class="ph-duotone ph-pencil-line"></i></a>';
                     $btn .= '<a href="#" class="delete btn btn-danger btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Delete Data"><i class="ph-duotone ph-trash"></i></a>';
+                    $log = [
+                        'norec' => $row->norec ?? null,
+                        'module_id' => 7,
+                        'status' => 'is_generic',
+                    ];
                     $showLogBtn =
                         "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
                     data-bs-target='#exampleModal'
                     data-title='Detail Log' data-bs-tooltip='tooltip'
-                    data-remote=" . route('log.getLog', ['moduleCode' => 7, 'moduleId' => $row->id, 'itemId' => $row->id]) . "
+                    data-remote=" . route('log.getLog', ['norec' => $log['norec'], 'module' => $log['module_id'], 'status' => $log['status']]) . "
                     title='Log Information'>
                     <i class='ph-duotone ph-info'></i>
                         </a></div>
@@ -72,13 +77,13 @@ class ItemsUnitsController extends Controller
      */
     public function create()
     {
-        $items = Items::all();
+        $items = Items::where('is_enabled', true)->get();
         if (auth()->user()->hasRole('room')) {
-            $rooms = Rooms::where('id', auth()->user()->room->id)->get();
+            $rooms = Rooms::where('id', auth()->user()->room->id)->where('is_enabled', true)->get();
         } elseif (auth()->user()->hasRole('unit')) {
-            $rooms = Rooms::where('unit_id', auth()->user()->unit->id)->get();
+            $rooms = Rooms::where('unit_id', auth()->user()->unit->id)->where('is_enabled', true)->get();
         } else {
-            $rooms = Rooms::all();
+            $rooms = Rooms::where('is_enabled', true)->get();
         }
         return view('items_units.create', compact('items', 'rooms'));
     }
@@ -102,27 +107,42 @@ class ItemsUnitsController extends Controller
             'last_checked_date' => 'required',
         ]);
 
-        foreach ($request['item_id'] as $key => $value) {
-            $item = Items::find($value);
-            $maintenance_date = date('Y-m-d', strtotime($request['installation_date']) + ($item->downtime * 86400));
+        DB::beginTransaction();
+        try {
+            foreach ($request['item_id'] as $key => $value) {
+                $item = Items::find($value);
+                $maintenance_date = date('Y-m-d', strtotime($request['installation_date']) + ($item->downtime * 86400));
 
-            $items_units = Items_units::create([
-                'item_id' => $value,
-                'room_id' => $request['room_id'],
-                'serial_number' => $request['serial_number'],
-                'software_version' => $request['software_version'],
-                'functional_location_no' => $request['functional_location_no'],
-                'installation_date' => $request['installation_date'],
-                'contract' => $request['contract'],
-                'end_of_service' => $request['end_of_service'],
-                'srs_status' => $request['srs_status'],
-                'status' => $request['status'],
-                'last_checked_date' => $request['last_checked_date'],
-                'maintenance_date' => $maintenance_date,
-            ]);
-            createLog(7, $items_units->id, 'create a new items room');
+                $items_units = Items_units::create([
+                    'item_id' => $value,
+                    'room_id' => $request['room_id'],
+                    'serial_number' => $request['serial_number'],
+                    'software_version' => $request['software_version'],
+                    'functional_location_no' => $request['functional_location_no'],
+                    'installation_date' => $request['installation_date'],
+                    'contract' => $request['contract'],
+                    'end_of_service' => $request['end_of_service'],
+                    'srs_status' => $request['srs_status'],
+                    'status' => $request['status'],
+                    'last_checked_date' => $request['last_checked_date'],
+                    'maintenance_date' => $maintenance_date,
+                ]);
+                $log = [
+                    'norec' => $items_units->norec,
+                    'norec_parent' => auth()->user()->norec,
+                    'module_id' => 7,
+                    'is_generic' => true,
+                    'desc' => 'Assign item: ' . $items_units->items->item_name . ' to room: ' . $items_units->rooms->name . ' by ' . auth()->user()->name,
+                ];
+                createLog($log);
+            }
+            DB::commit();
+            return redirect()->route('items_units.index')->with('success', 'Items added successfully.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('items_units.index')->with('error', 'Items not added.');
         }
-        return redirect()->route('items_units.index')->with('success', 'Items added successfully.');
     }
 
     /**
@@ -140,13 +160,13 @@ class ItemsUnitsController extends Controller
     public function edit($id)
     {
         $item_unit = Items_units::find($id);
-        $items = Items::all();
+        $items = Items::where('is_enabled', true)->get();
         if (auth()->user()->hasRole('room')) {
-            $rooms = Rooms::where('id', auth()->user()->room->id)->get();
+            $rooms = Rooms::where('id', auth()->user()->room->id)->where('is_enabled', true)->get();
         } elseif (auth()->user()->hasRole('unit')) {
-            $rooms = Rooms::where('unit_id', auth()->user()->unit->id)->get();
+            $rooms = Rooms::where('unit_id', auth()->user()->unit->id)->where('is_enabled', true)->get();
         } else {
-            $rooms = Rooms::all();
+            $rooms = Rooms::where('is_enabled', true)->get();
         }
         return view('items_units.edit', compact('item_unit', 'rooms', 'items'));
     }
@@ -156,6 +176,9 @@ class ItemsUnitsController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $itemUnits = Items_units::where('id', $id)->first();
+        $oldItemUnits = $itemUnits->toJson();
+
         $request->validate([
             'item_id' => 'required',
             'room_id' => 'required',
@@ -170,8 +193,7 @@ class ItemsUnitsController extends Controller
             'last_checked_date' => 'required',
         ]);
 
-        $itemUnits = Items_units::where('id', $id)->first();
-        $oldItemUnits = $itemUnits->toJson();
+
         if ($request['srs_status'] == $itemUnits->srs_status) {
             $last_checked_date = $itemUnits->last_checked_date;
         } else {
@@ -182,27 +204,38 @@ class ItemsUnitsController extends Controller
             ? date('Y-m-d', strtotime($request['installation_date']) + ($itemUnits->items->downtime * 86400))
             : $itemUnits->maintenance_date;
 
-        $itemUnits->update([
-            'item_id' => $request['item_id'],
-            'room_id' => $request['room_id'],
-            'serial_number' => $request['serial_number'],
-            'software_version' => $request['software_version'],
-            'functional_location_no' => $request['functional_location_no'],
-            'installation_date' => $request['installation_date'],
-            'contract' => $request['contract'],
-            'end_of_service' => $request['end_of_service'],
-            'srs_status' => $request['srs_status'],
-            'status' => $request['status'],
-            'last_checked_date' => $last_checked_date,
-            'maintenance_date' => $maintenance_date,
-        ]);
+        DB::beginTransaction();
+        try {
+            $itemUnits->update([
+                'item_id' => $request['item_id'],
+                'room_id' => $request['room_id'],
+                'serial_number' => $request['serial_number'],
+                'software_version' => $request['software_version'],
+                'functional_location_no' => $request['functional_location_no'],
+                'installation_date' => $request['installation_date'],
+                'contract' => $request['contract'],
+                'end_of_service' => $request['end_of_service'],
+                'srs_status' => $request['srs_status'],
+                'status' => $request['status'],
+                'last_checked_date' => $last_checked_date,
+                'maintenance_date' => $maintenance_date,
+            ]);
+            $log = [
+                'norec' => $itemUnits->norec,
+                'norec_parent' => auth()->user()->norec,
+                'module_id' => 7,
+                'is_generic' => true,
+                'desc' => 'Update item: ' . $itemUnits->items->item_name . ' for room: ' . $itemUnits->rooms->name . ' by ' . auth()->user()->name,
+                'old_data' => $oldItemUnits,
+            ];
+            createLog($log);
+            DB::commit();
 
-        createLog(7, $itemUnits->id, 'update items room', null, $oldItemUnits);
-
-        if ($itemUnits) {
             return redirect()->route('items_units.index')->with('success', 'Item updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('items_units.index')->with('error', 'Item not updated.');
         }
-        return redirect()->route('items_units.index')->with('error', 'Item not updated.');
     }
 
     /**
@@ -211,10 +244,21 @@ class ItemsUnitsController extends Controller
     public function destroy(Request $request)
     {
         $item = Items_units::find(decrypt($request->id));
-        createLog(7, $item->id, 'delete items room', $item->toJson());
-        if ($item->delete()) {
-            return response()->json(['success' => 'Item deleted successfully.']);
+        $oldItem = $item->toJson();
+        $log = [
+            'norec' => $item->norec,
+            'norec_parent' => auth()->user()->norec,
+            'module_id' => 7,
+            'is_generic' => true,
+            'desc' => 'Delete item: ' . $item->items->item_name . ' from room: ' . $item->rooms->name . ' by ' . auth()->user()->name,
+            'old_data' => $oldItem,
+        ];
+        createLog($log);
+        $soft_delete = $item->update(['is_enabled' => false]);
+        if ($soft_delete) {
+            return response()->json(['success' => true, 'message' => 'Item deleted successfully.']);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Item not deleted.']);
         }
-        return response()->json(['error' => 'Item not deleted.']);
     }
 }

@@ -3,11 +3,13 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Support\Str;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Facades\Schema;
+use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
-use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
@@ -57,11 +59,23 @@ class User extends Authenticatable
 
     public function logs()
     {
-        return $this->hasMany(Log::class);
+        return $this->hasMany(NewLog::class);
     }
 
     public function room()
     {
         return $this->hasOne(Rooms::class);
+    }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($user) {
+            // Cek apakah kolom norec ada di tabel
+            if (Schema::hasColumn($user->getTable(), 'norec')) {
+                $user->norec = (string) Str::orderedUuid();
+            }
+        });
     }
 }
