@@ -43,9 +43,9 @@ class DetailsOfRepairSubmissionController extends Controller
                         if ($row->status == 1) {
                             $accepted .= '<span class="badge bg-info">On Progress</span>';
                         } elseif ($row->date_completed != null) {
-                            $accepted .= '<span class="badge bg-primary">Completed</span>';
+                            $accepted .= '<span class="badge bg-success">Completed</span>';
                         } elseif ($row->date_worked_on != null) {
-                            $accepted .= '<span class="badge bg-success">Accepted</span>';
+                            $accepted .= '<span class="badge bg-secondary">Accepted</span>';
                         } elseif ($row->date_cancelled != null) {
                             $accepted .= '<span class="badge bg-danger">Canceled</span>';
                         } else {
