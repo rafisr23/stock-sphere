@@ -499,13 +499,44 @@ class DetailsOfRepairSubmissionController extends Controller
 
     public function removeSparepart($idDetails, $idSparepart)
     {
-        $details_of_repair_submission = $this->getRepairmentsById($idDetails);
-        $sparepart = Spareparts::where('id', decrypt($idSparepart))->first();
-        $spareparts_of_repair = SparepartsOfRepair::where('details_of_repair_submission_id', $details_of_repair_submission->id)
-            ->where('sparepart_id', $sparepart->id)
-            ->first();
-        $spareparts_of_repair->delete();
-        return response()->json(['success' => 'Sparepart removed successfully']);
+        DB::beginTransaction();
+
+        try {
+            $details_of_repair_submission = $this->getRepairmentsById($idDetails);
+            $sparepart = Spareparts::where('id', decrypt($idSparepart))->first();
+            $spareparts_of_repair = SparepartsOfRepair::where('details_of_repair_submission_id', $details_of_repair_submission->id)
+                ->where('sparepart_id', $sparepart->id)
+                ->first();
+            $spareparts_of_repair->delete();
+
+            $detailLog = [
+                'norec' => $details_of_repair_submission->norec,
+                'norec_parent' => $details_of_repair_submission->submission->norec,
+                'module_id' => 2,
+                'is_repair' => true,
+                'desc' => 'Technician ' . $details_of_repair_submission->technician->name . ' has removed sparepart ' . $sparepart->name . ' from ' . $details_of_repair_submission->itemUnit->items->item_name . ' by ' . auth()->user()->name . ' from ' . $details_of_repair_submission->submission->room->name . ' (' . $details_of_repair_submission->submission->unit->customer_name . ')',
+                'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                'technician_id' => $details_of_repair_submission->technician_id,
+            ];
+
+            $technicianLog = [
+                'norec' => auth()->user()->technician->norec,
+                'module_id' => 2,
+                'is_repair' => true,
+                'desc' => $details_of_repair_submission->technician->name . ' has removed sparepart ' . $sparepart->name . ' from ' . $details_of_repair_submission->itemUnit->items->item_name,
+                'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                'technician_id' => $details_of_repair_submission->technician_id,
+            ];
+
+            createLog($detailLog);
+            createLog($technicianLog);
+
+            DB::commit();
+            return response()->json(['success' => 'Sparepart removed successfully']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Failed to remove sparepart']);
+        }
     }
 
     public function finish(Request $request)
@@ -567,47 +598,88 @@ class DetailsOfRepairSubmissionController extends Controller
 
     public function storeEvidenceTechnician(Request $request, $id)
     {
-        // dd($request->all());
-        $evidence = $request->input('repairments_evidence');
+        DB::beginTransaction();
 
-        $tempDir = public_path('temp');
-        $targetDir = public_path('images/evidence');
-
-        // Pastikan direktori tujuan ada
-        if (!File::exists($targetDir)) {
-            File::makeDirectory($targetDir, 0755, true);
-        }
-
-        $pattern = "*_temp_" . $evidence; // contoh: "*_temp_Screenshot_2024-11-22-10-08-55-44_5dd0bdc881f4608ad98b5ecfcfb5553a.jpg"
-        $files = glob($tempDir . DIRECTORY_SEPARATOR . $pattern);
-
-        // Periksa apakah file ditemukan
-        if (empty($files)) {
-            return response()->json(['message' => 'File not found'], 404);
-        }
-
-        // Ambil file pertama yang cocok
-        $sourceFile = $files[0];
-
-        // Tentukan nama file tujuan
-        $targetFile = $targetDir . DIRECTORY_SEPARATOR . $evidence;
-        $path = 'images/evidence' . DIRECTORY_SEPARATOR . $evidence;
-        // dd($targetFile, $path);
-
-        if (File::copy($sourceFile, $targetFile)) {
-            $request->validate([
-                'repairments_evidence' => 'required',
-            ]);
-
-            $create = EvidenceTechnicianRepairments::create([
-                'details_of_repair_submission_id' => decrypt($id),
-                'evidence' => $path,
-            ]);
-
-            if ($create) {
-                return redirect()->back()->with('success', 'Evidence uploaded successfully');
+        try {
+            // Ambil input evidence dari request
+            $evidence = $request->input('repairments_evidence');
+        
+            $tempDir = public_path('temp');
+            $targetDir = public_path('images/evidence');
+        
+            // Pastikan direktori tujuan ada
+            if (!File::exists($targetDir)) {
+                File::makeDirectory($targetDir, 0755, true);
             }
+        
+            $pattern = "*_temp_" . $evidence; // contoh: "*_temp_Screenshot_..."
+            $files = glob($tempDir . DIRECTORY_SEPARATOR . $pattern);
+        
+            // Periksa apakah file ditemukan
+            if (empty($files)) {
+                return response()->json(['message' => 'File not found'], 404);
+            }
+        
+            // Ambil file pertama yang cocok
+            $sourceFile = $files[0];
+        
+            // Tentukan nama file tujuan
+            $targetFile = $targetDir . DIRECTORY_SEPARATOR . $evidence;
+            $path = 'images/evidence' . DIRECTORY_SEPARATOR . $evidence;
+        
+            // Salin file dari temporary directory ke target directory
+            if (File::copy($sourceFile, $targetFile)) {
+                // Validasi input
+                $request->validate([
+                    'repairments_evidence' => 'required',
+                ]);
+        
+                // Simpan data ke database
+                $create = EvidenceTechnicianRepairments::create([
+                    'details_of_repair_submission_id' => decrypt($id),
+                    'evidence' => $path,
+                ]);
+        
+                if ($create) {
+                    $detailSubmission = DetailsOfRepairSubmission::find(decrypt($id));
+                    $detailLog = [
+                        'norec' => $detailSubmission->norec,
+                        'norec_parent' => $detailSubmission->submission->norec,
+                        'module_id' => 2,
+                        'is_repair' => true,
+                        'desc' => 'Technician ' . auth()->user()->technician->name . ' has uploaded evidence for repair of ' . $detailSubmission->itemUnit->items->item_name . ' by ' . auth()->user()->name . ' from ' . $detailSubmission->submission->room->name . ' (' . $detailSubmission->submission->unit->customer_name . ')',
+                        'item_unit_id' => $detailSubmission->item_unit_id,
+                        'technician_id' => $detailSubmission->technician_id,
+                    ];
+
+                    $technicianLog = [
+                        'norec' => $detailSubmission->technician->norec,
+                        'module_id' => 2,
+                        'is_repair' => true,
+                        'desc' => $detailSubmission->technician->name . ' has uploaded evidence for repair of ' . $detailSubmission->itemUnit->items->item_name . ' from ' . $detailSubmission->submission->room->name . ' (' . $detailSubmission->submission->unit->customer_name . ')',
+                        'item_unit_id' => $detailSubmission->item_unit_id,
+                        'technician_id' => $detailSubmission->technician_id,
+                    ];
+
+                    createLog($detailLog);
+                    createLog($technicianLog);
+
+                    DB::commit();
+                    return redirect()->back()->with('success', 'Evidence uploaded successfully');
+                }
+            }
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Failed to upload evidence');
+        
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            return redirect()->back()->withErrors($e->validator)->withInput();
+        } catch (DecryptException $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Invalid repair submission ID');
+        } catch (Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'An unexpected error occurred: ' . $e->getMessage());
         }
-        return redirect()->back()->with('error', 'Failed to upload evidence');
     }
 }
