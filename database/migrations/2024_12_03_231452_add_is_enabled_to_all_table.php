@@ -13,11 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        $columns = 'Tables_in_' . env('DB_DATABASE');
         $tables = DB::select('SHOW TABLES');
 
         foreach ($tables as $table) {
-            $tableName = $table->$columns;
+            $tableArray = json_decode(json_encode($table), true);
+            $tableName = reset($tableArray);
 
             if (!Schema::hasColumn($tableName, 'is_enabled')) {
                 Schema::table($tableName, function (Blueprint $table) {
@@ -34,11 +34,11 @@ return new class extends Migration
      */
     public function down()
     {
-        $columns = 'Tables_in_' . env('DB_DATABASE');
         $tables = DB::select('SHOW TABLES');
 
         foreach ($tables as $table) {
-            $tableName = $table->$columns;
+            $tableArray = json_decode(json_encode($table), true);
+            $tableName = reset($tableArray);
 
             if (Schema::hasColumn($tableName, 'is_enabled')) {
                 Schema::table($tableName, function (Blueprint $table) {

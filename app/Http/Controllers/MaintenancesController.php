@@ -272,7 +272,7 @@ class MaintenancesController extends Controller
             }
 
             if ($create) {
-                createLog(3, $create->id, 'alert maintenance to unit', null, now());
+                // createLog(3, $create->id, 'alert maintenance to unit', null, now());
                 return response()->json(['success' => 'The room has been successfully alerted!']);
             } else {
                 return response()->json(['error' => 'Failed to alert maintenance to unit']);
@@ -299,7 +299,7 @@ class MaintenancesController extends Controller
             }
 
             if ($create) {
-                createLog(3, $create->id, 'assign maintenance to technician', null, Items_units::where('id', $create->item_room_id)->get('maintenance_date')->toJson());
+                // createLog(3, $create->id, 'assign maintenance to technician', null, Items_units::where('id', $create->item_room_id)->get('maintenance_date')->toJson());
                 return redirect()->back()->with('success', 'Maintenance assigned to technician');
             } else {
                 return redirect()->back()->with('error', 'Failed to assign maintenance to technician');
@@ -418,7 +418,7 @@ class MaintenancesController extends Controller
             $maintenance->schedule_by_room = Items_units::find($maintenance->item_room_id)->maintenance_date;
 
             if ($maintenance->save()) {
-                createLog(3, $maintenance->id, 'accept maintenance by room', null, now());
+                // createLog(3, $maintenance->id, 'accept maintenance by room', null, now());
                 return response()->json(['success' => 'Maintenance accepted!']);
             } else {
                 return response()->json(['error' => 'Failed to accept maintenance']);
@@ -435,7 +435,7 @@ class MaintenancesController extends Controller
             $maintenance->schedule_by_room = $request->newMaintenance_date;
 
             if ($maintenance->save()) {
-                createLog(3, $maintenance->id, 'reschedule maintenance by room', null, $request->newMaintenance_date);
+                // createLog(3, $maintenance->id, 'reschedule maintenance by room', null, $request->newMaintenance_date);
                 redirect()->back()->with('success', 'Maintenance rescheduled!');
             } else {
                 redirect()->back()->with('error', 'Failed to reschedule maintenance');
@@ -566,7 +566,7 @@ class MaintenancesController extends Controller
                 ->addColumn('action', function ($row) {
                     if ($row->status == 5) {
                         $btn = '<div class="d-flex justify-content-center align-items-center">';
-                        $btn = '<button type="button" class="btn btn-success btn-sm accMaintenance" title="Accept Maintenance" data-id="' . encrypt($row->id) . '" data-name="' . $row->item_room->first()->items->item_name . '"><i class="ph ph-duotone ph-check"></i></button>';
+                        $btn = '<button type="button" class="btn btn-success btn-sm accMaintenance me-2" title="Accept Maintenance" data-id="' . encrypt($row->id) . '" data-name="' . $row->item_room->first()->items->item_name . '"><i class="ph ph-duotone ph-check"></i></button>';
                         $btn .= '<button type="button" class="btn btn-warning btn-sm rescheduleMaintenance" title="Reschedule Maintenance" data-id="' . encrypt($row->id) . '" data-name="' . $row->item_room->first()->items->item_name . '"><i class="ph ph-duotone ph-pencil-line"></i></button>';
                         $btn .= '</div>';
                     } else if ($row->schedule_by_room == $row->item_room->first()->maintenance_date) {
