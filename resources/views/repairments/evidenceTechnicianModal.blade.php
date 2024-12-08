@@ -10,7 +10,7 @@
                 <tr>
                     <td>{{ $loop->iteration }}</td>
                     <td>
-                        <a class="card-gallery" data-fslightbox="gallery" href="{{ asset($e->evidence) }}">
+                        <a class="card-gallery" target="_blank" data-fslightbox="gallery" href="{{ asset($e->evidence) }}">
                             <img class="img-fluid wid-50" src="{{ asset($e->evidence) }}" alt="">
                         </a>
                     </td>

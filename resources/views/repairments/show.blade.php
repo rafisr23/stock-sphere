@@ -49,9 +49,9 @@
                                     {{-- tambahin No evidence  --}}
                                     <div class="col-sm-9 d-flex align-items-center" id="image">
                                         <a class="card-gallery" data-fslightbox="gallery"
-                                            href="{{ asset('images/units/' . $repairment->evidence) }}">
+                                            href="{{ asset('temp/' . $repairment->evidence) }}">
                                             <img class="img-fluid"
-                                                src="{{ asset('images/units/' . $repairment->evidence) }}" alt="Card image">
+                                                src="{{ asset('temp/' . $repairment->evidence) }}" alt="Card image" style="max-height: 250px">
                                             <div class="gallery-hover-data card-body justify-content-end">
                                                 <div>
                                                     {{-- <p class="text-white mb-0 text-truncate w-100">Picture
