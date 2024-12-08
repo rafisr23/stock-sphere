@@ -406,8 +406,19 @@ class DetailsOfRepairSubmissionController extends Controller
                 'technician_id' => $details_of_repair_submission->technician_id,
             ];
 
+            $itemLog = [
+                'norec' => $item_unit->norec,
+                'module_id' => 2,
+                'is_repair' => true,
+                'desc' => 'STATUS of ' . $item_unit->items->item_name . ' has been UPDATED to ' . $request->status . ' from ' . $oldStatus . ' with REMARKS ' . $request->remarks,
+                'old_data' => $oldItemUnit,
+                'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                'technician_id' => $details_of_repair_submission->technician_id,
+            ];
+
             createLog($detailLog);
             createLog($technicianLog);
+            createLog($itemLog);
 
             DB::commit();
             return response()->json(['success' => 'Repairments updated successfully']);
@@ -541,21 +552,64 @@ class DetailsOfRepairSubmissionController extends Controller
 
     public function finish(Request $request)
     {
-        $details_of_repair_submission = $this->getRepairmentsById($request);
-        $submission_of_repair = SubmissionOfRepair::find($details_of_repair_submission->submission_of_repair_id);
-        $details_of_repair_submission->status = 2;
-        $details_of_repair_submission->date_completed = now();
-        $fullData = DetailsOfRepairSubmission::where('submission_of_repair_id', $details_of_repair_submission->submission_of_repair_id)->count();
-        $allCompleted = DetailsOfRepairSubmission::where('submission_of_repair_id', $details_of_repair_submission->submission_of_repair_id)
-            ->whereNotNull('date_completed')
-            ->count();
-        if ($allCompleted + 1 == $fullData) {
-            $submission_of_repair->date_completed = now();
-        }
-        if ($details_of_repair_submission->save() && $submission_of_repair->save()) {
+        DB::beginTransaction();
+
+        try {
+            $details_of_repair_submission = $this->getRepairmentsById($request);
+            $submission_of_repair = SubmissionOfRepair::find($details_of_repair_submission->submission_of_repair_id);
+            $details_of_repair_submission->status = 2;
+            $details_of_repair_submission->date_completed = now();
+            $fullData = DetailsOfRepairSubmission::where('submission_of_repair_id', $details_of_repair_submission->submission_of_repair_id)->count();
+            $allCompleted = DetailsOfRepairSubmission::where('submission_of_repair_id', $details_of_repair_submission->submission_of_repair_id)
+                ->whereNotNull('date_completed')
+                ->count();
+            if ($allCompleted + 1 == $fullData) {
+                $submission_of_repair->date_completed = now();
+            }
+
+            $details_of_repair_submission->save();
+            $submission_of_repair->save();
+
+            $detailLog = [
+                'norec' => $details_of_repair_submission->norec,
+                'norec_parent' => $submission_of_repair->norec,
+                'module_id' => 2,
+                'is_repair' => true,
+                'desc' => 'Technician ' . $details_of_repair_submission->technician->name . ' has finished repairing ' . $details_of_repair_submission->itemUnit->items->item_name . ' by ' . auth()->user()->name . ' from ' . $submission_of_repair->room->name . ' (' . $submission_of_repair->unit->customer_name . ')',
+                'old_data' => $details_of_repair_submission->toJson(),
+                'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                'technician_id' => $details_of_repair_submission->technician_id,
+            ];
+
+            $technicianLog = [
+                'norec' => auth()->user()->technician->norec,
+                'module_id' => 2,
+                'is_repair' => true,
+                'desc' => $details_of_repair_submission->technician->name . ' has finished repairing ' . $details_of_repair_submission->itemUnit->items->item_name . ' from ' . $submission_of_repair->room->name . ' (' . $submission_of_repair->unit->customer_name . ')',
+                'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                'technician_id' => $details_of_repair_submission->technician_id,
+            ];
+
+            $itemLog = [
+                'norec' => $details_of_repair_submission->itemUnit->norec,
+                'module_id' => 2,
+                'is_repair' => true,
+                'desc' => 'Repairment of ' . $details_of_repair_submission->itemUnit->items->item_name . ' has been FINISHED by ' . $details_of_repair_submission->technician->name . ' from ' . $submission_of_repair->room->name . ' (' . $submission_of_repair->unit->customer_name . ') with last STATUS ' . $details_of_repair_submission->itemUnit->status . ' and REMARKS ' . $details_of_repair_submission->remarks,
+                'old_data' => $details_of_repair_submission->itemUnit->toJson(),
+                'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                'technician_id' => $details_of_repair_submission->technician_id,
+            ];
+
+            createLog($detailLog);
+            createLog($technicianLog);
+            createLog($itemLog);
+
+            DB::commit();
             return response()->json(['success' => 'Repairments finished successfully']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Failed to finish repairments']);
         }
-        return response()->json(['error' => 'Failed to finish repairments']);
     }
 
     public function showSparepartUsed($id)
