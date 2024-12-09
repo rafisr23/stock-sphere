@@ -65,12 +65,16 @@ class MaintenancesController extends Controller
                     })
                     ->addColumn('reschedule_date', function ($row) {
                         $date = '';
-                        if ($row->maintenances == null || $row->maintenances->status == 5) {
-                            $date = '<span class="badge text-bg-info">Waiting Room Confirmation</span>';
-                        } elseif ($row->maintenances->schedule_by_room == $row->maintenance_date) {
+                        if ($row->maintenances && Carbon::parse($row->maintenance_date)->lessThan(Carbon::parse($row->maintenances->schedule_by_room))) {
+                            if ($row->maintenances == null || $row->maintenances->status == 5) {
+                                $date = '<span class="badge text-bg-info">Waiting Room Confirmation</span>';
+                            } elseif ($row->maintenances->schedule_by_room == $row->maintenance_date) {
+                                $date = '<span class="badge text-bg-success">According To The Schedule</span>';
+                            } elseif ($row->maintenances->schedule_by_room != $row->maintenance_date) {
+                                $date = Carbon::parse($row->maintenances->schedule_by_room)->isoFormat('D MMMM Y');
+                            }
+                        } else {
                             $date = '<span class="badge text-bg-success">According To The Schedule</span>';
-                        } elseif ($row->maintenances->schedule_by_room != $row->maintenance_date) {
-                            $date = Carbon::parse($row->maintenances->schedule_by_room)->isoFormat('D MMMM Y');
                         }
                         return $date;
                     })
@@ -410,7 +414,7 @@ class MaintenancesController extends Controller
             $date_completed = date('Y-m-d', strtotime($maintenance->date_completed));
             $condition = strtotime($date_completed) - strtotime($items->maintenance_date);
             // 2592000 = 30 days
-            if ($condition > 25923000) {
+            if ($condition > 2592000) {
                 $items->maintenance_date = date('Y-m-d', strtotime($maintenance->date_completed) + ($items->items->downtime * 86400));
             } else {
                 $items->maintenance_date = date('Y-m-d', strtotime($items->maintenance_date) + ($items->items->downtime * 86400));
