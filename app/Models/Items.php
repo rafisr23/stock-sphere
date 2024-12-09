@@ -18,7 +18,7 @@ class Items extends Model
 
     public function sparepart()
     {
-        return $this->belongsTo(Spareparts::class);
+        return $this->hasMany(Spareparts::class);
     }
 
     public function vendor()
@@ -29,5 +29,14 @@ class Items extends Model
     public function logs()
     {
         return $this->hasMany(Log::class, 'item_id');
+    }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($user) {
+            $user->norec = \Str::orderedUuid();
+        });
     }
 }

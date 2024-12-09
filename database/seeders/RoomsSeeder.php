@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use DB;
+use Illuminate\Support\Str;
+use Illuminate\Database\Seeder;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class RoomsSeeder extends Seeder
 {
@@ -19,6 +20,7 @@ class RoomsSeeder extends Seeder
             'name' => 'ICU',
             'description' => 'Intensive Care Unit',
             'serial_no' => strval(random_int(1000, 9999)),
+            'norec' => Str::orderedUuid(),
         ]);
 
         DB::table('rooms')->insert([
@@ -27,6 +29,7 @@ class RoomsSeeder extends Seeder
             'name' => 'Radiology',
             'description' => 'Radiology Unit',
             'serial_no' => strval(random_int(1000, 9999)),
+            'norec' => Str::orderedUuid(),
         ]);
 
         DB::table('rooms')->insert([
@@ -35,6 +38,7 @@ class RoomsSeeder extends Seeder
             'name' => 'Laboratory',
             'description' => 'Laboratory Unit',
             'serial_no' => strval(random_int(1000, 9999)),
+            'norec' => Str::orderedUuid(),
         ]);
     }
 }

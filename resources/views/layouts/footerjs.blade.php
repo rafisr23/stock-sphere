@@ -34,7 +34,7 @@
 @endif
 
 @if (env('APP_DARK_LAYOUT') != 'default')
-    @if (env('APP_DARK_LAYOUT') == 'true')
+    @if (env('APP_DARK_LAYOUT') == true)
         <script>
             layout_change('dark');
         </script>

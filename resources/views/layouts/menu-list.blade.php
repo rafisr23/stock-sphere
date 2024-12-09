@@ -41,64 +41,66 @@
             @endrole
         </ul>
     </li>
-    <li class="pc-item pc-caption">
+    {{-- <li class="pc-item pc-caption">
         <label>Repairs</label>
-    </li>
-    <li class="pc-item {{ request()->routeIs('submission-of-repair.index') ? 'active' : '' }}">
-        <a href="{{ route('submission-of-repair.index') }}" class="pc-link">
+    </li> --}}
+    
+@endrole
+
+@role('superadmin|technician|unit|room')
+    <li class="pc-item pc-hasmenu">
+        <a href="#" class="pc-link">
             <span class="pc-micon">
                 <i class="ph-duotone ph-wrench"></i>
             </span>
-            <span class="pc-mtext">Submission Of Repairs</span>
+            <span class="pc-mtext">Repairs</span>
+            <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
+            @role('superadmin|technician')
+                @foreach ($status_count as $sc)
+                    <span class="pc-badge {{ $sc->status == 0 ? 'bg-warning' : ($sc->status == 1 ? 'bg-primary' : '') }}">
+                        {{ $sc->total }}
+                    </span>
+                @endforeach
+            @endrole
         </a>
-    </li>
-    <li
-        class="pc-item {{ request()->routeIs('submission-of-repair.history') || request()->routeIs('submission-of-repair.detail') ? 'active' : '' }}">
-        <a href="{{ route('submission-of-repair.history') }}" class="pc-link">
-            <span class="pc-micon">
-                <i class="ph-duotone ph-clock-counter-clockwise"></i>
-            </span>
-            <span class="pc-mtext">History Of Submission</span>
-        </a>
+        <ul class="pc-submenu">
+            @role('superadmin|unit|room')
+                <li class="pc-item {{ request()->routeIs('submission-of-repair.index') ? 'active' : '' }}">
+                    <a href="{{ route('submission-of-repair.index') }}" class="pc-link">
+                        <span class="pc-mtext">Submission</span>
+                    </a>
+                </li>
+                <li
+                    class="pc-item {{ request()->routeIs('submission-of-repair.history') || request()->routeIs('submission-of-repair.detail') ? 'active' : '' }}">
+                    <a href="{{ route('submission-of-repair.history') }}" class="pc-link">
+                        <span class="pc-mtext">History Of Submission</span>
+                    </a>
+                </li>
+            @endrole
+            @role('superadmin|technician')
+                <li class="pc-item {{ request()->routeIs('detail_submission.index') ? 'active' : '' }}">
+                    <a href="{{ route('repairments.index') }}" class="pc-link">
+                        <span class="pc-mtext">Repairments</span>
+                    </a>
+                </li>
+            @endrole
+            @if (
+                (auth()->user()->can('assign technician') && auth()->user()->hasRole('technician')) ||
+                    auth()->user()->hasRole('superadmin'))
+                <li class="pc-item ">
+                    <a href="{{ route('submission-of-repair.list') }}" class="pc-link">
+                        <span class="pc-mtext">List Of Repairs</span>
+                    </a>
+                </li>
+            @endif
+        </ul>
     </li>
 @endrole
 
-@role('superadmin|technician')
-    <li class="pc-item {{ request()->routeIs('detail_submission.index') ? 'active' : '' }}">
-        <a href="{{ route('repairments.index') }}" class="pc-link">
-            <span class="pc-micon">
-                <i class="ph-duotone ph-wrench"></i>
-            </span>
-            <span class="pc-mtext">Repairments</span>
-            {{-- @php
-                dd($status_count)
-            @endphp --}}
-            @foreach ($status_count as $sc)
-                <span class="pc-badge {{ $sc->status == 0 ? 'bg-warning' : ($sc->status == 1 ? 'bg-primary' : '') }}">
-                    {{ $sc->total }}
-                </span>
-            @endforeach
-
-        </a>
-    </li>
-@endrole
 
 
-@if (
-    (auth()->user()->can('assign technician') && auth()->user()->hasRole('technician')) ||
-        auth()->user()->hasRole('superadmin'))
-    <li class="pc-item pc-caption">
-        <label>Repairs</label>
-    </li>
-    <li class="pc-item ">
-        <a href="{{ route('submission-of-repair.list') }}" class="pc-link">
-            <span class="pc-micon">
-                <i class="ph-duotone ph-wrench"></i>
-            </span>
-            <span class="pc-mtext">List Of Repairs</span>
-        </a>
-    </li>
-@endif
+
+
 
 @if (auth()->user()->hasRole('technician') || auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('room'))
     <li class="pc-item pc-hasmenu">
@@ -108,6 +110,11 @@
             </span>
             <span class="pc-mtext">Maintenances</span>
             <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
+            @foreach ($maintenance_count as $mc)
+                <span class="pc-badge {{ $mc->status == 0 ? 'bg-info' : ($mc->status == 1 ? 'bg-secondary' : '') }}">
+                    {{ $mc->total }}
+                </span>
+            @endforeach
         </a>
         <ul class="pc-submenu">
             @if (!auth()->user()->hasRole('room'))

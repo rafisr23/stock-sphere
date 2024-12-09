@@ -43,6 +43,119 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-12">
+                            <div class="form-group
+                                row">
+                                <label for="software_version" class="col-sm-3 col-form-label">Software Version: </label>
+                                <div class="col-sm-9 d-flex align-items-center">
+                                    @if ($items->software_version == null)
+                                        <p id="software_version" class="mb-0">No software version</p>
+                                    @else
+                                        <p id="software_version" class="mb-0">{{ $items->software_version }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="form-group
+                                row">
+                                <label for="installation_date" class="col-sm-3 col-form-label">Installation Date: </label>
+                                <div class="col-sm-9 d-flex align-items-center">
+                                    @if ($items->installation_date == null)
+                                        <p id="installation_date" class="mb-0">No installation date</p>
+                                    @else
+                                        <p id="installation_date" class="mb-0">{{ $items->installation_date }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="form-group
+                                row">
+                                <label for="contract" class="col-sm-3 col-form-label">Contract: </label>
+                                <div class="col-sm-9 d-flex align-items-center">
+                                    @if ($items->contract == null)
+                                        <p id="contract" class="mb-0">No contract</p>
+                                    @else
+                                        <p id="contract" class="mb-0">{{ $items->contract }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="form-group
+                                row">
+                                <label for="end_of_service" class="col-sm-3 col-form-label">End of Service: </label>
+                                <div class="col-sm-9 d-flex align-items-center">
+                                    @if ($items->end_of_service == null)
+                                        <p id="end_of_service" class="mb-0">No end of service</p>
+                                    @else
+                                        <p id="end_of_service" class="mb-0">{{ $items->end_of_service }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="form-group
+                                row">
+                                <label for="srs_status" class="col-sm-3 col-form-label">SRS Status: </label>
+                                <div class="col-sm-9 d-flex align-items-center">
+                                    @if ($items->srs_status == null)
+                                        <p id="srs_status" class="mb-0">No SRS status</p>
+                                    @else
+                                        <p id="srs_status" class="mb-0">{{ $items->srs_status }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="form-group
+                                row">
+                                <label for="status" class="col-sm-3 col-form-label">Status: </label>
+                                <div class="col-sm-9 d-flex align-items-center">
+                                    @if ($items->status == null)
+                                        <p id="status" class="mb-0">No status</p>
+                                    @else
+                                        <p id="status" class="mb-0">{{ $items->status }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="form-group
+                                row">
+                                <label for="last_checked_date" class="col-sm-3 col-form-label">Last Checked Date: </label>
+                                <div class="col-sm-9 d-flex align-items-center">
+                                    @if ($items->last_checked_date == null)
+                                        <p id="last_checked_date" class="mb-0">No last checked date</p>
+                                    @else
+                                        <p id="last_checked_date" class="mb-0">{{ $items->last_checked_date }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="form-group
+                                row">
+                                <label for="last_serviced_date" class="col-sm-3 col-form-label">Last Serviced Date: </label>
+                                <div class="col-sm-9 d-flex align-items-center">
+                                    @if ($items->last_serviced_date == null)
+                                        <p id="last_serviced_date" class="mb-0">No last serviced date</p>
+                                    @else
+                                        <p id="last_serviced_date" class="mb-0">{{ $items->last_serviced_date }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="form-group
+                                row">
+                                <label for="maintenance_date" class="col-sm-3 col-form-label">Maintenance Date: </label>
+                                <div class="col-sm-9 d-flex align-items-center">
+                                    @if ($items->maintenance_date == null)
+                                        <p id="maintenance_date" class="mb-0">No maintenance date</p>
+                                    @else
+                                        <p id="maintenance_date" class="mb-0">{{ $items->maintenance_date }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="form-group
+                                row">
+                                <label for="functional_location_no" class="col-sm-3 col-form-label">Functional Location
+                                    No:
+                                </label>
+                                <div class="col-sm-9 d-flex align-items-center">
+                                    @if ($items->functional_location_no == null)
+                                        <p id="functional_location_no" class="mb-0">No functional location no</p>
+                                    @else
+                                        <p id="functional_location_no" class="mb-0">
+                                            {{ $items->functional_location_no }}</p>
+                                    @endif
+                                </div>
+                            </div>
                             @if ($maintenance->evidence != null)
                                 <div class="form-group row">
                                     <label for="image" class="col-sm-3 col-form-label">Evidence:</label>
@@ -111,7 +224,8 @@
                                 row">
                                 <label for="created_at" class="col-sm-3 col-form-label">Created at: </label>
                                 <div class="col-sm-9 d-flex align-items-center">
-                                    <p id="created_at" class="mb-0">{{ $maintenance->created_at->isoFormat('D MMMM Y') }}
+                                    <p id="created_at" class="mb-0">
+                                        {{ $maintenance->created_at->isoFormat('D MMMM Y') }}
                                     </p>
                                 </div>
                             </div>

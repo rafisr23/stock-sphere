@@ -34,4 +34,13 @@ class Units extends Model
     {
         return $this->hasMany(SubmissionOfRepair::class, 'unit_id');
     }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($user) {
+            $user->norec = \Str::orderedUuid();
+        });
+    }
 }

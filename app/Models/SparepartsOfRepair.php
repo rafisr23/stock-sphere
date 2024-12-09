@@ -20,4 +20,13 @@ class SparepartsOfRepair extends Model
     {
         return $this->belongsTo(DetailsOfRepairSubmission::class);
     }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($user) {
+            $user->norec = \Str::orderedUuid();
+        });
+    }
 }

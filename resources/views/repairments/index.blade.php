@@ -33,13 +33,6 @@
                                         <span class="d-none d-sm-inline">Worked on Repairments</span>
                                     </a>
                                 </li>
-                                {{-- <li class="nav-item" data-target-form="#summarySubmissionForm" onclick="getSummary()">
-                                    <a href="#summarySubmission" data-bs-toggle="tab" data-toggle="tab"
-                                        class="nav-link icon-btn">
-                                        <i class="ph-duotone ph-clipboard-text"></i>
-                                        <span class="d-none d-sm-inline">Summary</span>
-                                    </a>
-                                </li> --}}
                             </ul>
                         </div>
                     </div>

@@ -35,4 +35,17 @@ class DetailsOfRepairSubmission extends Model
         return $this->belongsTo(Technician::class, 'technician_id');
     }
 
+    public function evidence()
+    {
+        return $this->hasMany(EvidenceTechnicianRepairments::class, 'details_of_repair_submission_id');
+    }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($user) {
+            $user->norec = \Str::orderedUuid();
+        });
+    }
 }

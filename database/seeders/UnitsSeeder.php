@@ -3,8 +3,9 @@
 namespace Database\Seeders;
 
 use DB;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class UnitsSeeder extends Seeder
 {
@@ -24,6 +25,7 @@ class UnitsSeeder extends Seeder
             'district' => 'BOJONGSOANG',
             'village' => 'LENGKONG',
             'serial_no' => '123456',
+            'norec' => Str::orderedUuid(),
         ]);
     }
 }

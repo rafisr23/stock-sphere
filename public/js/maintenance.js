@@ -115,15 +115,16 @@ $(document).on("click", ".alertRoom", function () {
                                 table.ajax.reload();
                             }
                         });
-                    } else {
-                        Swal.fire({
-                            icon: "error",
-                            title: "Error",
-                            text: response.error,
-                            showConfirmButton: true,
-                            allowOutsideClick: true,
-                        });
                     }
+                },
+                error: function (err) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: response.error,
+                        showConfirmButton: true,
+                        allowOutsideClick: true,
+                    });
                 },
             });
         }
@@ -167,8 +168,16 @@ let maintenanceItemTable = $("#maintenanceItemTable").DataTable({
             name: "item",
         },
         {
+            data: "room",
+            name: "room",
+        },
+        {
             data: "serial_number",
             name: "serial_number",
+        },
+        {
+            data: "installation_date",
+            name: "installation_date",
         },
         {
             data: "technician",
