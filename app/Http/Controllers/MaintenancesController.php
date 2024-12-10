@@ -170,7 +170,7 @@ class MaintenancesController extends Controller
                 if (auth()->user()->hasRole('superadmin')) {
                     $maintenances = Maintenances::where('date_worked_on', '!=', null)->where('date_completed', null)->get();
                 } elseif (auth()->user()->can('assign technician') && auth()->user()->hasRole('technician')) {
-                    $allTechnicians = Technician::where('date_worked_on', '!=', null)->where('date_completed', null)->where('unit_id', auth()->user()->technician->unit_id)->pluck('id');
+                    $allTechnicians = Technician::where('unit_id', auth()->user()->technician->unit_id)->pluck('id');
                     $maintenances = Maintenances::where('date_worked_on', '!=', null)->where('date_completed', null)->whereIn('technician_id', $allTechnicians)->get();
                 } elseif (auth()->user()->hasRole('technician')) {
                     $maintenances = Maintenances::where('date_worked_on', '!=', null)->where('date_completed', null)->where('technician_id', auth()->user()->technician->id)->get();
@@ -306,31 +306,62 @@ class MaintenancesController extends Controller
                 return response()->json(['error' => 'Failed to alert maintenance to unit: ' . $e->getMessage()]);
             }
         } else {
-            $request->validate([
-                'item_unit_id' => 'required',
-                'technician' => 'required',
-            ]);
+            DB::beginTransaction();
+            try {
+                $request->validate([
+                    'item_unit_id' => 'required',
+                    'technician' => 'required',
+                ]);
+    
+                if (auth()->user()->can('assign technician') || auth()->user()->hasRole('superadmin')) {
+                    $create = Maintenances::updateOrCreate(
+                        [
+                            'item_room_id' => decrypt($request->item_unit_id),
+                        ],
+                        [
+                            'room_id' => Items_units::find(decrypt($request->item_unit_id))->room_id,
+                            'technician_id' => decrypt($request->technician),
+                            'status' => 0,
+                        ]
+                    );
+                } else {
+                    return redirect()->back()->with('error', 'You are not authorized to assign maintenance to technician');
+                }
 
-            if (auth()->user()->can('assign technician') || auth()->user()->hasRole('superadmin')) {
-                $create = Maintenances::updateOrCreate(
-                    [
-                        'item_room_id' => decrypt($request->item_unit_id),
-                    ],
-                    [
-                        'room_id' => Items_units::find(decrypt($request->item_unit_id))->room_id,
-                        'technician_id' => decrypt($request->technician),
-                        'status' => 0,
-                    ]
-                );
-            } else {
-                return redirect()->back()->with('error', 'You are not authorized to assign maintenance to technician');
-            }
+                $room = Rooms::find($create->room_id);
+                $technician = Technician::find($create->technician_id);
 
-            if ($create) {
-                // createLog(3, $create->id, 'assign maintenance to technician', null, Items_units::where('id', $create->item_room_id)->get('maintenance_date')->toJson());
-                return redirect()->back()->with('success', 'Maintenance assigned to technician');
-            } else {
-                return redirect()->back()->with('error', 'Failed to assign maintenance to technician');
+                if ($create) {
+                    $maintenanceLog = [
+                        'norec' => $create->norec,
+                        // 'norec_parent' => $submission->norec,
+                        'module_id' => 3,
+                        'is_maintenance' => true,
+                        'desc' => 'Technician ' . $create->technician->name . ' has been assigned for maintenance of ' . $create->item_room->items->item_name . ' by ' . auth()->user()->name . ' from ' . $room->name . ' (' . $room->units->customer_name . ')',
+                        'item_unit_id' => $create->item_room_id,
+                        'technician_id' => $create->technician_id,
+                    ];
+        
+                    $technicianLog = [
+                        'norec' => $create->technician->norec,
+                        'norec_parent' => auth()->user()->norec,
+                        'module_id' => 8,
+                        'desc' => $technician->name . ' has been assigned for maintenance of ' . $create->item_room->items->item_name . ' by ' . auth()->user()->name . ' from ' . $room->name . ' (' . $room->units->customer_name . ')',
+                        'is_maintenance' => true,
+                        'item_unit_id' => $create->item_room_id,
+                        'technician_id' => $create->technician_id,
+                    ];
+        
+                    createLog($maintenanceLog);
+                    createLog($technicianLog);
+
+                    DB::commit();
+                    return redirect()->back()->with('success', 'Maintenance assigned to technician');
+                }
+            } catch (\Exception $e) {
+                DB::rollBack();
+                $line = $e->getLine();
+                return redirect()->back()->with('error', 'Failed to alert maintenance to unit: ' . $e->getMessage() . ' in line ' . $line);
             }
         }
     }
