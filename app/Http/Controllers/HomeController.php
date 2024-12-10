@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Calibrations;
 use DB;
 use App\Models\Items_units;
 use App\Models\Maintenances;
@@ -34,6 +35,8 @@ class HomeController extends Controller
             $maintenanceData = Maintenances::all();
             $loginDatePlusMonth = Carbon::parse($loginDate)->addMonth()->format('Y-m-d');
             $itemsQuery = Items_units::query();
+            $maintenanceSoonRoom = false;
+            $calibrationSoonRoom = false;
             // $status_count = DB::table('details_of_repair_submissions')
             //     ->select('status', DB::raw('COUNT(*) as total'))
             //     ->whereIn('status', [0, 1])
@@ -60,29 +63,44 @@ class HomeController extends Controller
                 $items_units = Items_units::all();
                 $items2 = $itemsQuery->get();
                 $items = $itemsQuery->where('maintenance_date', '<=', $loginDatePlusMonth)->where('maintenance_date', '>=', $loginDate->format('Y-m-d'))->exists();
+                $items_c = $itemsQuery->where('calibration_date', '<=', $loginDatePlusMonth)->where('calibration_date', '>=', $loginDate->format('Y-m-d'))->exists();
+                $maintenanceSoonRoom = Maintenances::where('status', 5)->exists();
+                $calibrationSoonRoom = Calibrations::where('status', 5)->exists();
             } else {
                 $technician = auth()->user()->technician;
                 $roomId = Rooms::where('unit_id', $technician->unit_id)->pluck('id');
-                $items = $itemsQuery->whereIn('room_id', $roomId)->where('maintenance_date', '<=', $loginDatePlusMonth)->exists();
                 $items2 = $itemsQuery->whereIn('room_id', $roomId)->get();
+                $items = $itemsQuery->whereIn('room_id', $roomId)->where('maintenance_date', '<=', $loginDatePlusMonth)->where('maintenance_date', '>=', $loginDate->format('Y-m-d'))->exists();
+                $items_c = $itemsQuery->whereIn('room_id', $roomId)->where('calibration_date', '<=', $loginDatePlusMonth)->where('calibration_date', '>=', $loginDate->format('Y-m-d'))->exists();
+                $sparepart_repairments_count = null;
+                $items_units = null;
+                $items_repairments_count = null;
             }
 
             $maintenanceSoon = $items ? 'true' : 'false';
+            $calibrationSoon = $items_c ? 'true' : 'false';
             $maintenanceExpired = 'false';
+            $calibrationExpired = 'false';
 
             foreach ($items2 as $item) {
-                if (Carbon::parse($loginDate)->greaterThan($item->maintenance_date)) {
-                    $existingMaintenance = Maintenances::where('item_room_id', $item->id)
-                        ->whereBetween('created_at', [
-                            Carbon::parse($loginDate)->startOfMonth(),
-                            Carbon::parse($loginDate)->endOfMonth()
-                        ])
-                        ->exists();
+                if (Carbon::parse($loginDate)->greaterThan($item->maintenance_date) && !Maintenances::where('item_room_id', $item->id)
+                    ->whereBetween('created_at', [
+                        Carbon::parse($loginDate)->startOfMonth(),
+                        Carbon::parse($loginDate)->endOfMonth()
+                    ])->exists()) {
+                    $maintenanceExpired = 'true';
+                    break;
+                }
+            }
 
-                    if (!$existingMaintenance) {
-                        $maintenanceExpired = 'true';
-                        break;
-                    }
+            foreach ($items2 as $item) {
+                if (Carbon::parse($loginDate)->greaterThan($item->calibration_date) && !Calibrations::where('item_room_id', $item->id)
+                    ->whereBetween('created_at', [
+                        Carbon::parse($loginDate)->startOfMonth(),
+                        Carbon::parse($loginDate)->endOfMonth()
+                    ])->exists()) {
+                    $calibrationExpired = 'true';
+                    break;
                 }
             }
 
@@ -94,14 +112,17 @@ class HomeController extends Controller
                     'sparepart_repairments_count',
                     'items_units',
                     'items_repairments_count',
+                    'maintenanceSoonRoom',
+                    'calibrationSoonRoom',
+                    'calibrationSoon',
+                    'calibrationExpired'
                 )
             );
         } else if (auth()->user()->hasRole('room')) {
-            $maintenanceSoonRoom = false;
-
             $maintenanceSoonRoom = Maintenances::where('room_id', auth()->user()->room->id)->where('status', 5)->exists();
+            $calibrationSoonRoom = Calibrations::where('room_id', auth()->user()->room->id)->where('status', 5)->exists();
 
-            return view('index', compact('maintenanceSoonRoom'));
+            return view('index', compact('maintenanceSoonRoom', 'calibrationSoonRoom'));
             // return view('index', compact('maintenanceSoon', 'maintenanceExpired'));
         } else {
             return view('index');

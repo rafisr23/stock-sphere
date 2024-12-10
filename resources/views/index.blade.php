@@ -53,10 +53,30 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
+        @if ($calibrationSoon == 'true')
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <svg class="bi flex-shrink-0 me-2" width="24" height="24">
+                    <use xlink:href="#info-fill"></use>
+                </svg>
+                <strong>Perhatian!</strong> Ada barang yang akan mendekati waktu <a href="{{ route('calibrations.index') }}"
+                    class="alert-link">Calibration</a>.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+        @if ($calibrationExpired == 'true')
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <svg class="bi flex-shrink-0 me-2" width="24" height="24">
+                    <use xlink:href="#exclamation-triangle-fill"></use>
+                </svg>
+                <strong>Perhatian!</strong> Ada barang yang sudah melebihi waktu <a href="{{ route('calibrations.index') }}"
+                    class="alert-link">Calibration</a>.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
         <!-- Alert end -->
     @endif
 
-    @if (auth()->user()->hasRole('room'))
+    @if (auth()->user()->hasRole('room') || auth()->user()->hasRole('superadmin'))
         @if ($maintenanceSoonRoom == 'true')
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <svg class="bi flex-shrink-0 me-2" width="24" height="24">
@@ -64,6 +84,16 @@
                 </svg>
                 <strong>Perhatian!</strong> Ada barang yang akan di <a href="{{ route('maintenances.confirmation') }}"
                     class="alert-link">Maintenance</a>. Harap Berikan Konfirmasi.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+        @if ($calibrationSoonRoom == 'true')
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <svg class="bi flex-shrink-0 me-2" width="24" height="24">
+                    <use xlink:href="#exclamation-triangle-fill"></use>
+                </svg>
+                <strong>Perhatian!</strong> Ada barang yang akan di <a href="{{ route('calibrations.confirmation') }}"
+                    class="alert-link">Calibration</a>. Harap Berikan Konfirmasi.
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
