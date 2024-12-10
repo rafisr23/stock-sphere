@@ -431,12 +431,12 @@ $("#maintenanceProcessTable").on("click", ".update", function (e) {
     e.preventDefault();
     let id = $(this).data("id");
     console.log(id);
-    let url = "maintenances/update/" + id;
+    let url = "/maintenances/update/" + id;
     let formUpdateMaintenance = new FormData();
 
-    let status = $("#status").val();
-    let description = $("#description").val();
-    let remarks = $("#remarks").val();
+    let status = $(this).closest("tr").find(".status").val();
+    let remarks = $(this).closest("tr").find(".remarks").val();
+    let description = $(this).closest("tr").find(".description").val();
     let evidence = sessionStorage.getItem("evidence_file");
 
     formUpdateMaintenance.append("status", status);
@@ -453,23 +453,39 @@ $("#maintenanceProcessTable").on("click", ".update", function (e) {
     $.ajax({
         url: url,
         type: "POST",
-        data: formUpdateMaintenance,
-        processData: false,
-        contentType: false,
+        data: {
+            _method: "PUT",
+            _token: CSRF_TOKEN,
+            id: id,
+            status: status,
+            description: description,
+            remarks: remarks,
+            evidence: evidence,
+        },
         success: function (response) {
-            Swal.fire({
-                icon: "success",
-                title: "Success",
-                text: "The Maintenance is updated!",
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-                allowOutsideClick: false,
-            }).then((result) => {
-                if (result.dismiss === Swal.DismissReason.timer) {
-                    window.location.reload();
-                }
-            });
+            if (response.success) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Success",
+                    text: response.success,
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    allowOutsideClick: false,
+                }).then((result) => {
+                    if (result.dismiss === Swal.DismissReason.timer) {
+                        window.location.reload();
+                    }
+                });
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: response.error,
+                    showConfirmButton: true,
+                    allowOutsideClick: true,
+                });
+            }
         },
         error: function (err) {
             Swal.fire({
@@ -502,7 +518,7 @@ $("#maintenanceProcessTable").on("click", ".finish", function (e) {
                 Swal.fire({
                     icon: "success",
                     title: "Success",
-                    text: "The Maintenance is finished!",
+                    text: response.success,
                     showConfirmButton: false,
                     timer: 3000,
                     timerProgressBar: true,
@@ -516,9 +532,7 @@ $("#maintenanceProcessTable").on("click", ".finish", function (e) {
                 Swal.fire({
                     icon: "error",
                     title: "Error",
-                    text:
-                        "An error occurred while finishing the maintenance: " +
-                        response.message,
+                    text: response.error,
                     showConfirmButton: true,
                     allowOutsideClick: true,
                 });

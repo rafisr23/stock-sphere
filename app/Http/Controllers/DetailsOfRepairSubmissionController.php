@@ -391,7 +391,7 @@ class DetailsOfRepairSubmissionController extends Controller
                 'norec_parent' => $details_of_repair_submission->submission->norec,
                 'module_id' => 2,
                 'is_repair' => true,
-                'desc' => 'Technician ' . $details_of_repair_submission->technician->name . ' has UPDATED THE STATUS and REMARKS of ' . $details_of_repair_submission->itemUnit->items->item_name . ' to ' . $request->status . ' from ' . $oldStatus . ' by ' . auth()->user()->name . ' from ' . $details_of_repair_submission->submission->room->name . ' (' . $details_of_repair_submission->submission->unit->customer_name . ')',
+                'desc' => 'Technician ' . $details_of_repair_submission->technician->name . ' has UPDATED THE STATUS and REMARKS of ' . $details_of_repair_submission->itemUnit->items->item_name . ' to ' . $request->status . ' from ' . $oldStatus . ' by ' . auth()->user()->name . ' from ' . $details_of_repair_submission->submission->room->name . ' (' . $details_of_repair_submission->submission->unit->customer_name . ')' . ' with REMARKS ' . $request->remarks,
                 'old_data' => $oldData,
                 'item_unit_id' => $details_of_repair_submission->item_unit_id,
                 'technician_id' => $details_of_repair_submission->technician_id,
@@ -401,14 +401,14 @@ class DetailsOfRepairSubmissionController extends Controller
                 'norec' => auth()->user()->technician->norec,
                 'module_id' => 2,
                 'is_repair' => true,
-                'desc' => $details_of_repair_submission->technician->name . ' has UPDATED THE STATUS and REMARKS of ' . $details_of_repair_submission->itemUnit->items->item_name . ' to ' . $request->status . ' from ' . $oldStatus,
+                'desc' => $details_of_repair_submission->technician->name . ' has UPDATED THE STATUS and REMARKS of ' . $details_of_repair_submission->itemUnit->items->item_name . ' to ' . $request->status . ' from ' . $oldStatus . ' with REMARKS ' . $request->remarks,
                 'item_unit_id' => $details_of_repair_submission->item_unit_id,
                 'technician_id' => $details_of_repair_submission->technician_id,
             ];
 
             $itemLog = [
                 'norec' => $item_unit->norec,
-                'module_id' => 2,
+                'module_id' => 7,
                 'is_repair' => true,
                 'desc' => 'STATUS of ' . $item_unit->items->item_name . ' has been UPDATED to ' . $request->status . ' from ' . $oldStatus . ' with REMARKS ' . $request->remarks,
                 'old_data' => $oldItemUnit,
@@ -592,7 +592,7 @@ class DetailsOfRepairSubmissionController extends Controller
 
             $itemLog = [
                 'norec' => $details_of_repair_submission->itemUnit->norec,
-                'module_id' => 2,
+                'module_id' => 7,
                 'is_repair' => true,
                 'desc' => 'Repairment of ' . $details_of_repair_submission->itemUnit->items->item_name . ' has been FINISHED by ' . $details_of_repair_submission->technician->name . ' from ' . $submission_of_repair->room->name . ' (' . $submission_of_repair->unit->customer_name . ') with last STATUS ' . $details_of_repair_submission->itemUnit->status . ' and REMARKS ' . $details_of_repair_submission->remarks,
                 'old_data' => $details_of_repair_submission->itemUnit->toJson(),
