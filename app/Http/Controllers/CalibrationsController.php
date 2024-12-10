@@ -97,7 +97,7 @@ class CalibrationsController extends Controller
                                 ->first()->id ?? null;
 
                             if (($loginDate->isSameDay($row->calibration_date) && $status === null) || ($loginDate->greaterThan($row->calibration_date) && $count == 0 && $status === null)) {
-                                return '<button class="btn btn-primary btn-sm alertRoom" title="Alert Room" data-id="' . encrypt($idCalibration) . '" data-name="' . $row->items->item_name . '" data-room="' . $row->rooms->name . '"><i class="ph-duotone ph-info"></i></button>';
+                                return '<button class="btn btn-primary btn-sm alertRoom" title="Alert Room" data-id="' . encrypt($row->id) . '" data-name="' . $row->items->item_name . '" data-room="' . $row->rooms->name . '"><i class="ph-duotone ph-info"></i></button>';
                             } else if ($status == 6 || $status == 7) {
                                 return '<button type="button" class="btn btn-info btn-sm callVendor" title="Call Vendor" data-id="' . encrypt($idCalibration) . '" data-name="' . $row->items->item_name . ' (' . $row->serial_number . ')"><i class="ph-duotone ph-phone-plus"></i></button>';
                             } else if ($status == 5) {
