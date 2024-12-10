@@ -115,15 +115,16 @@ $(document).on("click", ".alertRoom", function () {
                                 table.ajax.reload();
                             }
                         });
-                    } else {
-                        Swal.fire({
-                            icon: "error",
-                            title: "Error",
-                            text: response.error,
-                            showConfirmButton: true,
-                            allowOutsideClick: true,
-                        });
                     }
+                },
+                error: function (err) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: response.error,
+                        showConfirmButton: true,
+                        allowOutsideClick: true,
+                    });
                 },
             });
         }

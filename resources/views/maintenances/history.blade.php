@@ -27,6 +27,7 @@
                             <th>Reschedule Date</th>
                             <th>Worked On</th>
                             <th>Completed</th>
+                            <th>Action</th>
                         </thead>
                     </table>
                 </div>
@@ -79,6 +80,11 @@
                     {
                         data: "completed",
                         name: "completed",
+                        className: "text-center",
+                    },
+                    {
+                        data: "action",
+                        name: "action",
                         className: "text-center",
                     },
                 ],
