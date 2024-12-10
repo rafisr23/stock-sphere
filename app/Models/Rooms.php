@@ -41,6 +41,7 @@ class Rooms extends Model
         return $this->hasMany(Calibrations::class, 'room_id');
     }
 
+
     public static function boot()
     {
         parent::boot();

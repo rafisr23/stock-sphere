@@ -44,7 +44,7 @@
     {{-- <li class="pc-item pc-caption">
         <label>Repairs</label>
     </li> --}}
-    
+
 @endrole
 
 @role('superadmin|technician|unit|room')
@@ -98,10 +98,6 @@
 @endrole
 
 
-
-
-
-
 @if (auth()->user()->hasRole('technician') || auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('room'))
     <li class="pc-item pc-hasmenu">
         <a href="#" class="pc-link">
@@ -111,7 +107,8 @@
             <span class="pc-mtext">Maintenances</span>
             <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
             @foreach ($maintenance_count as $mc)
-                <span class="pc-badge {{ $mc->status == 0 ? 'bg-info' : ($mc->status == 1 ? 'bg-secondary' : '') }}">
+                <span
+                    class="pc-badge {{ $mc->status == 1 ? 'bg-secondary' : ($mc->status == 5 ? 'bg-info' : ($mc->status == 6 ? 'bg-primary' : '')) }}">
                     {{ $mc->total }}
                 </span>
             @endforeach
