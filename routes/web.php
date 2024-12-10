@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CalibrationsController;
 use App\Http\Controllers\DetailsOfRepairSubmissionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -193,6 +194,13 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/history', 'history')->name('history');
             Route::get('/confirmation', 'confirmation')->name('confirmation');
         });
+
+        Route::controller(CalibrationsController::class)->prefix('calibrations')->name('calibrations.')->group(function () {
+            Route::get('/history', 'history')->name('history');
+            Route::get('/confirmation', 'confirmation')->name('confirmation');
+            Route::post('/store/temporary-file', 'storeTemporaryFile')->middleware('role:superadmin|technician')->name('store-temporary-file');
+        });
+        Route::resource('calibrations', CalibrationsController::class);
     });
 
     Route::controller(LogController::class)->name('log.')->prefix('log')->middleware('auth')->group(function () {

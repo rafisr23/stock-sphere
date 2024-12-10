@@ -31,6 +31,11 @@ class Items_units extends Model
         return $this->belongsTo(Maintenances::class, 'id', 'item_room_id');
     }
 
+    public function calibrations()
+    {
+        return $this->belongsTo(Calibrations::class, 'id', 'item_room_id');
+    }
+
     public static function boot()
     {
         parent::boot();

@@ -39,7 +39,7 @@ class AppServiceProvider extends ServiceProvider
                         ->get();
                     $maintenance_count = DB::table('maintenances')
                         ->select('status', DB::raw('COUNT(*) as total'))
-                        ->whereIn('status', [0, 1, 2, 3, 4])
+                        ->whereIn('status', [0, 1, 5, 6])
                         ->where('technician_id', $technician->id)
                         ->groupBy('status')
                         ->get();
@@ -51,12 +51,10 @@ class AppServiceProvider extends ServiceProvider
                         ->get();
                     $maintenance_count = DB::table('maintenances')
                         ->select('status', DB::raw('COUNT(*) as total'))
-                        ->whereIn('status', [0, 1, 2, 3, 4, 5, 6, 7])
+                        ->whereIn('status', [0, 1, 5, 6])
                         ->groupBy('status')
                         ->get();
                 }
-
-
 
                 $view->with('status_count', $status_count);
                 $view->with('maintenance_count', $maintenance_count);
