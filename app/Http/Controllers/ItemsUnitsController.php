@@ -134,6 +134,7 @@ class ItemsUnitsController extends Controller
                     'is_generic' => true,
                     'desc' => 'Assign item: ' . $items_units->items->item_name . ' to room: ' . $items_units->rooms->name . ' by ' . auth()->user()->name,
                     'item_unit_id' => $items_units->id,
+                    'item_unit_status' => $items_units->status,
                 ];
                 createLog($log);
             }
@@ -229,6 +230,7 @@ class ItemsUnitsController extends Controller
                 'desc' => 'Update item: ' . $itemUnits->items->item_name . ' for room: ' . $itemUnits->rooms->name . ' by ' . auth()->user()->name,
                 'old_data' => $oldItemUnits,
                 'item_unit_id' => $itemUnits->id,
+                'item_unit_status' => $itemUnits->status,
             ];
             createLog($log);
             DB::commit();
@@ -255,6 +257,7 @@ class ItemsUnitsController extends Controller
             'desc' => 'Delete item: ' . $item->items->item_name . ' from room: ' . $item->rooms->name . ' by ' . auth()->user()->name,
             'old_data' => $oldItem,
             // 'item_unit_id' => $item->id,
+            'item_unit_status' => $item->status,
         ];
         createLog($log);
         $soft_delete = $item->update(['is_enabled' => false]);

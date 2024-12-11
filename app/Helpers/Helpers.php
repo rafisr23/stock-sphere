@@ -194,6 +194,7 @@ if (!function_exists('createLog')) {
             'old_data' => $data['old_data'] ?? null,
             'ip' => $ipAddr,
             'item_unit_id' => $data['item_unit_id'] ?? null,
+            'item_unit_status' => $data['item_unit_status'] ?? null,
             'technician_id' => $data['technician_id'] ?? null,
             'user_id' => auth()->user()->id,
         ];

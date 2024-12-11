@@ -167,6 +167,7 @@ class SubmissionOfRepairController extends Controller
                     'is_repair' => true,
                     'desc' => 'Item ' . $item->items->item_name . ' has been submitted for repair by ' . auth()->user()->name . ' from ' . $room->name . ' (' . $unit->customer_name . ')' . ' with description: ' . $request->description[$value],
                     'item_unit_id' => $item->id,
+                    'item_unit_status' => $item->status,
                 ];
 
                 $detailLog = [
@@ -176,6 +177,7 @@ class SubmissionOfRepairController extends Controller
                     'is_repair' => true,
                     'desc' => 'Item ' . $item->items->item_name . ' has been submitted for repair by ' . auth()->user()->name . ' from ' . $room->name . ' (' . $unit->customer_name . ')' . ' with description: ' . $request->description[$value],
                     'item_unit_id' => $item->id,
+                    'item_unit_status' => $item->status,
                 ];
                 
                 createLog($log);

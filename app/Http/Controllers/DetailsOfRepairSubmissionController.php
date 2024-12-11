@@ -414,6 +414,7 @@ class DetailsOfRepairSubmissionController extends Controller
                 'old_data' => $oldItemUnit,
                 'item_unit_id' => $details_of_repair_submission->item_unit_id,
                 'technician_id' => $details_of_repair_submission->technician_id,
+                'item_unit_status' => $item_unit->status,
             ];
 
             createLog($detailLog);
@@ -598,6 +599,7 @@ class DetailsOfRepairSubmissionController extends Controller
                 'old_data' => $details_of_repair_submission->itemUnit->toJson(),
                 'item_unit_id' => $details_of_repair_submission->item_unit_id,
                 'technician_id' => $details_of_repair_submission->technician_id,
+                'item_unit_status' => $details_of_repair_submission->itemUnit->status,
             ];
 
             createLog($detailLog);
