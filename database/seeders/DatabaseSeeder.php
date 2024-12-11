@@ -27,8 +27,8 @@ class DatabaseSeeder extends Seeder
             VendorSeeder::class,
             RoomsSeeder::class,
             SparepartsSeeder::class,
-            SubmissionOfRepairSeeder::class,
-            DetailsOfRepairSubmissionSeeder::class,
+            // SubmissionOfRepairSeeder::class,
+            // DetailsOfRepairSubmissionSeeder::class,
         ]);
     }
 }

@@ -230,6 +230,7 @@ class DetailsOfRepairSubmissionController extends Controller
                     'is_repair' => true,
                     'desc' => 'Technician ' . $details_of_repair_submission->technician->name . ' has been accepted for repair of ' . $details_of_repair_submission->itemUnit->items->item_name . ' by ' . auth()->user()->name . ' from ' . $submission_of_repair->room->name . ' (' . $submission_of_repair->unit->customer_name . ')',
                     'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                    'item_unit_status' => $details_of_repair_submission->itemUnit->status,
                     'technician_id' => $details_of_repair_submission->technician_id,
                 ];
 
@@ -239,6 +240,7 @@ class DetailsOfRepairSubmissionController extends Controller
                     'is_repair' => true,
                     'desc' => 'Repair of ' . $details_of_repair_submission->itemUnit->items->item_name . ' has been accepted by ' . $details_of_repair_submission->technician->name . ' from ' . $submission_of_repair->room->name . ' (' . $submission_of_repair->unit->customer_name . ')',
                     'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                    'item_unit_status' => $details_of_repair_submission->itemUnit->status,
                     'technician_id' => $details_of_repair_submission->technician_id,
                 ];
     
@@ -280,6 +282,7 @@ class DetailsOfRepairSubmissionController extends Controller
                     'is_repair' => true,
                     'desc' => 'Technician ' . $details_of_repair_submission->technician->name . ' has been canceled for repair of ' . $details_of_repair_submission->itemUnit->items->item_name . ' by ' . $details_of_repair_submission->technician->name . ' from ' . $submission_of_repair->room->name . ' (' . $submission_of_repair->unit->customer_name . ')',
                     'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                    'item_unit_status' => $details_of_repair_submission->itemUnit->status,
                     'technician_id' => $details_of_repair_submission->technician_id,
                 ];
 
@@ -289,6 +292,7 @@ class DetailsOfRepairSubmissionController extends Controller
                     'is_repair' => true,
                     'desc' => 'Repair of ' . $details_of_repair_submission->itemUnit->items->item_name . ' has been canceled by ' . $details_of_repair_submission->technician->name . ' from ' . $submission_of_repair->room->name . ' (' . $submission_of_repair->unit->customer_name . ')',
                     'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                    'item_unit_status' => $details_of_repair_submission->itemUnit->status,
                     'technician_id' => $details_of_repair_submission->technician_id,
                 ];
 
@@ -341,6 +345,7 @@ class DetailsOfRepairSubmissionController extends Controller
                 'is_repair' => true,
                 'desc' => 'Technician ' . $details_of_repair_submission->technician->name . ' has started repairing ' . $details_of_repair_submission->itemUnit->items->item_name . ' from ' . $details_of_repair_submission->submission->room->name . ' (' . $details_of_repair_submission->submission->unit->customer_name . ')',
                 'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                'item_unit_status' => $details_of_repair_submission->itemUnit->status,
                 'technician_id' => $details_of_repair_submission->technician_id,
             ];
 
@@ -350,6 +355,7 @@ class DetailsOfRepairSubmissionController extends Controller
                 'is_repair' => true,
                 'desc' => 'Repair of ' . $details_of_repair_submission->itemUnit->items->item_name . ' has been started by ' . $details_of_repair_submission->technician->name . ' from ' . $details_of_repair_submission->submission->room->name . ' (' . $details_of_repair_submission->submission->unit->customer_name . ')',
                 'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                'item_unit_status' => $details_of_repair_submission->itemUnit->status,
                 'technician_id' => $details_of_repair_submission->technician_id,
             ];
 
@@ -394,6 +400,7 @@ class DetailsOfRepairSubmissionController extends Controller
                 'desc' => 'Technician ' . $details_of_repair_submission->technician->name . ' has UPDATED THE STATUS and REMARKS of ' . $details_of_repair_submission->itemUnit->items->item_name . ' to ' . $request->status . ' from ' . $oldStatus . ' by ' . auth()->user()->name . ' from ' . $details_of_repair_submission->submission->room->name . ' (' . $details_of_repair_submission->submission->unit->customer_name . ')' . ' with REMARKS ' . $request->remarks,
                 'old_data' => $oldData,
                 'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                'item_unit_status' => $details_of_repair_submission->itemUnit->status,
                 'technician_id' => $details_of_repair_submission->technician_id,
             ];
 
@@ -403,6 +410,7 @@ class DetailsOfRepairSubmissionController extends Controller
                 'is_repair' => true,
                 'desc' => $details_of_repair_submission->technician->name . ' has UPDATED THE STATUS and REMARKS of ' . $details_of_repair_submission->itemUnit->items->item_name . ' to ' . $request->status . ' from ' . $oldStatus . ' with REMARKS ' . $request->remarks,
                 'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                'item_unit_status' => $details_of_repair_submission->itemUnit->status,
                 'technician_id' => $details_of_repair_submission->technician_id,
             ];
 
@@ -486,6 +494,7 @@ class DetailsOfRepairSubmissionController extends Controller
                 'is_repair' => true,
                 'desc' => 'Technician ' . $details_of_repair_submission->technician->name . ' has added sparepart ' . $sparepart->name . ' to ' . $details_of_repair_submission->itemUnit->items->item_name . ' by ' . auth()->user()->name . ' from ' . $details_of_repair_submission->submission->room->name . ' (' . $details_of_repair_submission->submission->unit->customer_name . ')',
                 'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                'item_unit_status' => $details_of_repair_submission->itemUnit->status,
                 'technician_id' => $details_of_repair_submission->technician_id,
             ];
 
@@ -495,6 +504,7 @@ class DetailsOfRepairSubmissionController extends Controller
                 'is_repair' => true,
                 'desc' => $details_of_repair_submission->technician->name . ' has added sparepart ' . $sparepart->name . ' to ' . $details_of_repair_submission->itemUnit->items->item_name,
                 'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                'item_unit_status' => $details_of_repair_submission->itemUnit->status,
                 'technician_id' => $details_of_repair_submission->technician_id,
             ];
 
@@ -528,6 +538,7 @@ class DetailsOfRepairSubmissionController extends Controller
                 'is_repair' => true,
                 'desc' => 'Technician ' . $details_of_repair_submission->technician->name . ' has removed sparepart ' . $sparepart->name . ' from ' . $details_of_repair_submission->itemUnit->items->item_name . ' by ' . auth()->user()->name . ' from ' . $details_of_repair_submission->submission->room->name . ' (' . $details_of_repair_submission->submission->unit->customer_name . ')',
                 'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                'item_unit_status' => $details_of_repair_submission->itemUnit->status,
                 'technician_id' => $details_of_repair_submission->technician_id,
             ];
 
@@ -537,6 +548,7 @@ class DetailsOfRepairSubmissionController extends Controller
                 'is_repair' => true,
                 'desc' => $details_of_repair_submission->technician->name . ' has removed sparepart ' . $sparepart->name . ' from ' . $details_of_repair_submission->itemUnit->items->item_name,
                 'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                'item_unit_status' => $details_of_repair_submission->itemUnit->status,
                 'technician_id' => $details_of_repair_submission->technician_id,
             ];
 
@@ -579,6 +591,7 @@ class DetailsOfRepairSubmissionController extends Controller
                 'desc' => 'Technician ' . $details_of_repair_submission->technician->name . ' has finished repairing ' . $details_of_repair_submission->itemUnit->items->item_name . ' by ' . auth()->user()->name . ' from ' . $submission_of_repair->room->name . ' (' . $submission_of_repair->unit->customer_name . ')',
                 'old_data' => $details_of_repair_submission->toJson(),
                 'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                'item_unit_status' => $details_of_repair_submission->itemUnit->status,
                 'technician_id' => $details_of_repair_submission->technician_id,
             ];
 
@@ -588,6 +601,7 @@ class DetailsOfRepairSubmissionController extends Controller
                 'is_repair' => true,
                 'desc' => $details_of_repair_submission->technician->name . ' has finished repairing ' . $details_of_repair_submission->itemUnit->items->item_name . ' from ' . $submission_of_repair->room->name . ' (' . $submission_of_repair->unit->customer_name . ')',
                 'item_unit_id' => $details_of_repair_submission->item_unit_id,
+                'item_unit_status' => $details_of_repair_submission->itemUnit->status,
                 'technician_id' => $details_of_repair_submission->technician_id,
             ];
 
@@ -705,6 +719,7 @@ class DetailsOfRepairSubmissionController extends Controller
                         'is_repair' => true,
                         'desc' => 'Technician ' . auth()->user()->technician->name . ' has uploaded evidence for repair of ' . $detailSubmission->itemUnit->items->item_name . ' by ' . auth()->user()->name . ' from ' . $detailSubmission->submission->room->name . ' (' . $detailSubmission->submission->unit->customer_name . ')',
                         'item_unit_id' => $detailSubmission->item_unit_id,
+                        'item_unit_status' => $detailSubmission->itemUnit->status,
                         'technician_id' => $detailSubmission->technician_id,
                     ];
 
@@ -714,6 +729,7 @@ class DetailsOfRepairSubmissionController extends Controller
                         'is_repair' => true,
                         'desc' => $detailSubmission->technician->name . ' has uploaded evidence for repair of ' . $detailSubmission->itemUnit->items->item_name . ' from ' . $detailSubmission->submission->room->name . ' (' . $detailSubmission->submission->unit->customer_name . ')',
                         'item_unit_id' => $detailSubmission->item_unit_id,
+                        'item_unit_status' => $detailSubmission->itemUnit->status,
                         'technician_id' => $detailSubmission->technician_id,
                     ];
 

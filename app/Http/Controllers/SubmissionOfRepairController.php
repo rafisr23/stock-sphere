@@ -427,6 +427,7 @@ class SubmissionOfRepairController extends Controller
                 'is_repair' => true,
                 'desc' => 'Technician ' . $detail->technician->name . ' has been assigned for repair of ' . $detail->itemUnit->items->item_name . ' by ' . auth()->user()->name . ' from ' . $submission->room->name . ' (' . $submission->unit->customer_name . ')',
                 'item_unit_id' => $detail->item_unit_id,
+                'item_unit_status' => $detail->itemUnit->status,
                 'technician_id' => $detail->technician_id,
             ];
 
@@ -437,6 +438,7 @@ class SubmissionOfRepairController extends Controller
                 'desc' => $technician->name . ' has been assigned for repair of ' . $detail->itemUnit->items->item_name . ' by ' . auth()->user()->name . ' from ' . $submission->room->name . ' (' . $submission->unit->customer_name . ')',
                 'is_repair' => true,
                 'item_unit_id' => $detail->item_unit_id,
+                'item_unit_status' => $detail->itemUnit->status,
             ];
 
             createLog($detailLog);
