@@ -284,7 +284,7 @@ class MaintenancesController extends Controller
                 $itemLog = [
                     'norec' => $itemUnit->norec,
                     'norec_parent' => auth()->user()->norec,
-                    'module_id' => 3,
+                    'module_id' => 7,
                     'is_maintenance' => true,
                     'desc' => 'Item ' . $itemUnit->items->item_name . ' has been requested for maintenance by ' . auth()->user()->name . ' from ' . $room->name . ' (' . $room->units->customer_name . ')',
                     'item_unit_id' => $itemUnit->id,
@@ -561,7 +561,7 @@ class MaintenancesController extends Controller
                 $itemLog = [
                     'norec' => $itemUnit->norec,
                     'norec_parent' => auth()->user()->norec,
-                    'module_id' => 3,
+                    'module_id' => 7,
                     'is_maintenance' => true,
                     'desc' => 'Item ' . $itemUnit->items->item_name . ' has been accepted for maintenance by ' . auth()->user()->name . ' from ' . $room->name . ' (' . $room->units->customer_name . ')',
                     'item_unit_id' => $itemUnit->id,
@@ -606,7 +606,7 @@ class MaintenancesController extends Controller
                 $itemLog = [
                     'norec' => $itemUnit->norec,
                     'norec_parent' => auth()->user()->norec,
-                    'module_id' => 3,
+                    'module_id' => 7,
                     'is_maintenance' => true,
                     'desc' => 'Item ' . $itemUnit->items->item_name . ' has been rescheduled for maintenance to: ' . $request->newMaintenance_date . ' by ' . auth()->user()->name . ' from ' . $room->name . ' (' . $room->units->customer_name . ')',
                     'item_unit_id' => $itemUnit->id,

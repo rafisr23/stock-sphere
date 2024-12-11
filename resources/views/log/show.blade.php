@@ -65,6 +65,10 @@
                                 <td>{{ $log->is_maintenance == 1 ? 'Yes' : 'No' }}</td>
                             </tr>
                             <tr>
+                                <th>Is Calibration</th>
+                                <td>{{ $log->is_calibration == 1 ? 'Yes' : 'No' }}</td>
+                            </tr>
+                            <tr>
                                 <th>Is Generic</th>
                                 <td>{{ $log->is_generic == 1 ? 'Yes' : 'No' }}</td>
                             </tr>

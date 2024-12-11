@@ -27,6 +27,7 @@
                             <th>Reschedule Date</th>
                             <th>Worked On</th>
                             <th>Completed</th>
+                            <th>Action</th>
                         </thead>
                     </table>
                 </div>
@@ -81,6 +82,13 @@
                         name: "completed",
                         className: "text-center",
                     },
+                    {
+                        data: "action",
+                        name: "action",
+                        orderable: false,
+                        searchable: false,
+                        className: "text-center",
+                    }
                 ],
             });
         });

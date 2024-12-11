@@ -250,8 +250,8 @@ $("#calibrationProcessTable").on("click", ".update", function (e) {
     let url = "calibrations/" + id;
     let formUpdateCalibration = new FormData();
 
-    let status = $("#status").val();
-    let remarks = $("#remarks").val();
+    let status = $(this).closest("tr").find(".status").val();
+    let remarks = $(this).closest("tr").find(".remarks").val();
     let evidence = sessionStorage.getItem("evidence_file");
 
     formUpdateCalibration.append("status", status);
@@ -308,7 +308,7 @@ $("#calibrationProcessTable").on("click", ".finish", function (e) {
     e.preventDefault();
     let id = $(this).data("id");
     let url = "calibrations/" + id;
-    let status = $("#status").val();
+    let status = $(this).closest("tr").find(".status").val();
     $.ajax({
         url: url,
         type: "POST",
@@ -324,7 +324,7 @@ $("#calibrationProcessTable").on("click", ".finish", function (e) {
                 Swal.fire({
                     icon: "success",
                     title: "Success",
-                    text: "The calibration is finished!",
+                    text: response.success,
                     showConfirmButton: false,
                     timer: 3000,
                     timerProgressBar: true,
@@ -338,9 +338,7 @@ $("#calibrationProcessTable").on("click", ".finish", function (e) {
                 Swal.fire({
                     icon: "error",
                     title: "Error",
-                    text:
-                        "An error occurred while finishing the calibration: " +
-                        response.message,
+                    text: response.error,
                     showConfirmButton: true,
                     allowOutsideClick: true,
                 });

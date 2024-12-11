@@ -140,6 +140,9 @@ class LogController extends Controller
             case 9:
                 $log->module_name = 'User';
                 break;
+            case 10:
+                $log->module_name = 'Calibration';
+                break;
             default:
                 $log->module_name = '-';
                 break;

@@ -188,6 +188,7 @@ if (!function_exists('createLog')) {
             'module_id' => $data['module_id'] ?? null,
             'is_repair' => $data['is_repair'] ?? false,
             'is_maintenance' => $data['is_maintenance'] ?? false,
+            'is_calibration' => $data['is_calibration'] ?? false,
             'is_generic' => $data['is_generic'] ?? false,
             'desc' => $data['desc'] ?? null,
             'old_data' => $data['old_data'] ?? null,

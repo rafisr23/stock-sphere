@@ -18,7 +18,7 @@ class Calibrations extends Model
 
     public function item_room()
     {
-        return $this->hasMany(Items_units::class, 'id', 'item_room_id');
+        return $this->belongsTo(Items_units::class, 'item_room_id', 'id');
     }
 
     public static function boot()

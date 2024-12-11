@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Calibrations;
-use App\Models\Items_units;
 use App\Models\Rooms;
 use App\Models\Technician;
-use Illuminate\Support\Carbon;
+use App\Models\Items_units;
+use App\Models\Calibrations;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Validator;
 
 class CalibrationsController extends Controller
 {
@@ -126,15 +127,15 @@ class CalibrationsController extends Controller
                     return DataTables::of($data)
                         ->addIndexColumn()
                         ->addColumn('item', function ($row) {
-                            return $row->item_room->first()->items->item_name;
+                            return $row->item_room->items->item_name;
                         })
                         ->addColumn('status', function ($row) {
                             $statusOptions = ['Running', 'System Down', 'Restricted'];
                             $status = '<div class="btn-group mb-2 me-2 dropdown">';
-                            $status .= '<select class="form-control" name="status" id="status" required>';
+                            $status .= '<select class="form-control status" name="status" id="" required>';
 
                             foreach ($statusOptions as $option) {
-                                $selected = $row->item_room->first()->status == $option ? 'selected' : '';
+                                $selected = $row->item_room->status == $option ? 'selected' : '';
                                 $status .= '<option value="' . $option . '" ' . $selected . '>' . $option . '</option>';
                             }
 
@@ -143,15 +144,15 @@ class CalibrationsController extends Controller
                             return $status;
                         })
                         ->addColumn('remarks', function ($row) {
-                            $remark = '<textarea type="text" name="remarks" rows="4" id="remarks" class="form-control" data-id="' . encrypt($row->id);
-                            $remark .= '"placeholder="Enter calibration remark for ' . $row->item_room->first()->items->item_name . '">';
+                            $remark = '<textarea type="text" name="remarks" rows="4" id="" class="form-control remarks" data-id="' . encrypt($row->id);
+                            $remark .= '"placeholder="Enter calibration remark for ' . $row->item_room->items->item_name . '">';
                             $remark .= old('remarks', $row->remarks);
                             $remark .= '</textarea>';
 
                             return $remark;
                         })
                         ->addColumn('evidence', function ($row) {
-                            $evidence = '<input type="file" name="evidence" class="form-control" id="evidence" placeholder="Upload evidence for ' . $row->item_room->first()->items->item_name . '" accept="image/png, image/jpeg, ,image/jpg">';
+                            $evidence = '<input type="file" name="evidence" class="form-control" id="evidence" placeholder="Upload evidence for ' . $row->item_room->items->item_name . '" accept="image/png, image/jpeg, ,image/jpg">';
                             return $evidence;
                         })
                         ->addColumn('action', function ($row) {
@@ -193,24 +194,56 @@ class CalibrationsController extends Controller
     public function store(Request $request)
     {
         if ($request->type == 'alert') {
-            $request->validate([
-                'item_unit_id' => 'required',
-            ]);
+            DB::beginTransaction();
 
-            if (auth()->user()->can('assign technician') || auth()->user()->hasRole('superadmin')) {
-                $create = Calibrations::create([
-                    'room_id' => Items_units::find(decrypt($request->item_unit_id))->room_id,
-                    'item_room_id' => decrypt($request->item_unit_id),
-                    'status' => 5,
+            try {
+                $request->validate([
+                    'item_unit_id' => 'required',
                 ]);
-                if ($create) {
-                    // createLog(3, $create->id, 'alert calibration to unit', null, now());
+    
+                if (auth()->user()->can('assign technician') || auth()->user()->hasRole('superadmin')) {
+                    $create = Calibrations::create([
+                        'room_id' => Items_units::find(decrypt($request->item_unit_id))->room_id,
+                        'item_room_id' => decrypt($request->item_unit_id),
+                        'status' => 5,
+                    ]);
+                    // if ($create) {
+                    //     // createLog(3, $create->id, 'alert calibration to unit', null, now());
+                    //     return response()->json(['success' => 'The room has been successfully alerted!']);
+                    // } else {
+                    //     return response()->json(['error' => 'Failed to alert calibration to unit']);
+                    // }
+                    $itemUnit = Items_units::find(decrypt($request->item_unit_id));
+                    $itemLog = [
+                        'norec' => $itemUnit->norec,
+                        'norec_parent' => auth()->user()->norec,
+                        'module_id' => 7,
+                        'is_calibration' => true,
+                        'desc' => 'Item ' . $itemUnit->items->item_name . ' has been requested for calibration by ' . auth()->user()->name . ' from ' . $create->room->name . ' (' . $create->room->units->customer_name . ')',
+                        'item_unit_id' => $itemUnit->id,
+                    ];
+    
+                    $calibrationLog = [
+                        'norec' => $create->norec,
+                        // 'norec_parent' => $submissionOfRepair->norec,
+                        'module_id' => 10,
+                        'is_calibration' => true,
+                        'desc' => 'Item ' . $itemUnit->items->item_name . ' has been requested for calibration by ' . auth()->user()->name . ' from ' . $create->room->name . ' (' . $create->room->units->customer_name . ')',
+                        'item_unit_id' => $itemUnit->id,
+                    ];
+    
+                    createLog($itemLog);
+                    createLog($calibrationLog);
+
+                    DB::commit();
                     return response()->json(['success' => 'The room has been successfully alerted!']);
                 } else {
-                    return response()->json(['error' => 'Failed to alert calibration to unit']);
+                    return response()->json(['error' => 'You are not authorized to alert room']);
                 }
-            } else {
-                return response()->json(['error' => 'You are not authorized to alert room']);
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json(['error' => 'Failed to alert calibration to unit']);
             }
         } else {
             // $request->validate([
@@ -266,107 +299,231 @@ class CalibrationsController extends Controller
         $id = decrypt($id);
 
         if ($request->type == 'acceptRoom') {
-            $calibration = Calibrations::find($id);
-            $calibration->status = 6;
-            $calibration->schedule_by_room = Items_units::find($calibration->item_room_id)->calibration_date;
+            DB::beginTransaction();
 
-            if ($calibration->save()) {
-                // createLog(3, $calibration->id, 'accept calibration by room', null, now());
+            try {
+                $calibration = Calibrations::find($id);
+                $calibration->status = 6;
+                $calibration->schedule_by_room = Items_units::find($calibration->item_room_id)->calibration_date;
+                $calibration->save();
+
+                $itemLog = [
+                    'norec' => $calibration->item_room->norec,
+                    'norec_parent' => auth()->user()->norec,
+                    'module_id' => 7,
+                    'is_calibration' => true,
+                    'desc' => 'Item ' . $calibration->item_room->items->item_name . ' has been accepted for calibration by ' . auth()->user()->name . ' from ' . $calibration->room->name . ' (' . $calibration->room->units->customer_name . ')',
+                    'item_unit_id' => $calibration->item_room->id,
+                ];
+    
+                $calibrationLog = [
+                    'norec' => $calibration->norec,
+                    'module_id' => 10,
+                    'is_calibration' => true,
+                    'desc' => 'Item ' . $calibration->item_room->items->item_name . ' has been accepted for calibration by ' . auth()->user()->name . ' from ' . $calibration->room->name . ' (' . $calibration->room->units->customer_name . ')',
+                    'item_unit_id' => $calibration->item_room->id,
+                ];
+    
+                createLog($itemLog);
+                createLog($calibrationLog);
+
+                DB::commit();
                 return response()->json(['success' => 'Calibration accepted!']);
-            } else {
+            } catch (\Exception $e) {
+                DB::rollBack();
                 return response()->json(['error' => 'Failed to accept calibration']);
             }
         }
 
         if ($request->type == 'reschedule') {
-            $request->validate([
-                'newCalibration_date' => 'required',
-            ]);
+            DB::beginTransaction();
 
-            $calibration = Calibrations::find($id);
-            $calibration->status = 7;
-            $calibration->schedule_by_room = $request->newCalibration_date;
+            try {
+                $request->validate([
+                    'newCalibration_date' => 'required',
+                ]);
+    
+                $calibration = Calibrations::find($id);
+                $calibration->status = 7;
+                $calibration->schedule_by_room = $request->newCalibration_date;
+                $calibration->save();
 
-            if ($calibration->save()) {
-                // createLog(3, $calibration->id, 'reschedule calibration by room', null, $request->newCalibration_date);
+
+                $itemLog = [
+                    'norec' => $calibration->item_room->norec,
+                    'norec_parent' => auth()->user()->norec,
+                    'module_id' => 7,
+                    'is_calibration' => true,
+                    'desc' => 'Item ' . $calibration->item_room->items->item_name . ' has been rescheduled for calibration to: ' . $request->newCalibration_date . ' by ' . auth()->user()->name . ' from ' . $calibration->room->name . ' (' . $calibration->room->units->customer_name . ')',
+                    'item_unit_id' => $calibration->item_room->id,
+                ];
+
+                $calibrationLog = [
+                    'norec' => $calibration->norec,
+                    'module_id' => 10,
+                    'is_calibration' => true,
+                    'desc' => 'Item ' . $calibration->item_room->items->item_name . ' has been rescheduled for calibration to: ' . $request->newCalibration_date . ' by ' . auth()->user()->name . ' from ' . $calibration->room->name . ' (' . $calibration->room->units->customer_name . ')',
+                    'item_unit_id' => $calibration->item_room->id,
+                ];
+
+                createLog($itemLog);
+                createLog($calibrationLog);
+
+                DB::commit();
                 return redirect()->back()->with('success', 'Calibration rescheduled!');
-            } else {
+            } catch (\Exception $e) {
+                DB::rollBack();
                 return redirect()->back()->with('error', 'Failed to reschedule calibration');
             }
         }
 
         if ($request->type == 'callVendor') {
-            $calibration = Calibrations::find($id);
-            $calibration->status = 1;
-            $calibration->date_worked_on = now();
+            DB::beginTransaction();
 
-            if ($calibration->save()) {
-                // createLog(3, $calibration->id, 'call vendor for calibration', null, now());
+            try {
+                $calibration = Calibrations::find($id);
+                $calibration->status = 1;
+                $calibration->date_worked_on = now();
+                $calibration->save();
+
+                $calibrationLog = [
+                    'norec' => $calibration->norec,
+                    'norec_parent' => auth()->user()->norec,
+                    'module_id' => 10,
+                    'is_calibration' => true,
+                    'desc' => 'Technician has called vandor to calibrate on item ' . $calibration->item_room->items->item_name . ' by ' . auth()->user()->name . ' from ' . $calibration->room->name . ' (' . $calibration->room->units->customer_name . ')',
+                    'item_unit_id' => $calibration->item_room_id,
+                ];
+
+                createLog($calibrationLog);
+                
+                DB::commit();
                 return response()->json(['success' => 'Vendor has been called!']);
-            } else {
+            } catch (\Exception $e) {
+                DB::rollBack();
                 return response()->json(['error' => 'Failed to call vendor']);
             }
         }
 
         if ($request->type == 'updateCalibration') {
-            $request->validate([
-                'status' => 'required',
-                'remarks' => 'required',
-                'evidence' => 'required',
-            ]);
+            DB::beginTransaction();
 
-            $calibration = Calibrations::find($id);
-            $calibration->remarks = $request->remarks;
-            $calibration->evidence = $request->evidence;
+            try {
+                $request->validate([
+                    'status' => 'required',
+                    'remarks' => 'required',
+                    'evidence' => 'required',
+                ]);
+    
+                $calibration = Calibrations::find($id);
+                $oldCalibration = $calibration->toJson();
+                $calibration->remarks = $request->remarks;
+                $calibration->evidence = $request->evidence;
+    
+                $item_unit = Items_units::find($calibration->item_room_id);
+                $oldItemUnit = $item_unit->toJson();
+                $oldStatus = $item_unit->status;
+                $item_unit->status = $request->status;
 
-            $items = Items_units::find($calibration->item_room_id);
-            $items->status = $request->status;
+                $oldData = json_encode(array_merge(json_decode($oldCalibration, true), json_decode($oldItemUnit, true)));
+    
+                if ($request->status == 'Running') {
+                    $calibration->status = 3;
+                } elseif ($request->status == 'System Down') {
+                    $calibration->status = 2;
+                } elseif ($request->status == 'Restricted') {
+                    $calibration->status = 4;
+                }
 
-            if ($request->status == 'Running') {
-                $calibration->status = 3;
-            } elseif ($request->status == 'System Down') {
-                $calibration->status = 2;
-            } elseif ($request->status == 'Restricted') {
-                $calibration->status = 4;
-            }
+                $calibration->save();
+                $item_unit->save();
 
-            if ($calibration->save() && $items->save()) {
-                // createLog(3, $calibration->id, 'update calibration status', null, $request->status);
-                return response()->json(['success' => 'Calibration status updated!']);
-            } else {
-                return response()->json(['error' => 'Failed to update calibration status']);
+                $calibrationLog = [
+                    'norec' => $calibration->norec,
+                    'norec_parent' => auth()->user()->norec,
+                    'module_id' => 10,
+                    'is_calibration' => true,
+                    'desc' => 'Technician has UPDATED THE STATUS and REMARKS of ' . $calibration->item_room->items->item_name . ' to ' . $request->status . ' from ' . $oldStatus . ' by ' . auth()->user()->name . ' from ' . $calibration->room->name . ' (' . $calibration->room->units->customer_name . ')' . ' with REMARKS ' . $request->remarks,
+                    'old_data' => $oldData,
+                    'item_unit_id' => $calibration->item_room_id,
+                ];
+    
+                $itemLog = [
+                    'norec' => $item_unit->norec,
+                    'module_id' => 7,
+                    'is_calibration' => true,
+                    'desc' => 'STATUS of ' . $item_unit->items->item_name . ' has been UPDATED to ' . $request->status . ' from ' . $oldStatus . ' with REMARKS ' . $request->remarks,
+                    'old_data' => $oldItemUnit,
+                    'item_unit_id' => $calibration->item_room_id,
+                ];
+
+                createLog($calibrationLog);
+                createLog($itemLog);
+
+                DB::commit();
+                return response()->json(['success' => 'Calibration has been updated!']);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json(['error' => 'Failed to update calibration']);
             }
         }
 
         if ($request->type == 'finishCalibration') {
-            $request->validate([
-                'status' => 'required',
-            ]);
-            $calibration = Calibrations::find($id);
-            $calibration->date_completed = now();
+            DB::beginTransaction();
 
-            if ($calibration->status == 2) {
-                $calibration->status = 3;
-            }
+            try {
+                $request->validate([
+                    'status' => 'required',
+                ]);
+                $calibration = Calibrations::find($id);
+                $calibration->date_completed = now();
+    
+                if ($calibration->status == 2) {
+                    $calibration->status = 3;
+                }
+    
+                $items = Items_units::find($calibration->item_room_id);
+    
+                $items->status = $request->status;
+    
+                $date_completed = date('Y-m-d', strtotime($calibration->date_completed));
+                $condition = strtotime($date_completed) - strtotime($items->calibration_date);
+                // 2592000 = 30 days
+                if ($condition > 2592000) {
+                    $items->calibration_date = date('Y-m-d', strtotime($items->date_completed . ' +1 year'));
+                } else {
+                    $items->calibration_date = date('Y-m-d', strtotime($items->calibration_date . ' +1 year'));
+                }
 
-            $items = Items_units::find($calibration->item_room_id);
+                $calibration->save();
+                $items->save();
 
-            $items->status = $request->status;
+                $calibrationLog = [
+                    'norec' => $calibration->norec,
+                    'norec_parent' => auth()->user()->norec,
+                    'module_id' => 10,
+                    'is_calibration' => true,
+                    'desc' => 'Technician has finished calibration ' . $calibration->item_room->items->item_name . ' by ' . auth()->user()->name . ' from ' . $calibration->room->name . ' (' . $calibration->room->units->customer_name . ')',
+                    'old_data' => $calibration->toJson(),
+                    'item_unit_id' => $calibration->item_room_id,
+                ];
+    
+                $itemLog = [
+                    'norec' => $items->norec,
+                    'module_id' => 7,
+                    'is_calibration' => true,
+                    'desc' => 'Calibration of ' . $calibration->item_room->items->item_name . ' has been FINISHED by vendor from ' . $calibration->room->name . ' (' . $calibration->room->units->customer_name . ') with last STATUS ' . $calibration->item_room->status . ' and REMARKS ' . $calibration->remarks,
+                    'old_data' => $calibration->item_room->toJson(),
+                    'item_unit_id' => $calibration->item_room_id,
+                ];
 
-            $date_completed = date('Y-m-d', strtotime($calibration->date_completed));
-            $condition = strtotime($date_completed) - strtotime($items->calibration_date);
-            // 2592000 = 30 days
-            if ($condition > 2592000) {
-                $items->calibration_date = date('Y-m-d', strtotime($items->date_completed . ' +1 year'));
-            } else {
-                $items->calibration_date = date('Y-m-d', strtotime($items->calibration_date . ' +1 year'));
-            }
-            $items->save();
+                createLog($calibrationLog);
+                createLog($itemLog);
 
-            if ($calibration->save()) {
-                // createLog(3, $calibration->id, 'finish calibration', null, now());
+                DB::commit();
                 return response()->json(['success' => 'Calibration has been finished!']);
-            } else {
+            } catch (\Exception $e) {
+                DB::rollBack();
                 return response()->json(['error' => 'Failed to finish calibration']);
             }
         }
@@ -399,25 +556,25 @@ class CalibrationsController extends Controller
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('item', function ($row) {
-                    $items = $row->item_room->first()->items->item_name;
+                    $items = $row->item_room->items->item_name;
                     return $items;
                 })
                 ->addColumn('room', function ($row) {
                     return $row->room->name;
                 })
                 ->addColumn('serial_number', function ($row) {
-                    return $row->item_room->first()->serial_number;
+                    return $row->item_room->serial_number;
                 })
                 ->addColumn('calibration_date', function ($row) {
-                    return Carbon::parse($row->item_room->first()->calibration_date)->isoFormat('D MMMM Y');
+                    return Carbon::parse($row->item_room->calibration_date)->isoFormat('D MMMM Y');
                 })
                 ->addColumn('reschedule_date', function ($row) {
                     $date = '';
                     if ($row->status == 5) {
                         $date = '<span class="badge rounded-pill text-bg-info">Waiting Room Confirmation</span>';
-                    } elseif ($row->schedule_by_room == $row->item_room->first()->calibration_date) {
+                    } elseif ($row->schedule_by_room == $row->item_room->calibration_date) {
                         $date = '<span class="badge rounded-pill text-bg-success">According To The Schedule</span>';
-                    } elseif ($row->schedule_by_room != $row->item_room->first()->calibration_date) {
+                    } elseif ($row->schedule_by_room != $row->item_room->calibration_date) {
                         $date = Carbon::parse($row->schedule_by_room)->isoFormat('D MMMM Y');
                     }
                     return $date;
@@ -436,7 +593,27 @@ class CalibrationsController extends Controller
                         return '<span class="badge rounded-pill text-bg-info">Not Completed Yet</span>';
                     }
                 })
-                ->rawColumns(['worked_on', 'completed', 'reschedule_date'])
+                ->addColumn('action', function ($row) {
+                    $btn = '<div class="d-flex justify-content-center align-items-center">';
+                    $log = [
+                        'norec' => $row->norec ?? null,
+                        'module_id' => 10,
+                        'status' => 'is_maintenance',
+                    ];
+                    $showLogBtn = 
+                        "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
+                            data-bs-target='#exampleModal'
+                            data-title='Detail Log' data-bs-tooltip='tooltip'
+                            data-remote=" . route('log.getLog', ['norec' => $log['norec'], 'module' => $log['module_id'], 'status' => $log['status']]) . "
+                            title='Log Information'>
+                            <i class='ph-duotone ph-info'></i>
+                        </a>
+                    ";
+
+                    $btn .= $showLogBtn . '</div>';
+                    return $btn;
+                })
+                ->rawColumns(['worked_on', 'completed', 'reschedule_date', 'action'])
                 ->make(true);
         } else {
             return view('calibrations.history');
@@ -458,31 +635,31 @@ class CalibrationsController extends Controller
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('item', function ($row) {
-                    $items = $row->item_room->first()->items->item_name;
+                    $items = $row->item_room->items->item_name;
                     return $items;
                 })
                 ->addColumn('serial_number', function ($row) {
-                    return $row->item_room->first()->serial_number;
+                    return $row->item_room->serial_number;
                 })
                 ->addColumn('calibration_date', function ($row) {
-                    if (Carbon::parse($row->item_room->first()->calibration_date)->lessThan(now())) {
-                        $info = Carbon::parse($row->item_room->first()->calibration_date)->isoFormat('D MMMM Y') . '  <span class="badge rounded-pill text-bg-danger">Overdue</span>';
+                    if (Carbon::parse($row->item_room->calibration_date)->lessThan(now())) {
+                        $info = Carbon::parse($row->item_room->calibration_date)->isoFormat('D MMMM Y') . '  <span class="badge rounded-pill text-bg-danger">Overdue</span>';
                     } else {
-                        $info = Carbon::parse($row->item_room->first()->calibration_date)->isoFormat('D MMMM Y');
+                        $info = Carbon::parse($row->item_room->calibration_date)->isoFormat('D MMMM Y');
                     }
                     return $info;
                 })
                 ->addColumn('action', function ($row) {
                     if ($row->status == 5) {
                         $btn = '<div class="d-flex justify-content-center align-items-center">';
-                        if (Carbon::parse($row->item_room->first()->calibration_date)->greaterThan(now())) {
-                            $btn = '<button type="button" class="btn btn-success btn-sm accCalibration" title="Accept Calibration" data-id="' . encrypt($row->id) . '" data-name="' . $row->item_room->first()->items->item_name . '"><i class="ph ph-duotone ph-check"></i></button>';
+                        if (Carbon::parse($row->item_room->calibration_date)->greaterThan(now())) {
+                            $btn = '<button type="button" class="btn btn-success btn-sm accCalibration" title="Accept Calibration" data-id="' . encrypt($row->id) . '" data-name="' . $row->item_room->items->item_name . '"><i class="ph ph-duotone ph-check"></i></button>';
                         }
-                        $btn .= '<button type="button" class="btn btn-warning btn-sm rescheduleCalibration" title="Reschedule Calibration" data-id="' . encrypt($row->id) . '" data-name="' . $row->item_room->first()->items->item_name . '"><i class="ph ph-duotone ph-pencil-line"></i></button>';
+                        $btn .= '<button type="button" class="btn btn-warning btn-sm rescheduleCalibration" title="Reschedule Calibration" data-id="' . encrypt($row->id) . '" data-name="' . $row->item_room->items->item_name . '"><i class="ph ph-duotone ph-pencil-line"></i></button>';
                         $btn .= '</div>';
-                    } else if ($row->schedule_by_room == $row->item_room->first()->calibration_date) {
+                    } else if ($row->schedule_by_room == $row->item_room->calibration_date) {
                         $btn = '<span class="badge text-bg-success">According To The Schedule</span>';
-                    } else if ($row->schedule_by_room != $row->item_room->first()->calibration_date) {
+                    } else if ($row->schedule_by_room != $row->item_room->calibration_date) {
                         $btn = '<span class="badge text-bg-info">Rescheduled</span>';
                     } else {
                         $btn = '<span class="badge rounded-pill text-bg-info">Nothing To Do Here</span>';
