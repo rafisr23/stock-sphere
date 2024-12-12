@@ -200,7 +200,7 @@ class CalibrationsController extends Controller
                 $request->validate([
                     'item_unit_id' => 'required',
                 ]);
-    
+
                 if (auth()->user()->can('assign technician') || auth()->user()->hasRole('superadmin')) {
                     $create = Calibrations::create([
                         'room_id' => Items_units::find(decrypt($request->item_unit_id))->room_id,
@@ -222,7 +222,7 @@ class CalibrationsController extends Controller
                         'desc' => 'Item ' . $itemUnit->items->item_name . ' has been requested for calibration by ' . auth()->user()->name . ' from ' . $create->room->name . ' (' . $create->room->units->customer_name . ')',
                         'item_unit_id' => $itemUnit->id,
                     ];
-    
+
                     $calibrationLog = [
                         'norec' => $create->norec,
                         // 'norec_parent' => $submissionOfRepair->norec,
@@ -231,7 +231,7 @@ class CalibrationsController extends Controller
                         'desc' => 'Item ' . $itemUnit->items->item_name . ' has been requested for calibration by ' . auth()->user()->name . ' from ' . $create->room->name . ' (' . $create->room->units->customer_name . ')',
                         'item_unit_id' => $itemUnit->id,
                     ];
-    
+
                     createLog($itemLog);
                     createLog($calibrationLog);
 
@@ -240,7 +240,6 @@ class CalibrationsController extends Controller
                 } else {
                     return response()->json(['error' => 'You are not authorized to alert room']);
                 }
-
             } catch (\Exception $e) {
                 DB::rollBack();
                 return response()->json(['error' => 'Failed to alert calibration to unit']);
@@ -315,7 +314,7 @@ class CalibrationsController extends Controller
                     'desc' => 'Item ' . $calibration->item_room->items->item_name . ' has been accepted for calibration by ' . auth()->user()->name . ' from ' . $calibration->room->name . ' (' . $calibration->room->units->customer_name . ')',
                     'item_unit_id' => $calibration->item_room->id,
                 ];
-    
+
                 $calibrationLog = [
                     'norec' => $calibration->norec,
                     'module_id' => 10,
@@ -323,7 +322,7 @@ class CalibrationsController extends Controller
                     'desc' => 'Item ' . $calibration->item_room->items->item_name . ' has been accepted for calibration by ' . auth()->user()->name . ' from ' . $calibration->room->name . ' (' . $calibration->room->units->customer_name . ')',
                     'item_unit_id' => $calibration->item_room->id,
                 ];
-    
+
                 createLog($itemLog);
                 createLog($calibrationLog);
 
@@ -342,7 +341,7 @@ class CalibrationsController extends Controller
                 $request->validate([
                     'newCalibration_date' => 'required',
                 ]);
-    
+
                 $calibration = Calibrations::find($id);
                 $calibration->status = 7;
                 $calibration->schedule_by_room = $request->newCalibration_date;
@@ -396,7 +395,7 @@ class CalibrationsController extends Controller
                 ];
 
                 createLog($calibrationLog);
-                
+
                 DB::commit();
                 return response()->json(['success' => 'Vendor has been called!']);
             } catch (\Exception $e) {
@@ -414,19 +413,19 @@ class CalibrationsController extends Controller
                     'remarks' => 'required',
                     'evidence' => 'required',
                 ]);
-    
+
                 $calibration = Calibrations::find($id);
                 $oldCalibration = $calibration->toJson();
                 $calibration->remarks = $request->remarks;
                 $calibration->evidence = $request->evidence;
-    
+
                 $item_unit = Items_units::find($calibration->item_room_id);
                 $oldItemUnit = $item_unit->toJson();
                 $oldStatus = $item_unit->status;
                 $item_unit->status = $request->status;
 
                 $oldData = json_encode(array_merge(json_decode($oldCalibration, true), json_decode($oldItemUnit, true)));
-    
+
                 if ($request->status == 'Running') {
                     $calibration->status = 3;
                 } elseif ($request->status == 'System Down') {
@@ -447,7 +446,7 @@ class CalibrationsController extends Controller
                     'old_data' => $oldData,
                     'item_unit_id' => $calibration->item_room_id,
                 ];
-    
+
                 $itemLog = [
                     'norec' => $item_unit->norec,
                     'module_id' => 7,
@@ -477,15 +476,15 @@ class CalibrationsController extends Controller
                 ]);
                 $calibration = Calibrations::find($id);
                 $calibration->date_completed = now();
-    
+
                 if ($calibration->status == 2) {
                     $calibration->status = 3;
                 }
-    
+
                 $items = Items_units::find($calibration->item_room_id);
-    
+
                 $items->status = $request->status;
-    
+
                 $date_completed = date('Y-m-d', strtotime($calibration->date_completed));
                 $condition = strtotime($date_completed) - strtotime($items->calibration_date);
                 // 2592000 = 30 days
@@ -507,7 +506,7 @@ class CalibrationsController extends Controller
                     'old_data' => $calibration->toJson(),
                     'item_unit_id' => $calibration->item_room_id,
                 ];
-    
+
                 $itemLog = [
                     'norec' => $items->norec,
                     'module_id' => 7,
@@ -600,7 +599,7 @@ class CalibrationsController extends Controller
                         'module_id' => 10,
                         'status' => 'is_maintenance',
                     ];
-                    $showLogBtn = 
+                    $showLogBtn =
                         "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
                             data-bs-target='#exampleModal'
                             data-title='Detail Log' data-bs-tooltip='tooltip'
