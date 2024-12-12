@@ -22,8 +22,7 @@ class DetailsOfRepairSubmissionController extends Controller
             $table = request('table');
             if ($table === 'repairments') {
                 if (auth()->user()->hasRole('technician') && !auth()->user()->can('assign technician')) {
-                    $technician = Technician::where('user_id', auth()->user()->id)->first();
-                    $details_of_repair_submission = DetailsOfRepairSubmission::where('technician_id', $technician->id)->get();
+                    $details_of_repair_submission = DetailsOfRepairSubmission::where('technician_id', auth()->user()->technician->id)->get();
                 } else {
                     $details_of_repair_submission = DetailsOfRepairSubmission::all();
                 }
@@ -57,7 +56,7 @@ class DetailsOfRepairSubmissionController extends Controller
                     ->addColumn('action', function ($row) {
                         $btn = '<div class="d-flex justify-content-center align-items-center">';
                         $btn .= '<a href="' . route('repairments.show', encrypt($row->id)) . '" class="view btn btn-info btn-sm me-2" title="Show data"><i class="ph-duotone ph-eye"></i></a>';
-                        if ($row->date_worked_on == null && $row->date_cancelled == null && $row->status == 0) {
+                        if ($row->date_worked_on == null && $row->date_cancelled == null && $row->status == 0 && $row->technician_id != null) {
                             $btn .= '<a href="#" class="accept btn btn-success btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Accept Repairment"><i class="ph-duotone ph-check"></i></a>';
                             $btn .= '<a href="#" class="cancel btn btn-danger btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Cancel Repairment"><i class="ph-duotone ph-x"></i></a>';
                         }
@@ -217,12 +216,10 @@ class DetailsOfRepairSubmissionController extends Controller
             DB::beginTransaction();
             try {
                 $details_of_repair_submission->date_worked_on = now();
-
                 if ($submission_of_repair->date_worked_on == null) {
                     $submission_of_repair->date_worked_on = now();
                     $submission_of_repair->save();
                 }
-                
                 $detailLog = [
                     'norec' => $details_of_repair_submission->norec,
                     'norec_parent' => $submission_of_repair->norec,
@@ -233,7 +230,6 @@ class DetailsOfRepairSubmissionController extends Controller
                     'item_unit_status' => $details_of_repair_submission->itemUnit->status,
                     'technician_id' => $details_of_repair_submission->technician_id,
                 ];
-
                 $technicianLog = [
                     'norec' => auth()->user()->technician->norec,
                     'module_id' => 8,
@@ -243,27 +239,26 @@ class DetailsOfRepairSubmissionController extends Controller
                     'item_unit_status' => $details_of_repair_submission->itemUnit->status,
                     'technician_id' => $details_of_repair_submission->technician_id,
                 ];
-    
                 createLog($detailLog);
                 createLog($technicianLog);
-
                 DB::commit();
             } catch (\Exception $e) {
                 DB::rollBack();
-                return response()->json(['error' => 'Failed to accept repairments']);
+                return response()->json(['error' => 'Failed to accept repairments ' . $e->getMessage()]);
             }
         } elseif ($state == 'canceled') {
             DB::beginTransaction();
 
             try {
                 $details_of_repair_submission->date_cancelled = now();
-    
+
                 $allCancelled = DetailsOfRepairSubmission::where('submission_of_repair_id', $details_of_repair_submission->submission_of_repair_id)
                     ->whereNull('date_cancelled')
                     ->doesntExist();
-    
+
                 if ($allCancelled) {
                     $submission_of_repair->date_cancelled = now();
+                    $submission_of_repair->status = 4;
 
                     $submissionLog = [
                         'norec' => $submission_of_repair->norec,
@@ -298,7 +293,7 @@ class DetailsOfRepairSubmissionController extends Controller
 
                 createLog($detailLog);
                 createLog($technicianLog);
-                
+
                 DB::commit();
             } catch (\Exception $e) {
                 DB::rollBack();
@@ -337,6 +332,11 @@ class DetailsOfRepairSubmissionController extends Controller
                 return response()->json(['error', 'message' => 'Repairments already completed']);
             }
             $details_of_repair_submission->status = 1;
+            $submission_of_repair = SubmissionOfRepair::find($details_of_repair_submission->submission_of_repair_id);
+            if ($submission_of_repair->status == 0) {
+                $submission_of_repair->status = 1;
+                $submission_of_repair->save();
+            }
 
             $detailLog = [
                 'norec' => $details_of_repair_submission->norec,
@@ -364,11 +364,11 @@ class DetailsOfRepairSubmissionController extends Controller
 
             if ($details_of_repair_submission->save()) {
                 DB::commit();
-                return response()->json(['success' => 'Repairments completed successfully']);
+                return response()->json(['success' => 'Items repairments started successfully']);
             }
-            
+
             DB::rollBack();
-            return response()->json(['error' => 'Failed to complete repairments']);
+            return response()->json(['error' => 'Failed to start repairments']);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['error' => 'Failed to start repairments']);
@@ -576,8 +576,12 @@ class DetailsOfRepairSubmissionController extends Controller
             $allCompleted = DetailsOfRepairSubmission::where('submission_of_repair_id', $details_of_repair_submission->submission_of_repair_id)
                 ->whereNotNull('date_completed')
                 ->count();
-            if ($allCompleted + 1 == $fullData) {
+            $allCancelled = DetailsOfRepairSubmission::where('submission_of_repair_id', $details_of_repair_submission->submission_of_repair_id)
+                ->whereNotNull('date_cancelled')
+                ->doesntExist();
+            if ($allCompleted + $allCancelled + 1 == $fullData) {
                 $submission_of_repair->date_completed = now();
+                $submission_of_repair->status = 3;
             }
 
             $details_of_repair_submission->save();
@@ -673,43 +677,43 @@ class DetailsOfRepairSubmissionController extends Controller
         try {
             // Ambil input evidence dari request
             $evidence = $request->input('repairments_evidence');
-        
+
             $tempDir = public_path('temp');
             $targetDir = public_path('images/evidence');
-        
+
             // Pastikan direktori tujuan ada
             if (!File::exists($targetDir)) {
                 File::makeDirectory($targetDir, 0755, true);
             }
-        
+
             $pattern = "*_temp_" . $evidence; // contoh: "*_temp_Screenshot_..."
             $files = glob($tempDir . DIRECTORY_SEPARATOR . $pattern);
-        
+
             // Periksa apakah file ditemukan
             if (empty($files)) {
                 return response()->json(['message' => 'File not found'], 404);
             }
-        
+
             // Ambil file pertama yang cocok
             $sourceFile = $files[0];
-        
+
             // Tentukan nama file tujuan
             $targetFile = $targetDir . DIRECTORY_SEPARATOR . $evidence;
             $path = 'images/evidence' . DIRECTORY_SEPARATOR . $evidence;
-        
+
             // Salin file dari temporary directory ke target directory
             if (File::copy($sourceFile, $targetFile)) {
                 // Validasi input
                 $request->validate([
                     'repairments_evidence' => 'required',
                 ]);
-        
+
                 // Simpan data ke database
                 $create = EvidenceTechnicianRepairments::create([
                     'details_of_repair_submission_id' => decrypt($id),
                     'evidence' => $path,
                 ]);
-        
+
                 if ($create) {
                     $detailSubmission = DetailsOfRepairSubmission::find(decrypt($id));
                     $detailLog = [
@@ -742,7 +746,7 @@ class DetailsOfRepairSubmissionController extends Controller
             }
             DB::rollBack();
             return redirect()->back()->with('error', 'Failed to upload evidence');
-        
+
         } catch (ValidationException $e) {
             DB::rollBack();
             return redirect()->back()->withErrors($e->validator)->withInput();

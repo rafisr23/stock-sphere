@@ -100,7 +100,7 @@
     @endif
 
     <!-- [ Main Content ] start -->
-    @if (auth()->user()->hasRole('superadmin'))
+    @if (auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('room'))
         <div class="col-lg-16">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
@@ -150,6 +150,68 @@
                             @endforeach
                         </select>
                     </div>
+                    <p class="mb-0">From date</p>
+                    <input type="date" name="fromDateSparepart" id="fromDateSparepart"
+                        class="form-control form-control-sm w-auto border-0 shadow-none2">
+                    <p class="mb-0">To date</p>
+                    <input type="date" name="toDateSparepart" id="toDateSparepart"
+                        class="form-control form-control-sm w-auto border-0 shadow-none2">
+                </div>
+                <div class="card-body">
+                    @if ($sparepart_repairments_count->isEmpty())
+                        <div class="d-flex justify-content-center align-items-center">
+                            <h4 class="text-center">No data available</h4>
+                        </div>
+                    @else
+                        <div id="sparepartsRepairmentGraph"></div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if (auth()->user()->hasRole('technician'))
+        <div class="col-lg-16">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Notif Trend Repairments</h4>
+                    <div class="mb-0">
+                        <ul class="list-inline me-auto mb-3 mb-sm-0">
+                            <li class="list-inline-item"> Chart Type</li>
+                            <li class="list-inline-item">
+                                <button id="chart-line" class="avtar avtar-s btn btn-light-secondary">
+                                    <i class="ph-duotone ph-chart-line f-18"></i>
+                                </button>
+                            </li>
+                            <li class="list-inline-item">
+                                <button id="chart-pie" class="avtar avtar-s btn btn-light-secondary">
+                                    <i class="ph-duotone ph-chart-pie f-18"></i>
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    <p class="mb-0">From date</p>
+                    <input type="date" name="fromDateItem" id="fromDateItem"
+                        class="form-control form-control-sm w-auto border-0 shadow-none2">
+                    <p class="mb-0">To date</p>
+                    <input type="date" name="toDateItem" id="toDateItem"
+                        class="form-control form-control-sm w-auto border-0 shadow-none2">
+                </div>
+                <div class="card-body">
+                    @if ($items_repairments_count->isEmpty())
+                        <div class="d-flex justify-content-center align-items-center">
+                            <h4 class="text-center">No data available</h4>
+                        </div>
+                    @else
+                        <div id="itemsRepairmentGraph"></div>
+                    @endif
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-16">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Sparepart Consumption</h4>
                     <p class="mb-0">From date</p>
                     <input type="date" name="fromDateSparepart" id="fromDateSparepart"
                         class="form-control form-control-sm w-auto border-0 shadow-none2">

@@ -83,22 +83,26 @@ class HomeController extends Controller
             $calibrationExpired = 'false';
 
             foreach ($items2 as $item) {
-                if (Carbon::parse($loginDate)->greaterThan($item->maintenance_date) && !Maintenances::where('item_room_id', $item->id)
-                    ->whereBetween('created_at', [
-                        Carbon::parse($loginDate)->startOfMonth(),
-                        Carbon::parse($loginDate)->endOfMonth()
-                    ])->exists()) {
+                if (
+                    Carbon::parse($loginDate)->greaterThan($item->maintenance_date) && !Maintenances::where('item_room_id', $item->id)
+                        ->whereBetween('created_at', [
+                            Carbon::parse($loginDate)->startOfMonth(),
+                            Carbon::parse($loginDate)->endOfMonth()
+                        ])->exists()
+                ) {
                     $maintenanceExpired = 'true';
                     break;
                 }
             }
 
             foreach ($items2 as $item) {
-                if (Carbon::parse($loginDate)->greaterThan($item->calibration_date) && !Calibrations::where('item_room_id', $item->id)
-                    ->whereBetween('created_at', [
-                        Carbon::parse($loginDate)->startOfMonth(),
-                        Carbon::parse($loginDate)->endOfMonth()
-                    ])->exists()) {
+                if (
+                    Carbon::parse($loginDate)->greaterThan($item->calibration_date) && !Calibrations::where('item_room_id', $item->id)
+                        ->whereBetween('created_at', [
+                            Carbon::parse($loginDate)->startOfMonth(),
+                            Carbon::parse($loginDate)->endOfMonth()
+                        ])->exists()
+                ) {
                     $calibrationExpired = 'true';
                     break;
                 }
@@ -122,8 +126,73 @@ class HomeController extends Controller
             $maintenanceSoonRoom = Maintenances::where('room_id', auth()->user()->room->id)->where('status', 5)->exists();
             $calibrationSoonRoom = Calibrations::where('room_id', auth()->user()->room->id)->where('status', 5)->exists();
 
-            return view('index', compact('maintenanceSoonRoom', 'calibrationSoonRoom'));
-            // return view('index', compact('maintenanceSoon', 'maintenanceExpired'));
+            $items_units = Items_units::where('room_id', auth()->user()->room->id)->get();
+            $items_repairments_count = DB::table('items_units as iu')
+                // get data items_units from details_of_repair_submissions so we can count the repairments by item
+                ->leftJoin('details_of_repair_submissions as d', 'iu.id', '=', 'd.item_unit_id')
+                ->leftJoin('items as i', 'iu.item_id', '=', 'i.id')
+                ->leftJoin('rooms as r', 'iu.room_id', '=', 'r.id')
+                ->select('i.item_name', 'd.created_at as date')
+                ->where('d.item_unit_id', '!=', null, )
+                ->where('r.id', '=', auth()->user()->room->id)
+                ->get();
+
+            $sparepart_repairments_count = DB::table('spareparts as s')
+                ->select('s.name as sparepart_name', 'i.id as items_id', 'd.created_at as date')
+                ->leftJoin('spareparts_of_repairs as sr', 's.id', '=', 'sr.sparepart_id')
+                ->leftJoin('details_of_repair_submissions as d', 'sr.details_of_repair_submission_id', '=', 'd.id')
+                ->leftJoin('items_units as iu', 'd.item_unit_id', '=', 'iu.id')
+                ->leftJoin('items as i', 'iu.item_id', '=', 'i.id')
+                ->leftJoin('rooms as r', 'iu.room_id', '=', 'r.id')
+                ->where('sr.sparepart_id', '!=', null)
+                ->where('r.id', '=', auth()->user()->room->id)
+                ->get();
+
+            return view('index', compact('maintenanceSoonRoom', 'calibrationSoonRoom', 'items_repairments_count', 'items_units', 'sparepart_repairments_count'));
+        } else if (auth()->user()->hasRole('technician')) {
+            $items_repairments_count = DB::table('items_units as iu')
+                // get data items_units from details_of_repair_submissions so we can count the repairments by item
+                ->leftJoin('details_of_repair_submissions as d', 'iu.id', '=', 'd.item_unit_id')
+                ->leftJoin('items as i', 'iu.item_id', '=', 'i.id')
+                ->select('i.item_name', 'd.created_at as date')
+                ->where('d.item_unit_id', '!=', null)
+                ->where('d.technician_id', '=', auth()->user()->technician->id)
+                ->get();
+            $sparepart_repairments_count = DB::table('spareparts as s')
+                ->select('s.name as sparepart_name', 'i.id as items_id', 'd.created_at as date')
+                ->leftJoin('spareparts_of_repairs as sr', 's.id', '=', 'sr.sparepart_id')
+                ->leftJoin('details_of_repair_submissions as d', 'sr.details_of_repair_submission_id', '=', 'd.id')
+                ->leftJoin('items_units as iu', 'd.item_unit_id', '=', 'iu.id')
+                ->leftJoin('items as i', 'iu.item_id', '=', 'i.id')
+                ->where('sr.sparepart_id', '!=', null)
+                ->where('d.technician_id', '=', auth()->user()->technician->id)
+                ->get();
+
+            return view('index', compact('items_repairments_count', 'sparepart_repairments_count'));
+        } else if (auth()->user()->hasRole('unit')) {
+            $items_repairments_count = DB::table('items_units as iu')
+                // get data items_units from details_of_repair_submissions so we can count the repairments by item
+                ->select('i.item_name', 'd.created_at as date')
+                ->leftJoin('details_of_repair_submissions as d', 'iu.id', '=', 'd.item_unit_id')
+                ->leftJoin('items as i', 'iu.item_id', '=', 'i.id')
+                ->leftJoin('rooms as r', 'iu.room_id', '=', 'r.id')
+                ->leftJoin('units as u', 'r.unit_id', '=', 'u.id')
+                ->where('d.item_unit_id', '!=', null)
+                ->where('u.id', '=', auth()->user()->unit->id)
+                ->get();
+            $sparepart_repairments_count = DB::table('spareparts as s')
+                ->select('s.name as sparepart_name', 'i.id as items_id', 'd.created_at as date')
+                ->leftJoin('spareparts_of_repairs as sr', 's.id', '=', 'sr.sparepart_id')
+                ->leftJoin('details_of_repair_submissions as d', 'sr.details_of_repair_submission_id', '=', 'd.id')
+                ->leftJoin('items_units as iu', 'd.item_unit_id', '=', 'iu.id')
+                ->leftJoin('items as i', 'iu.item_id', '=', 'i.id')
+                ->leftJoin('rooms as r', 'iu.room_id', '=', 'r.id')
+                ->leftJoin('units as u', 'r.unit_id', '=', 'u.id')
+                ->where('sr.sparepart_id', '!=', null)
+                ->where('u.id', '=', auth()->user()->unit->id)
+                ->get();
+
+            return view('index', compact('items_repairments_count', 'sparepart_repairments_count'));
         } else {
             return view('index');
         }
