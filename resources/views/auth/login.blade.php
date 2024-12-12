@@ -7,9 +7,11 @@
         <div class="card my-5">
             <div class="card-body">
                 <div class="text-center">
-                    <img src="{{ URL::asset('build/images/authentication/img-auth-login.png') }}" alt="images"
+                    <img src="{{ URL::asset('images/rslogo1.png') }}" alt="images"
                         class="img-fluid mb-3">
-                    <h4 class="f-w-500 mb-4">Login with your username</h4>
+                    <h3 class="f-w-500 text-primary mb-0">Welcome to Simpel Lada</h3>
+                    <p class="mt-0 text-muted">Sistem pelayanan evaluasi dan data</p>
+                    <h4 class="f-w-500 mb-4 text-primary">Please login with your username</h4>
                     {{-- <p class="mb-3">Don't have an Account? <a href="{{ route('register') }}"
                             class="link-primary ms-1">Create Account</a></p> --}}
                 </div>
