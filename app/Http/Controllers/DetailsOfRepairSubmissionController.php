@@ -220,6 +220,7 @@ class DetailsOfRepairSubmissionController extends Controller
                     $submission_of_repair->date_worked_on = now();
                     $submission_of_repair->save();
                 }
+
                 $detailLog = [
                     'norec' => $details_of_repair_submission->norec,
                     'norec_parent' => $submission_of_repair->norec,
@@ -239,12 +240,15 @@ class DetailsOfRepairSubmissionController extends Controller
                     'item_unit_status' => $details_of_repair_submission->itemUnit->status,
                     'technician_id' => $details_of_repair_submission->technician_id,
                 ];
+
                 createLog($detailLog);
                 createLog($technicianLog);
                 DB::commit();
             } catch (\Exception $e) {
                 DB::rollBack();
-                return response()->json(['error' => 'Failed to accept repairments ' . $e->getMessage()]);
+                
+                return response()->json(['error' => 'Failed to accept repairments: ' . $e->getMessage()]);
+
             }
         } elseif ($state == 'canceled') {
             DB::beginTransaction();

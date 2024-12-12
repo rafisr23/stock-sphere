@@ -3,14 +3,14 @@
 <!-- [Head] start -->
 
 <head>
-    <title>@yield('title') | Stock Sphere</title>
+    <title>@yield('title') | Simpel Lada</title>
     <!-- [Meta] -->
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     {{-- <meta name="description"
         content="Light Able admin and dashboard template offer a variety of UI elements and pages, ensuring your admin panel is both fast and effective." /> --}}
-    <meta name="author" content="stocksphere" />
+    <meta name="author" content="simpellada" />
 
     <!-- [Favicon] icon -->
     <link rel="icon" href="{{ URL::asset('build/images/favicon.svg') }}" type="image/x-icon">
@@ -53,7 +53,7 @@
                 <hr class="mb-3 mt-4" />
                 <div class="row">
                     <div class="col my-1">
-                        <p class="m-0"> &copy; {{ date('Y') }} Stock Sphere. All Rights Reserved.</p>
+                        <p class="m-0"> &copy; {{ date('Y') }} Simpel Lada. All Rights Reserved.</p>
                     </div>
                     <div class="col-auto my-1">
                         <ul class="list-inline footer-link mb-0">

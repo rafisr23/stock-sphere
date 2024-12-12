@@ -163,7 +163,7 @@
             <span class="pc-micon">
                 <i class="ph-duotone ph-users-three"></i>
             </span>
-            <span class="pc-mtext">User Managament</span>
+            <span class="pc-mtext">User Management</span>
             <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
         </a>
         <ul class="pc-submenu">

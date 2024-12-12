@@ -43,49 +43,49 @@ class RoleAccountSeeder extends Seeder
 
         $superadmin = User::create([
             'name' => 'Super Admin',
-            'email' => 'superadmin@stocksphere.com',
+            'email' => 'superadmin@simpellada.com',
             'username' => 'superadmin',
             'password' => bcrypt('superadmin'),
         ])->assignRole('superadmin');
 
         $unit = User::create([
             'name' => 'Unit',
-            'email' => 'unit@stocksphere.com',
+            'email' => 'unit@simpellada.com',
             'username' => 'unit',
             'password' => bcrypt('unit'),
         ])->assignRole('unit');
 
         $technician = User::create([
             'name' => 'Technician',
-            'email' => 'technician@stocksphere.com',
+            'email' => 'technician@simpellada.com',
             'username' => 'technician',
             'password' => bcrypt('technician'),
         ])->assignRole('technician');
 
         $technician2 = User::create([
             'name' => 'Technician 2',
-            'email' => 'technician2@stocksphere.com',
+            'email' => 'technician2@simpellada.com',
             'username' => 'technician2',
             'password' => bcrypt('technician2'),
         ])->assignRole('technician');
 
         $icu = User::create([
             'name' => 'ICU',
-            'email' => 'icu@stocksphere.com',
+            'email' => 'icu@simpellada.com',
             'username' => 'icu',
             'password' => bcrypt('icu'),
         ])->assignRole('room');
 
         $radiology = User::create([
             'name' => 'Radiology',
-            'email' => 'radiology@stocksphere.com',
+            'email' => 'radiology@simpellada.com',
             'username' => 'radiology',
             'password' => bcrypt('radiology'),
         ])->assignRole('room');
 
         $laboratory = User::create([
             'name' => 'Laboratory',
-            'email' => 'laboratory@stocksphere.com',
+            'email' => 'laboratory@simpellada.com',
             'username' => 'laboratory',
             'password' => bcrypt('laboratory'),
         ])->assignRole('room');
@@ -93,25 +93,25 @@ class RoleAccountSeeder extends Seeder
         for ($i = 0; $i < 10; $i++) {
             $user = User::create([
                 'name' => 'User Room' . $i,
-                'email' => 'user_room' . $i . '@stocksphere.com',
+                'email' => 'user_room' . $i . '@simpellada.com',
                 'username' => 'user_room' . $i,
                 'password' => bcrypt('password'),
             ])->assignRole('room');
         }
-        
+
         for ($i = 0; $i < 10; $i++) {
             $user = User::create([
                 'name' => 'User Tech' . $i,
-                'email' => 'user_tech' . $i . '@stocksphere.com',
+                'email' => 'user_tech' . $i . '@simpellada.com',
                 'username' => 'user_tech' . $i,
                 'password' => bcrypt('password'),
             ])->assignRole('technician');
         }
-        
+
         for ($i = 0; $i < 10; $i++) {
             $user = User::create([
                 'name' => 'User Unit' . $i,
-                'email' => 'user_unit' . $i . '@stocksphere.com',
+                'email' => 'user_unit' . $i . '@simpellada.com',
                 'username' => 'user_unit' . $i,
                 'password' => bcrypt('password'),
             ])->assignRole('unit');
@@ -119,7 +119,7 @@ class RoleAccountSeeder extends Seeder
 
         $techLeader = User::create([
             'name' => 'Technician Leader',
-            'email' => 'techlead@stocksphere.com',
+            'email' => 'techlead@simpellada.com',
             'username' => 'techlead',
             'password' => bcrypt('techlead'),
         ])->assignRole('technician')->givePermissionTo($permission);

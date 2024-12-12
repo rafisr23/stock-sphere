@@ -4,7 +4,8 @@
         <div class="m-header">
             <a href="{{ route('home.index') }}" class="b-brand text-primary">
                 <!-- ========   Change your logo from here   ============ -->
-                <img src="{{ URL::asset('build/images/logo-dark.svg') }}" alt="logo image" class="logo-lg">
+                {{-- <img src="{{ URL::asset('build/images/logo-dark.svg') }}" alt="logo image" class="logo-lg"> --}}
+                <h4><i class="ph ph ph-duotone ph-swap"></i> SIMPEL LADA</h4>
             </a>
         </div>
         <div class="navbar-content">

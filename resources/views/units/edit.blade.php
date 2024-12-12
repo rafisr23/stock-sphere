@@ -436,7 +436,7 @@
                             }
                         });
                     }
-                    $('#image').val({{ $unit->image }});
+                    $('#image').val("{{ $unit->image }}");
                     var _ref;
                     return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file
                             .previewElement) :
