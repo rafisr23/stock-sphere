@@ -21,12 +21,12 @@ class SubmissionOfRepair extends Model
         return $this->hasMany(DetailsOfRepairSubmission::class, 'submission_of_repair_id');
     }
 
-    // public function getTechnicians()
-    // {
-    //     return $this->details->map(function ($detail) {
-    //         return $detail->technician;
-    //     });
-    // }
+    public function getTechnicians()
+    {
+        return $this->details->map(function ($detail) {
+            return $detail->technician;
+        });
+    }
 
     public function getItems()
     {

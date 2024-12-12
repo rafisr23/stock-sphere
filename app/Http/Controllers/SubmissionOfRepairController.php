@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use App\Models\SubmissionOfRepair;
 use Illuminate\Support\Facades\DB;
 use App\Models\DetailsOfRepairSubmission;
+use App\Models\Spareparts;
+use App\Models\SparepartsOfRepair;
 use Barryvdh\DomPDF\PDF;
 use Carbon\Carbon;
 
@@ -488,11 +490,13 @@ class SubmissionOfRepairController extends Controller
         $submission = SubmissionOfRepair::where('date_cancelled', null)->where('id', decrypt($submissionId))->first();
         $date_worked_on = $submission->details->pluck('date_worked_on');
         $date_completed = $submission->details->pluck('date_completed');
+        $technician = $submission->details->pluck('technician_id');
         $workHours = $this->calculateWorkHoursDifference($date_worked_on, $date_completed);
         $detailsWithWorkHours = $submission->details->map(function ($detail, $key) use ($workHours) {
             return [
                 'detail' => $detail,
                 'workHours' => $workHours[$key] ?? ['hours' => 0, 'minutes' => 0],
+                'technician' => Technician::find($detail->technician_id)->name,
             ];
         });
         // dd($detailsWithWorkHours);
@@ -514,6 +518,8 @@ class SubmissionOfRepairController extends Controller
 
             if (!$workedOn || !$completed) {
                 $workHoursArray[] = [
+                    'start' => $workedOn,
+                    'end' => $completed,
                     'hours' => 0,
                     'minutes' => 0,
                 ];
@@ -525,6 +531,8 @@ class SubmissionOfRepairController extends Controller
 
             if ($start->greaterThanOrEqualTo($end)) {
                 $workHoursArray[] = [
+                    'start' => $workedOn,
+                    'end' => $completed,
                     'hours' => 0,
                     'minutes' => 0,
                 ];
@@ -551,6 +559,8 @@ class SubmissionOfRepairController extends Controller
             }
 
             $workHoursArray[] = [
+                'start' => $workedOn,
+                'end' => $completed,
                 'hours' => intdiv($totalMinutes, 60),
                 'minutes' => $totalMinutes % 60,
             ];
