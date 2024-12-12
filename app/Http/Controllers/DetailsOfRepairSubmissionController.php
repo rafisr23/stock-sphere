@@ -222,7 +222,7 @@ class DetailsOfRepairSubmissionController extends Controller
                     $submission_of_repair->date_worked_on = now();
                     $submission_of_repair->save();
                 }
-                
+
                 $detailLog = [
                     'norec' => $details_of_repair_submission->norec,
                     'norec_parent' => $submission_of_repair->norec,
@@ -243,25 +243,26 @@ class DetailsOfRepairSubmissionController extends Controller
                     'item_unit_status' => $details_of_repair_submission->itemUnit->status,
                     'technician_id' => $details_of_repair_submission->technician_id,
                 ];
-    
+
                 createLog($detailLog);
                 createLog($technicianLog);
 
                 DB::commit();
             } catch (\Exception $e) {
                 DB::rollBack();
-                return response()->json(['error' => 'Failed to accept repairments']);
+                // return response()->json(['error' => 'Failed to accept repairments']);
+                return response()->json(['error' => 'Failed to accept repairments: ' . $e->getMessage()]);
             }
         } elseif ($state == 'canceled') {
             DB::beginTransaction();
 
             try {
                 $details_of_repair_submission->date_cancelled = now();
-    
+
                 $allCancelled = DetailsOfRepairSubmission::where('submission_of_repair_id', $details_of_repair_submission->submission_of_repair_id)
                     ->whereNull('date_cancelled')
                     ->doesntExist();
-    
+
                 if ($allCancelled) {
                     $submission_of_repair->date_cancelled = now();
 
@@ -298,7 +299,7 @@ class DetailsOfRepairSubmissionController extends Controller
 
                 createLog($detailLog);
                 createLog($technicianLog);
-                
+
                 DB::commit();
             } catch (\Exception $e) {
                 DB::rollBack();
@@ -366,7 +367,7 @@ class DetailsOfRepairSubmissionController extends Controller
                 DB::commit();
                 return response()->json(['success' => 'Repairments completed successfully']);
             }
-            
+
             DB::rollBack();
             return response()->json(['error' => 'Failed to complete repairments']);
         } catch (\Exception $e) {
@@ -673,43 +674,43 @@ class DetailsOfRepairSubmissionController extends Controller
         try {
             // Ambil input evidence dari request
             $evidence = $request->input('repairments_evidence');
-        
+
             $tempDir = public_path('temp');
             $targetDir = public_path('images/evidence');
-        
+
             // Pastikan direktori tujuan ada
             if (!File::exists($targetDir)) {
                 File::makeDirectory($targetDir, 0755, true);
             }
-        
+
             $pattern = "*_temp_" . $evidence; // contoh: "*_temp_Screenshot_..."
             $files = glob($tempDir . DIRECTORY_SEPARATOR . $pattern);
-        
+
             // Periksa apakah file ditemukan
             if (empty($files)) {
                 return response()->json(['message' => 'File not found'], 404);
             }
-        
+
             // Ambil file pertama yang cocok
             $sourceFile = $files[0];
-        
+
             // Tentukan nama file tujuan
             $targetFile = $targetDir . DIRECTORY_SEPARATOR . $evidence;
             $path = 'images/evidence' . DIRECTORY_SEPARATOR . $evidence;
-        
+
             // Salin file dari temporary directory ke target directory
             if (File::copy($sourceFile, $targetFile)) {
                 // Validasi input
                 $request->validate([
                     'repairments_evidence' => 'required',
                 ]);
-        
+
                 // Simpan data ke database
                 $create = EvidenceTechnicianRepairments::create([
                     'details_of_repair_submission_id' => decrypt($id),
                     'evidence' => $path,
                 ]);
-        
+
                 if ($create) {
                     $detailSubmission = DetailsOfRepairSubmission::find(decrypt($id));
                     $detailLog = [
@@ -742,7 +743,6 @@ class DetailsOfRepairSubmissionController extends Controller
             }
             DB::rollBack();
             return redirect()->back()->with('error', 'Failed to upload evidence');
-        
         } catch (ValidationException $e) {
             DB::rollBack();
             return redirect()->back()->withErrors($e->validator)->withInput();
