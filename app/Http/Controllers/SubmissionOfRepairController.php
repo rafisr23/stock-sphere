@@ -11,21 +11,23 @@ use Illuminate\Http\Request;
 use App\Models\SubmissionOfRepair;
 use Illuminate\Support\Facades\DB;
 use App\Models\DetailsOfRepairSubmission;
+use Barryvdh\DomPDF\PDF;
+use Carbon\Carbon;
 
 class SubmissionOfRepairController extends Controller
 {
-    public function index() {
+    public function index()
+    {
         if (request()->ajax()) {
             if (auth()->user()->hasRole('unit')) {
                 $submission = SubmissionOfRepair::where('room_id', auth()->user()->unit->id)->whereIn('status', [0, 1, 2])->pluck('id');
                 $itemInRepair = DetailsOfRepairSubmission::whereIn('submission_of_repair_id', $submission)->pluck('item_unit_id');
-                $items_units = Items_units::whereIn('room_id', $room)->whereNotIn('id', $itemInRepair)->get();
+                $items_units = Items_units::whereIn('room_id', auth()->user()->unit->room->id)->whereNotIn('id', $itemInRepair)->get();
             } elseif (auth()->user()->hasRole('room')) {
                 $submission = SubmissionOfRepair::where('room_id', auth()->user()->room->id)->whereIn('status', [0, 1, 2])->pluck('id');
                 $itemInRepair = DetailsOfRepairSubmission::whereIn('submission_of_repair_id', $submission)->pluck('item_unit_id');
                 $items_units = Items_units::whereNotIn('id', $itemInRepair)->where('room_id', auth()->user()->room->id)->get();
-            }
-            else {
+            } else {
                 $submission = SubmissionOfRepair::whereIn('status', [0, 1, 2])->pluck('id');
                 $itemInRepair = DetailsOfRepairSubmission::whereIn('submission_of_repair_id', $submission)->pluck('item_unit_id');
                 $items_units = Items_units::whereNotIn('id', $itemInRepair)->get();
@@ -70,7 +72,8 @@ class SubmissionOfRepairController extends Controller
         return view('submission.index', compact('rooms'));
     }
 
-    public function getItems(Request $request) {
+    public function getItems(Request $request)
+    {
         if ($request->get('id') == null || $request->get('id') == '') {
             $items_units = [];
         } else {
@@ -105,7 +108,8 @@ class SubmissionOfRepairController extends Controller
     }
 
 
-    public function storeTemporaryFile(Request $request) {
+    public function storeTemporaryFile(Request $request)
+    {
         if ($request->hasFile('evidence')) {
             $file = $request->file('evidence');
             $fileName = time() . '_temp_' . $file->getClientOriginalName();
@@ -120,7 +124,8 @@ class SubmissionOfRepairController extends Controller
         }
     }
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         // return $request->all();
 
         $request->validate([
@@ -152,7 +157,7 @@ class SubmissionOfRepairController extends Controller
                 // return $request->evidence[$value] . ' - ' . $request->description[$value];
 
                 $item = Items_units::find($value);
-                $evidence = $request->evidence ?  $request->evidence[$value] : '';
+                $evidence = $request->evidence ? $request->evidence[$value] : '';
                 $detail = $submissionOfRepair->details()->create([
                     'submission_of_repair_id' => $submissionOfRepair->id,
                     'item_unit_id' => $item->id,
@@ -179,7 +184,7 @@ class SubmissionOfRepairController extends Controller
                     'item_unit_id' => $item->id,
                     'item_unit_status' => $item->status,
                 ];
-                
+
                 createLog($log);
                 createLog($detailLog);
             }
@@ -208,7 +213,8 @@ class SubmissionOfRepairController extends Controller
         }
     }
 
-    public function history() {
+    public function history()
+    {
         if (request()->ajax()) {
             $submission = auth()->user()->hasRole('unit')
                 ? SubmissionOfRepair::where('unit_id', auth()->user()->unit->id)->orderBy('created_at', 'desc')->get()
@@ -245,9 +251,10 @@ class SubmissionOfRepairController extends Controller
                 })
                 ->addColumn('action', function ($row) {
                     $detailUrl = route('submission-of-repair.detail', encrypt($row->id));
+                    $toPDFURL = route('submission-of-repair.toPDF', encrypt($row->id));
                     $btn = '<div class="d-flex justify-content-center align-items-center">';
                     $btn .= '<a href="' . $detailUrl . '" class="view btn btn-info btn-sm me-2" title="See Details"><i class="ph-duotone ph-eye"></i></a>';
-                    // $btn .= '<a href="' . route('items_units.edit', $row->id) . '" class="edit btn btn-warning btn-sm me-2" title="Edit Data"><i class="ph-duotone ph-pencil-line"></i></a>';
+                    $btn .= '<a href="' . $toPDFURL . '" class="edit btn btn-danger btn-sm me-2" title="Export to PDF"><i class="ph-duotone ph-file-pdf"></i></a>';
                     // $btn .= '<a href="#" class="delete btn btn-danger btn-sm" data-id="' . encrypt($row->id) . '" title="Delete Data"><i class="ph-duotone ph-trash"></i></a>';
 
                     $log = [
@@ -255,7 +262,7 @@ class SubmissionOfRepairController extends Controller
                         'module_id' => 2,
                         'status' => 'is_repair',
                     ];
-                    $showLogBtn = 
+                    $showLogBtn =
                         "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
                             data-bs-target='#exampleModal'
                             data-title='Detail Log' data-bs-tooltip='tooltip'
@@ -275,11 +282,13 @@ class SubmissionOfRepairController extends Controller
         return view('submission.history');
     }
 
-    public function viewListOfRepairs() {
+    public function viewListOfRepairs()
+    {
         return view('submission.list');
     }
 
-    public function getListOfRepairs() {
+    public function getListOfRepairs()
+    {
         $submission = auth()->user()->hasRole('unit')
             ? SubmissionOfRepair::where('unit_id', auth()->user()->unit->id)->orderBy('created_at', 'desc')->get()
             : SubmissionOfRepair::orderBy('created_at', 'desc')->get();
@@ -331,7 +340,7 @@ class SubmissionOfRepairController extends Controller
                     'module_id' => 2,
                     'status' => 'is_repair',
                 ];
-                $showLogBtn = 
+                $showLogBtn =
                     "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
                         data-bs-target='#exampleModal'
                         data-title='Detail Log' data-bs-tooltip='tooltip'
@@ -342,14 +351,15 @@ class SubmissionOfRepairController extends Controller
                 ";
 
                 $btn .= $showLogBtn . '</div>';
-                
+
                 return $btn;
             })
             ->rawColumns(['status', 'action'])
             ->make(true);
     }
 
-    public function detailSubmission($submissionId) {
+    public function detailSubmission($submissionId)
+    {
         $submissionId = decrypt($submissionId);
         $submission = SubmissionOfRepair::find($submissionId);
         $details = DetailsOfRepairSubmission::where('submission_of_repair_id', $submissionId)->get();
@@ -360,7 +370,8 @@ class SubmissionOfRepairController extends Controller
         return view('submission.assign', compact('submission', 'technicians', 'details'));
     }
 
-    public function getTechnicians() {
+    public function getTechnicians()
+    {
         $technicians = Technician::where('user_id', '!=', auth()->id())->get();
 
         if ($technicians->count() > 0) {
@@ -378,7 +389,8 @@ class SubmissionOfRepairController extends Controller
         }
     }
 
-    public function getTechnician(Request $request) {
+    public function getTechnician(Request $request)
+    {
         $technicianId = $request->get('technicianId');
         $technician = Technician::find(decrypt($technicianId));
 
@@ -397,7 +409,8 @@ class SubmissionOfRepairController extends Controller
         }
     }
 
-    public function assignTechnician(Request $request) {
+    public function assignTechnician(Request $request)
+    {
         $request->validate([
             'technicianId' => 'required',
             'detailId' => 'required',
@@ -458,7 +471,8 @@ class SubmissionOfRepairController extends Controller
         }
     }
 
-    public function detail($submissionId) {
+    public function detail($submissionId)
+    {
         $submissionId = decrypt($submissionId);
         $submission = SubmissionOfRepair::find($submissionId);
         $details = DetailsOfRepairSubmission::where('submission_of_repair_id', $submissionId)->get();
@@ -467,5 +481,81 @@ class SubmissionOfRepairController extends Controller
         // return $details;
 
         return view('submission.assign', compact('submission', 'technicians', 'details'));
+    }
+
+    public function toPDF($submissionId)
+    {
+        $submission = SubmissionOfRepair::where('date_cancelled', null)->where('id', decrypt($submissionId))->first();
+        $date_worked_on = $submission->details->pluck('date_worked_on');
+        $date_completed = $submission->details->pluck('date_completed');
+        $workHours = $this->calculateWorkHoursDifference($date_worked_on, $date_completed);
+        $detailsWithWorkHours = $submission->details->map(function ($detail, $key) use ($workHours) {
+            return [
+                'detail' => $detail,
+                'workHours' => $workHours[$key] ?? ['hours' => 0, 'minutes' => 0],
+            ];
+        });
+        // dd($detailsWithWorkHours);
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('submission.toPDF', compact('submission', 'detailsWithWorkHours'));
+        return $pdf->download('submission-of-repair.pdf');
+    }
+
+    private function calculateWorkHoursDifference($datesWorkedOn, $datesCompleted)
+    {
+        if ($datesWorkedOn->isEmpty() || $datesCompleted->isEmpty()) {
+            return [];
+        }
+
+        $workHoursArray = [];
+
+        foreach ($datesWorkedOn as $key => $workedOn) {
+            $completed = $datesCompleted[$key] ?? null;
+
+            if (!$workedOn || !$completed) {
+                $workHoursArray[] = [
+                    'hours' => 0,
+                    'minutes' => 0,
+                ];
+                continue;
+            }
+
+            $start = Carbon::parse($workedOn);
+            $end = Carbon::parse($completed);
+
+            if ($start->greaterThanOrEqualTo($end)) {
+                $workHoursArray[] = [
+                    'hours' => 0,
+                    'minutes' => 0,
+                ];
+                continue;
+            }
+
+            $workStart = 8;
+            $workEnd = 17;
+            $totalMinutes = 0;
+
+            while ($start->lessThan($end)) {
+                if ($start->isWeekday()) {
+                    $workDayStart = $start->copy()->hour($workStart)->minute(0)->second(0);
+                    $workDayEnd = $start->copy()->hour($workEnd)->minute(0)->second(0);
+
+                    if ($start->between($workDayStart, $workDayEnd)) {
+                        $endOfDay = $workDayEnd->lessThan($end) ? $workDayEnd : $end;
+                        $totalMinutes += $start->diffInMinutes($endOfDay);
+                    }
+                }
+
+                // Pindah ke hari berikutnya
+                $start->addDay()->hour($workStart)->minute(0)->second(0);
+            }
+
+            $workHoursArray[] = [
+                'hours' => intdiv($totalMinutes, 60),
+                'minutes' => $totalMinutes % 60,
+            ];
+        }
+
+        return $workHoursArray;
     }
 }

@@ -139,6 +139,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/getList', 'getListOfRepairs')->name('getList');
             Route::get('/getTechnicians', 'getTechnicians')->name('getTechnicians');
             Route::post('/assignTechnician', 'assignTechnician')->name('assignTechnician');
+
         });
 
         // Route::get('/repairments', [DetailsOfRepairSubmissionController::class, 'index'])->name('detail_submission.index');
@@ -177,6 +178,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::controller(SubmissionOfRepairController::class)->prefix('submission-of-repair')->name('submission-of-repair.')->middleware('role:superadmin|room|unit|technician')->group(function () {
         Route::get('/detail/{submissionId}', 'detailSubmission')->name('detail');
+        Route::get('/toPDF/{submissionId}', 'toPDF')->name('toPDF');
     });
 
     // ROUTE FOR SUPERADMIN OR TECHNICIAN OR ROOM

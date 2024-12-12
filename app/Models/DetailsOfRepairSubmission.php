@@ -35,7 +35,7 @@ class DetailsOfRepairSubmission extends Model
         return $this->belongsTo(Technician::class, 'technician_id');
     }
 
-    public function evidence()
+    public function evidenceTechnician()
     {
         return $this->hasMany(EvidenceTechnicianRepairments::class, 'details_of_repair_submission_id');
     }
