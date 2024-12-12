@@ -500,9 +500,12 @@ class SubmissionOfRepairController extends Controller
             ];
         });
         // dd($detailsWithWorkHours);
+        // return $submission;
         $pdf = app('dompdf.wrapper');
         $pdf->loadView('submission.toPDF', compact('submission', 'detailsWithWorkHours'));
-        return $pdf->download('submission-of-repair.pdf');
+        // stream the pdf to the browser
+        return $pdf->stream('submission-of-repair.pdf');
+        // return $pdf->download('submission-of-repair.pdf');
     }
 
     private function calculateWorkHoursDifference($datesWorkedOn, $datesCompleted)
