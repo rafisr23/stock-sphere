@@ -168,6 +168,40 @@
                 </div>
             </div>
         </div>
+        <div class="col-lg-16">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">System Performance</h4>
+                    <div class="btn-group mb-2 me-2 dropdown">
+                        <select name="selectItem" id="selectItem" class="form-control" style="padding-right: 30px">
+                            <option value="All">All Items </option>
+                            @foreach ($items_units as $items)
+                                <option value="{{ $items->item_id }}">{{ $items->items->item_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    {{-- <p class="mb-0">From date</p>
+                    <input type="date" name="fromDateSparepart" id="fromDateSparepart"
+                        class="form-control form-control-sm w-auto border-0 shadow-none2">
+                    <p class="mb-0">To date</p>
+                    <input type="date" name="toDateSparepart" id="toDateSparepart"
+                        class="form-control form-control-sm w-auto border-0 shadow-none2"> --}}
+                </div>
+                <div class="card-body">
+                    {{-- @if ($performanceData-) --}}
+                    {{-- if performaceData length = 0 --}}
+                    @if (count($performanceData) == 0)
+                        <div class="d-flex justify-content-center align-items-center">
+                            <h4 class="text-center">No data available</h4>
+                        </div>
+                    @else
+                        <div class="row" id="systemPerformanceGraph">
+                                
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
     @endif
 
     @if (auth()->user()->hasRole('technician'))
@@ -230,7 +264,43 @@
                 </div>
             </div>
         </div>
+        <div class="col-lg-16">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">System Performance</h4>
+                    <div class="btn-group mb-2 me-2 dropdown">
+                        {{-- <select name="selectItem" id="selectItem" class="form-control" style="padding-right: 30px">
+                            <option value="All">All Items </option>
+                            @foreach ($items_units as $items)
+                                <option value="{{ $items->item_id }}">{{ $items->items->item_name }}</option>
+                            @endforeach
+                        </select> --}}
+                    </div>
+                    {{-- <p class="mb-0">From date</p>
+                    <input type="date" name="fromDateSparepart" id="fromDateSparepart"
+                        class="form-control form-control-sm w-auto border-0 shadow-none2">
+                    <p class="mb-0">To date</p>
+                    <input type="date" name="toDateSparepart" id="toDateSparepart"
+                        class="form-control form-control-sm w-auto border-0 shadow-none2"> --}}
+                </div>
+                <div class="card-body">
+                    {{-- @if ($performanceData-) --}}
+                    {{-- if performaceData length = 0 --}}
+                    @if (count($performanceData) == 0)
+                        <div class="d-flex justify-content-center align-items-center">
+                            <h4 class="text-center">No data available</h4>
+                        </div>
+                    @else
+                        <div class="row" id="systemPerformanceGraph">
+                            
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
     @endif
+
+    
 
 @endsection
 
@@ -239,6 +309,7 @@
     <script>
         window.sparepartsData = @json($sparepart_repairments_count ?? null);
         window.itemsData = @json($items_repairments_count ?? null);
+        window.performanceData = @json($performanceData ?? null);
     </script>
     <script src="{{ URL::asset('build/js/plugins/apexcharts.min.js') }}"></script>
     <script src="{{ URL::asset('build/js/plugins/jsvectormap.min.js') }}"></script>
@@ -246,6 +317,7 @@
     <script src="{{ URL::asset('build/js/plugins/world-merc.js') }}"></script>
     <script src="{{ URL::asset('build/js/pages/dashboard-default.js') }}"></script>
     <script src="{{ URL::asset('js/custom-chart.js') }}"></script>
+    <script src="{{ URL::asset('js/performance-chart.js') }}"></script>
     <!-- [Page Specific JS] end -->
 
 @endsection

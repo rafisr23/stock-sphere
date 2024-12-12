@@ -60,6 +60,54 @@ class HomeController extends Controller
                     ->leftJoin('items as i', 'iu.item_id', '=', 'i.id')
                     ->where('sr.sparepart_id', '!=', null)
                     ->get();
+
+                $performanceData = DB::select("
+                    WITH log_intervals AS (
+                        SELECT
+                            l.item_unit_id,
+                            l.item_unit_status,
+                            l.created_at AS log_time,
+                            LAG(l.created_at) OVER (PARTITION BY l.item_unit_id ORDER BY l.created_at) AS prev_time
+                        FROM
+                            new_logs l
+                        INNER JOIN
+                            items_units iu ON l.item_unit_id = iu.id
+                        INNER JOIN
+                            items it ON iu.item_id = it.id
+                        WHERE
+                            l.item_unit_status IS NOT NULL
+                    ),
+                    duration_intervals AS (
+                        SELECT
+                            l.item_unit_id,
+                            l.item_unit_status,
+                            COALESCE(TIMESTAMPDIFF(SECOND, prev_time, log_time), 0) AS duration_in_seconds
+                        FROM
+                            log_intervals l
+                        WHERE
+                            prev_time IS NOT NULL -- Abaikan baris pertama karena tidak ada durasi sebelumnya
+                    )
+                    SELECT
+                        di.item_unit_id,
+                        it.item_name,
+                        SUM(CASE WHEN di.item_unit_status IN ('Running', 'Restricted') THEN di.duration_in_seconds ELSE 0 END) AS total_uptime_seconds,
+                        SUM(CASE WHEN di.item_unit_status = 'System Down' THEN di.duration_in_seconds ELSE 0 END) AS total_downtime_seconds,
+                        SUM(di.duration_in_seconds) AS total_duration_seconds,
+                        ROUND(
+                            (SUM(CASE WHEN di.item_unit_status IN ('Running', 'Restricted') THEN di.duration_in_seconds ELSE 0 END) /
+                            SUM(di.duration_in_seconds)) * 100, 2
+                        ) AS uptime_percentage
+                    FROM
+                        duration_intervals di
+                    INNER JOIN
+                        items_units iu ON di.item_unit_id = iu.id
+                    INNER JOIN
+                        items it ON iu.item_id = it.id
+                    GROUP BY
+                        di.item_unit_id,
+                        it.item_name
+                ");
+
                 $items_units = Items_units::all();
                 $items2 = $itemsQuery->get();
                 $items = $itemsQuery->where('maintenance_date', '<=', $loginDatePlusMonth)->where('maintenance_date', '>=', $loginDate->format('Y-m-d'))->exists();
@@ -75,6 +123,7 @@ class HomeController extends Controller
                 $sparepart_repairments_count = null;
                 $items_units = null;
                 $items_repairments_count = null;
+                $performanceData = [];
             }
 
             $maintenanceSoon = $items ? 'true' : 'false';
@@ -119,7 +168,8 @@ class HomeController extends Controller
                     'maintenanceSoonRoom',
                     'calibrationSoonRoom',
                     'calibrationSoon',
-                    'calibrationExpired'
+                    'calibrationExpired',
+                    'performanceData'
                 )
             );
         } else if (auth()->user()->hasRole('room')) {
@@ -148,7 +198,55 @@ class HomeController extends Controller
                 ->where('r.id', '=', auth()->user()->room->id)
                 ->get();
 
-            return view('index', compact('maintenanceSoonRoom', 'calibrationSoonRoom', 'items_repairments_count', 'items_units', 'sparepart_repairments_count'));
+            $performanceData = DB::select("
+                WITH log_intervals AS (
+                    SELECT
+                        l.item_unit_id,
+                        l.item_unit_status,
+                        l.created_at AS log_time,
+                        LAG(l.created_at) OVER (PARTITION BY l.item_unit_id ORDER BY l.created_at) AS prev_time
+                    FROM
+                        new_logs l
+                    INNER JOIN
+                        items_units iu ON l.item_unit_id = iu.id
+                    INNER JOIN
+                        items it ON iu.item_id = it.id
+                    WHERE
+                        l.item_unit_status IS NOT NULL
+                        and iu.room_id = '" . auth()->user()->room->id . "'
+                ),
+                duration_intervals AS (
+                    SELECT
+                        l.item_unit_id,
+                        l.item_unit_status,
+                        COALESCE(TIMESTAMPDIFF(SECOND, prev_time, log_time), 0) AS duration_in_seconds
+                    FROM
+                        log_intervals l
+                    WHERE
+                        prev_time IS NOT NULL -- Abaikan baris pertama karena tidak ada durasi sebelumnya
+                )
+                SELECT
+                    di.item_unit_id,
+                    it.item_name,
+                    SUM(CASE WHEN di.item_unit_status IN ('Running', 'Restricted') THEN di.duration_in_seconds ELSE 0 END) AS total_uptime_seconds,
+                    SUM(CASE WHEN di.item_unit_status = 'System Down' THEN di.duration_in_seconds ELSE 0 END) AS total_downtime_seconds,
+                    SUM(di.duration_in_seconds) AS total_duration_seconds,
+                    ROUND(
+                        (SUM(CASE WHEN di.item_unit_status IN ('Running', 'Restricted') THEN di.duration_in_seconds ELSE 0 END) /
+                        SUM(di.duration_in_seconds)) * 100, 2
+                    ) AS uptime_percentage
+                FROM
+                    duration_intervals di
+                INNER JOIN
+                    items_units iu ON di.item_unit_id = iu.id
+                INNER JOIN
+                    items it ON iu.item_id = it.id
+                GROUP BY
+                    di.item_unit_id,
+                    it.item_name
+            ");
+
+            return view('index', compact('maintenanceSoonRoom', 'calibrationSoonRoom', 'items_repairments_count', 'items_units', 'sparepart_repairments_count', 'performanceData'));
         } else if (auth()->user()->hasRole('technician')) {
             $items_repairments_count = DB::table('items_units as iu')
                 // get data items_units from details_of_repair_submissions so we can count the repairments by item
@@ -167,9 +265,58 @@ class HomeController extends Controller
                 ->where('sr.sparepart_id', '!=', null)
                 ->where('d.technician_id', '=', auth()->user()->technician->id)
                 ->get();
+            
+            $performanceData = DB::select("
+                WITH log_intervals AS (
+                    SELECT
+                        l.item_unit_id,
+                        l.item_unit_status,
+                        l.created_at AS log_time,
+                        LAG(l.created_at) OVER (PARTITION BY l.item_unit_id ORDER BY l.created_at) AS prev_time
+                    FROM
+                        new_logs l
+                    INNER JOIN
+                        items_units iu ON l.item_unit_id = iu.id
+                    INNER JOIN
+                        items it ON iu.item_id = it.id
+                    WHERE
+                        l.item_unit_status IS NOT NULL
+                ),
+                duration_intervals AS (
+                    SELECT
+                        l.item_unit_id,
+                        l.item_unit_status,
+                        COALESCE(TIMESTAMPDIFF(SECOND, prev_time, log_time), 0) AS duration_in_seconds
+                    FROM
+                        log_intervals l
+                    WHERE
+                        prev_time IS NOT NULL -- Abaikan baris pertama karena tidak ada durasi sebelumnya
+                )
+                SELECT
+                    di.item_unit_id,
+                    it.item_name,
+                    SUM(CASE WHEN di.item_unit_status IN ('Running', 'Restricted') THEN di.duration_in_seconds ELSE 0 END) AS total_uptime_seconds,
+                    SUM(CASE WHEN di.item_unit_status = 'System Down' THEN di.duration_in_seconds ELSE 0 END) AS total_downtime_seconds,
+                    SUM(di.duration_in_seconds) AS total_duration_seconds,
+                    ROUND(
+                        (SUM(CASE WHEN di.item_unit_status IN ('Running', 'Restricted') THEN di.duration_in_seconds ELSE 0 END) /
+                        SUM(di.duration_in_seconds)) * 100, 2
+                    ) AS uptime_percentage
+                FROM
+                    duration_intervals di
+                INNER JOIN
+                    items_units iu ON di.item_unit_id = iu.id
+                INNER JOIN
+                    items it ON iu.item_id = it.id
+                GROUP BY
+                    di.item_unit_id,
+                    it.item_name
+            ");
 
-            return view('index', compact('items_repairments_count', 'sparepart_repairments_count'));
+            return view('index', compact('items_repairments_count', 'sparepart_repairments_count', 'performanceData'));
         } else if (auth()->user()->hasRole('unit')) {
+            // return auth()->user()->unit;
+            $room = Rooms::where('unit_id', auth()->user()->unit->id)->pluck('id');
             $items_repairments_count = DB::table('items_units as iu')
                 // get data items_units from details_of_repair_submissions so we can count the repairments by item
                 ->select('i.item_name', 'd.created_at as date')
@@ -178,7 +325,8 @@ class HomeController extends Controller
                 ->leftJoin('rooms as r', 'iu.room_id', '=', 'r.id')
                 ->leftJoin('units as u', 'r.unit_id', '=', 'u.id')
                 ->where('d.item_unit_id', '!=', null)
-                ->where('u.id', '=', auth()->user()->unit->id)
+                // ->where('u.id', '=', auth()->user()->unit->id)
+                ->whereIn('r.id', $room)
                 ->get();
             $sparepart_repairments_count = DB::table('spareparts as s')
                 ->select('s.name as sparepart_name', 'i.id as items_id', 'd.created_at as date')
@@ -189,10 +337,59 @@ class HomeController extends Controller
                 ->leftJoin('rooms as r', 'iu.room_id', '=', 'r.id')
                 ->leftJoin('units as u', 'r.unit_id', '=', 'u.id')
                 ->where('sr.sparepart_id', '!=', null)
-                ->where('u.id', '=', auth()->user()->unit->id)
+                // ->where('u.id', '=', auth()->user()->unit->id)
+                ->whereIn('r.id', $room)
                 ->get();
+            
+            $performanceData = DB::select("
+                WITH log_intervals AS (
+                    SELECT
+                        l.item_unit_id,
+                        l.item_unit_status,
+                        l.created_at AS log_time,
+                        LAG(l.created_at) OVER (PARTITION BY l.item_unit_id ORDER BY l.created_at) AS prev_time
+                    FROM
+                        new_logs l
+                    INNER JOIN
+                        items_units iu ON l.item_unit_id = iu.id
+                    INNER JOIN
+                        items it ON iu.item_id = it.id
+                    WHERE
+                        l.item_unit_status IS NOT NULL
+                        and iu.room_id in( '" . $room . "')
+                ),
+                duration_intervals AS (
+                    SELECT
+                        l.item_unit_id,
+                        l.item_unit_status,
+                        COALESCE(TIMESTAMPDIFF(SECOND, prev_time, log_time), 0) AS duration_in_seconds
+                    FROM
+                        log_intervals l
+                    WHERE
+                        prev_time IS NOT NULL -- Abaikan baris pertama karena tidak ada durasi sebelumnya
+                )
+                SELECT
+                    di.item_unit_id,
+                    it.item_name,
+                    SUM(CASE WHEN di.item_unit_status IN ('Running', 'Restricted') THEN di.duration_in_seconds ELSE 0 END) AS total_uptime_seconds,
+                    SUM(CASE WHEN di.item_unit_status = 'System Down' THEN di.duration_in_seconds ELSE 0 END) AS total_downtime_seconds,
+                    SUM(di.duration_in_seconds) AS total_duration_seconds,
+                    ROUND(
+                        (SUM(CASE WHEN di.item_unit_status IN ('Running', 'Restricted') THEN di.duration_in_seconds ELSE 0 END) /
+                        SUM(di.duration_in_seconds)) * 100, 2
+                    ) AS uptime_percentage
+                FROM
+                    duration_intervals di
+                INNER JOIN
+                    items_units iu ON di.item_unit_id = iu.id
+                INNER JOIN
+                    items it ON iu.item_id = it.id
+                GROUP BY
+                    di.item_unit_id,
+                    it.item_name
+            ");
 
-            return view('index', compact('items_repairments_count', 'sparepart_repairments_count'));
+            return view('index', compact('items_repairments_count', 'sparepart_repairments_count', 'performanceData'));
         } else {
             return view('index');
         }

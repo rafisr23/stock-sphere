@@ -31,7 +31,6 @@ function generateDynamicColors(count) {
 let currentItemChartType = "line"; // Default chart type for items
 
 function floatchart(dataInput, data = "") {
-
     if (data == "Items") {
         const groupedItems = groupedItemsData(dataInput);
         const chartType = currentItemChartType; // Determines the active chart type
@@ -74,11 +73,11 @@ function floatchart(dataInput, data = "") {
             dataLabels: {
                 enabled: true,
                 formatter: function (val) {
-                    return val + "%"
+                    return val + "%";
                 },
                 dropShadow: {
-                    enabled: true
-                }
+                    enabled: true,
+                },
             },
             plotOptions: {
                 pie: {
@@ -97,7 +96,9 @@ function floatchart(dataInput, data = "") {
             console.log(item_options_pie);
             window.item_chart
                 .updateOptions(selectedOptions) // Update based on current type
-                .catch((error) => console.error("Error updating chart:", error));
+                .catch((error) =>
+                    console.error("Error updating chart:", error)
+                );
         } else {
             window.item_chart = new ApexCharts(
                 document.querySelector("#itemsRepairmentGraph"),
@@ -105,7 +106,9 @@ function floatchart(dataInput, data = "") {
             );
             window.item_chart
                 .render()
-                .catch((error) => console.error("Error rendering chart:", error));
+                .catch((error) =>
+                    console.error("Error rendering chart:", error)
+                );
         }
     }
     if (data == "Spareparts") {
@@ -130,7 +133,9 @@ function floatchart(dataInput, data = "") {
         if (window.sparepart_chart) {
             window.sparepart_chart
                 .updateOptions(sparepart_options)
-                .catch((error) => console.error("Error updating chart:", error));
+                .catch((error) =>
+                    console.error("Error updating chart:", error)
+                );
         } else {
             window.sparepart_chart = new ApexCharts(
                 document.querySelector("#sparepartsRepairmentGraph"),
