@@ -1,8 +1,8 @@
 @extends('layouts.main')
 
-@section('title', 'Detail Units Items')
+@section('title', 'Detail Rooms Items')
 @section('breadcrumb-item', 'Data Master')
-@section('breadcrumb-item-active', 'Detail Units Items')
+@section('breadcrumb-item-active', 'Detail Rooms Items')
 
 @section('css')
 @endsection
@@ -50,6 +50,10 @@
                             <div class="row">
                                 <p for="item_name" class="col-sm-4 col-form-p">Next Maintenance :
                                     {{ \Carbon\Carbon::parse($item->maintenance_date)->isoFormat('D MMMM Y') }}</p>
+                            </div>
+                            <div class="row">
+                                <p for="item_name" class="col-sm-4 col-form-p">Next Calibration :
+                                    {{ \Carbon\Carbon::parse($item->calibration_date)->isoFormat('D MMMM Y') }}</p>
                             </div>
                         </div>
                         <div class="col-auto">

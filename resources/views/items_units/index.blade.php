@@ -1,9 +1,9 @@
 @extends('layouts.main')
 
-@section('title', 'Units Items')
+@section('title', 'Assign Items')
 @section('breadcrumb-item', 'Data Master')
 
-@section('breadcrumb-item-active', 'Units Items')
+@section('breadcrumb-item-active', 'Assign Items')
 
 @section('css')
 @endsection
@@ -14,7 +14,7 @@
         <div class="col-sm-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="card-title">Data Units Items</h4>
+                    <h4 class="card-title">Data Rooms Items</h4>
                     <a href="{{ route('items_units.create') }}" class="btn btn-primary">Assign Item</a>
                 </div>
                 <div class="card-body">

@@ -31,7 +31,7 @@ class UnitsController extends Controller
                         'status' => 'is_generic',
                     ];
                     $showLogBtn =
-                        "<a href='#'class='btn btn-sm btn-info' data-bs-toggle='modal'
+                        "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
                             data-bs-target='#exampleModal'
                             data-title='Detail Log' data-bs-tooltip='tooltip'
                             data-remote=" . route('log.getLog', ['norec' => $log['norec'], 'module' => $log['module_id'], 'status' => $log['status']]) . "
@@ -139,7 +139,6 @@ class UnitsController extends Controller
             DB::commit();
 
             return redirect()->route('units.index')->with('success', 'Unit created successfully.');
-
         } catch (\Exception $e) {
             DB::rollBack();
             if (File::exists(public_path('images/units/' . $request->image))) {
@@ -147,7 +146,6 @@ class UnitsController extends Controller
             }
             return redirect()->route('units.index')->with('error', 'Unit creation failed: ' . $e->getMessage());
         }
-
     }
 
     /**

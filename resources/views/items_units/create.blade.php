@@ -56,7 +56,8 @@
                             <label for="serial_number" class="col-sm-3 col-form-label required">Serial Number</label>
                             <div class="col-sm-9 mb-4">
                                 <input type="text" class="form-control @error('serial_number') is-invalid @enderror"
-                                    id="serial_number" name="serial_number" required placeholder="Enter Serial Number" value="{{ old('serial_number') }}">
+                                    id="serial_number" name="serial_number" required placeholder="Enter Serial Number"
+                                    value="{{ old('serial_number') }}">
                             </div>
                         </div>
                         <div class="form-group row">
@@ -90,21 +91,24 @@
                             <label for="contract" class="col-sm-3 col-form-label required">Contract</label>
                             <div class="col-sm-9 mb-4">
                                 <input type="text" class="form-control @error('contract') is-invalid @enderror"
-                                    id="contract" name="contract" required placeholder="Enter Contract" value="{{ old('contract') }}">
+                                    id="contract" name="contract" required placeholder="Enter Contract"
+                                    value="{{ old('contract') }}">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="end_of_service" class="col-sm-3 col-form-label required">End of Service</label>
                             <div class="col-sm-9 mb-4">
                                 <input type="date" class="form-control @error('end_of_service') is-invalid @enderror"
-                                    id="end_of_service" name="end_of_service" required placeholder="Enter End of Service" value="{{ old('end_of_service') }}">
+                                    id="end_of_service" name="end_of_service" required placeholder="Enter End of Service"
+                                    value="{{ old('end_of_service') }}">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="srs_status" class="col-sm-3 col-form-label required">SRS Status</label>
                             <div class="col-sm-9 mb-4">
                                 <input type="text" class="form-control @error('srs_status') is-invalid @enderror"
-                                    id="srs_status" name="srs_status" readonly placeholder="Enter SRS Status" value="Not Checked">
+                                    id="srs_status" name="srs_status" readonly placeholder="Enter SRS Status"
+                                    value="Not Checked">
                             </div>
                         </div>
                         <div class="form-group row">
@@ -122,10 +126,11 @@
                         <div class="form-group row">
                             <label for="last_checked_date" class="col-sm-3 col-form-label required">Last Checked
                                 Date</label>
-                            <div class="col-sm-9">
+                            <div class="col-sm-9 mb-4">
                                 <input type="text"
                                     class="form-control @error('last_checked_date') is-invalid @enderror"
-                                    id="last_checked_date" name="last_checked_date" value="{{ now() }}" readonly>
+                                    id="last_checked_date" name="last_checked_date" value="{{ now() }}"
+                                    readonly>
                             </div>
                         </div>
                         <div class="form-group row">

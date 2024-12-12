@@ -3,7 +3,7 @@
 <!-- [Head] start -->
 
 <head>
-    <title>@yield('title') | Stock Sphere</title>
+    <title>@yield('title') | Simpel Lada</title>
     <!-- [Meta] -->
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui" />
@@ -53,7 +53,7 @@
                 <hr class="mb-3 mt-4" />
                 <div class="row">
                     <div class="col my-1">
-                        <p class="m-0"> &copy; {{ date('Y') }} Stock Sphere. All Rights Reserved.</p>
+                        <p class="m-0"> &copy; {{ date('Y') }} Simpel Lada. All Rights Reserved.</p>
                     </div>
                     <div class="col-auto my-1">
                         <ul class="list-inline footer-link mb-0">
