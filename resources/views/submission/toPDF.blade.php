@@ -5,41 +5,211 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Reports of Repairments</title>
+    <title>Service Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+            border-bottom: 1px solid #000;
+
+        }
+
+        .header .kiri img {
+            width: 100px;
+        }
+
+        .header .kanan {
+            text-align: right;
+            font-size: 12px;
+        }
+
+        h1 {
+            margin-top: 20px;
+            text-align: center;
+            width: 100%;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .section {
+            margin: 20px;
+        }
+
+        .section h3 {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .section ul {
+            margin: 0;
+            padding: 0 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid black;
+        }
+
+        th,
+        td {
+            padding: 8px;
+            text-align: left;
+            font-size: 12px;
+        }
+
+        .technician-signature {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .technician-signature p {
+            margin: 2px 0;
+        }
+
+        .technician-signature .kiri {
+            float: left;
+        }
+
+        .technician-signature .kanan {
+            float: right;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>{{ $submission->unit->customer_name }}</h1>
-    <p>{{ $submission->unit->street }}</p>
-    <p>{{ $submission->unit->city }}, {{ $submission->unit->postal_code }}</p>
-    <h2>{{ $submission->room->name }}</h2>
-    @foreach ($detailsWithWorkHours as $d)
-        <table class="table table-bordered">
-            <thead>
-                <th>Item name</th>
-                <th>Description</th>
-                <th>Remarks</th>
-                <th>Evidence</th>
-            </thead>
-            <tbody>
-                <td>{{ $d['detail']->itemUnit->items->item_name }}</td>
-                <td>{{ $d['detail']->description }}</td>
-                <td>{{ $d['detail']->remarks }}</td>
-                <td>{{ $d['detail']->evidence }}</td>
-            </tbody>
-            <thead>
-                <th>
-                    Evidence from technician
-                </th>
-            </thead>
-            <tbody>
+    <div class="header">
+        <div class="kiri">
+            <img src="{{ public_path('images/rslogo1.png') }}" alt="logo" width="100">
+        </div>
+        <div class="kanan" style="text-align: right;">
+            <h2>Oetomo Hospital</h2>
+            <p>Jl. Raya Bojongsoang No.156, Bandung 40287</p>
+            <p>Telp. (022) 87538888</p>
+        </div>
+    </div>
+
+    <h1>Laporan Perbaikan</h1>
+
+    <div class="section">
+        <h3>Alasan Kunjungan</h3>
+        @foreach ($detailsWithWorkHours as $d)
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ $d['detail']->itemUnit->items->item_name }}</td>
+                        <td>{{ $d['detail']->description }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        @endforeach
+    </div>
+
+    <div class="section">
+        <h3>Kegiatan</h3>
+        @foreach ($detailsWithWorkHours as $d)
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Remarks</th>
+                        <th>Evidence</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ $d['detail']->itemUnit->items->item_name }}</td>
+                        <td>{{ $d['detail']->remarks }}</td>
+                        <td><img src="{{ public_path('images/evidence/' . $d['detail']->evidence) }}" alt="evidence"
+                                width="100" height="100"></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Bukti dari Teknisi</h4>
+            <ul>
                 @foreach ($d['detail']->evidenceTechnician as $eT)
-                    <p>{{ $eT->evidence }}</p>
+                    <li><img src="{{ public_path('images/evidence/' . $eT->evidence) }}" alt="evidence" width="100"
+                            height="100"></li>
+                @endforeach
+            </ul>
+
+            <p><strong>Work Hours:</strong> {{ $d['workHours']['hours'] }} hours, {{ $d['workHours']['minutes'] }}
+                minutes</p>
+        @endforeach
+    </div>
+
+    <div class="section">
+        <h3>Penggunaan Sparepart</h3>
+        <ul>
+            -
+        </ul>
+    </div>
+
+    <div class="section">
+        <h3>Detail Teknisi</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>Nama Teknisi</th>
+                    <th>Mulai Pengerjaan</th>
+                    <th>Selesai Pengerjaan</th>
+                    <th>Jam</th>
+                    <th>Menit</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($detailsWithWorkHours as $d)
+                    <tr>
+                        <td>{{ $d['detail']['date_worked_on'] }}</td>
+                        <td>{{ $d['technician'] }}</td>
+                        <td>{{ $d['workHours']['start'] }}</td>
+                        <td>{{ $d['workHours']['end'] }}</td>
+                        <td>{{ $d['workHours']['hours'] }}</td>
+                        <td>{{ $d['workHours']['minutes'] }}</td>
+                    </tr>
                 @endforeach
             </tbody>
         </table>
-        <p>Work Hours: {{ $d['workHours']['hours'] }} hours, {{ $d['workHours']['minutes'] }} minutes</p>
-    @endforeach
+    </div>
+
+    <div class="technician-signature">
+        <div class="kiri">
+            <p>Bandung, {{ date('d F Y') }}</p>
+            <br>
+            <br>
+            <br>
+            <p><strong>{{ $detailsWithWorkHours[0]['technician'] }}</strong></p>
+        </div>
+        <div class="kanan">
+            <p>Mengetahui,</p>
+            <br>
+            <br>
+            <br>
+            <br>
+        </div>
+    </div>
 </body>
 
 </html>

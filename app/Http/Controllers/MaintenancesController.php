@@ -771,6 +771,8 @@ class MaintenancesController extends Controller
                         'module_id' => 3,
                         'status' => 'is_maintenance',
                     ];
+                    $toPDFURL = route('maintenances.toPDF', encrypt($row->id));
+                    $btn .= '<a href="' . $toPDFURL . '" class="edit btn btn-danger btn-sm me-2" title="Export to PDF"><i class="ph-duotone ph-file-pdf"></i></a>';
                     $showLogBtn =
                         "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
                             data-bs-target='#exampleModal'
@@ -789,6 +791,75 @@ class MaintenancesController extends Controller
         } else {
             return view('maintenances.history');
         }
+    }
+
+    public function toPDF($maintenanceId)
+    {
+        $maintenance = Maintenances::where('date_completed', '!=', null)->where('id', decrypt($maintenanceId))->first();
+        $date_worked_on = $maintenance->date_worked_on;
+        $date_completed = $maintenance->date_completed;
+        $workHours = $this->calculateWorkHoursDifference($date_worked_on, $date_completed);
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('maintenances.toPDF', compact('maintenance', 'workHours'));
+        return $pdf->download($maintenance->updated_at . 'maintenance_' . $maintenance->item_room->items->item_name . '.pdf');
+    }
+
+    private function calculateWorkHoursDifference($datesWorkedOn, $datesCompleted)
+    {
+        if ($datesWorkedOn->isEmpty() || $datesCompleted->isEmpty()) {
+            return [];
+        }
+
+        $workHoursArray = [];
+
+        foreach ($datesWorkedOn as $key => $workedOn) {
+            $completed = $datesCompleted[$key] ?? null;
+
+            if (!$workedOn || !$completed) {
+                $workHoursArray[] = [
+                    'hours' => 0,
+                    'minutes' => 0,
+                ];
+                continue;
+            }
+
+            $start = Carbon::parse($workedOn);
+            $end = Carbon::parse($completed);
+
+            if ($start->greaterThanOrEqualTo($end)) {
+                $workHoursArray[] = [
+                    'hours' => 0,
+                    'minutes' => 0,
+                ];
+                continue;
+            }
+
+            $workStart = 8;
+            $workEnd = 17;
+            $totalMinutes = 0;
+
+            while ($start->lessThan($end)) {
+                if ($start->isWeekday()) {
+                    $workDayStart = $start->copy()->hour($workStart)->minute(0)->second(0);
+                    $workDayEnd = $start->copy()->hour($workEnd)->minute(0)->second(0);
+
+                    if ($start->between($workDayStart, $workDayEnd)) {
+                        $endOfDay = $workDayEnd->lessThan($end) ? $workDayEnd : $end;
+                        $totalMinutes += $start->diffInMinutes($endOfDay);
+                    }
+                }
+
+                // Pindah ke hari berikutnya
+                $start->addDay()->hour($workStart)->minute(0)->second(0);
+            }
+
+            $workHoursArray[] = [
+                'hours' => intdiv($totalMinutes, 60),
+                'minutes' => $totalMinutes % 60,
+            ];
+        }
+
+        return $workHoursArray;
     }
 
     public function confirmation()
