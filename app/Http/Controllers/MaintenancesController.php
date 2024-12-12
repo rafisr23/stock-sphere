@@ -63,19 +63,15 @@ class MaintenancesController extends Controller
                     ->addColumn('maintenance_date', function ($row) {
                         return Carbon::parse($row->maintenance_date)->isoFormat('D MMMM Y');
                     })
-                    ->addColumn('reschedule_date', function ($row) {
+                    ->addColumn('reschedule_date', function ($row) use ($loginDate) {
                         $date = '';
-                        if ($row->maintenances && Carbon::parse($row->maintenance_date)->lessThan(Carbon::parse($row->maintenances->schedule_by_room))) {
-                            if ($row->maintenances == null || $row->maintenances->status == 5) {
-                                $date = '<span class="badge text-bg-info">Waiting Room Confirmation</span>';
-                            } elseif ($row->maintenances->schedule_by_room == $row->maintenance_date) {
-                                $date = '<span class="badge text-bg-success">According To The Schedule</span>';
-                            } elseif ($row->maintenances->schedule_by_room != $row->maintenance_date) {
-                                $date = Carbon::parse($row->maintenances->schedule_by_room)->isoFormat('D MMMM Y');
-                            }
+
+                        if ($row->maintenances && $row->maintenances->schedule_by_room && Carbon::parse($row->maintenances->created_at)->isSameMonth($loginDate) && $row->maintenances->schedule_by_room != $row->calibration_date) {
+                            $date = Carbon::parse($row->maintenances->schedule_by_room)->isoFormat('D MMMM Y');
                         } else {
-                            $date = '<span class="badge text-bg-success">According To The Schedule</span>';
+                            $date = '<span class="badge text-bg-info">According To The Schedule</span>';
                         }
+
                         return $date;
                     })
                     ->addColumn('action', function ($row) use ($loginDate, $extData) {
@@ -268,7 +264,7 @@ class MaintenancesController extends Controller
                 $request->validate([
                     'item_unit_id' => 'required',
                 ]);
-    
+
                 if (auth()->user()->can('assign technician') || auth()->user()->hasRole('superadmin')) {
                     $itemUnit = Items_units::find(decrypt($request->item_unit_id));
                     $create = Maintenances::create([
@@ -315,7 +311,7 @@ class MaintenancesController extends Controller
                     'item_unit_id' => 'required',
                     'technician' => 'required',
                 ]);
-    
+
                 if (auth()->user()->can('assign technician') || auth()->user()->hasRole('superadmin')) {
                     $create = Maintenances::updateOrCreate(
                         [
@@ -344,7 +340,7 @@ class MaintenancesController extends Controller
                         'item_unit_id' => $create->item_room_id,
                         'technician_id' => $create->technician_id,
                     ];
-        
+
                     $technicianLog = [
                         'norec' => $create->technician->norec,
                         'norec_parent' => auth()->user()->norec,
@@ -354,7 +350,7 @@ class MaintenancesController extends Controller
                         'item_unit_id' => $create->item_room_id,
                         'technician_id' => $create->technician_id,
                     ];
-        
+
                     createLog($maintenanceLog);
                     createLog($technicianLog);
 
@@ -468,15 +464,15 @@ class MaintenancesController extends Controller
 
             try {
                 $maintenance->date_completed = now();
-    
+
                 if ($maintenance->status == 2) {
                     $maintenance->status = 3;
                 }
-    
+
                 $items = Items_units::find($maintenance->item_room_id);
-    
+
                 $items->status = 'Running';
-    
+
                 $date_completed = date('Y-m-d', strtotime($maintenance->date_completed));
                 $condition = strtotime($date_completed) - strtotime($items->maintenance_date);
                 // 2592000 = 30 days
@@ -487,7 +483,7 @@ class MaintenancesController extends Controller
                 }
                 $items->save();
                 $maintenance->save();
-                
+
 
                 $maintenanceLog = [
                     'norec' => $maintenance->norec,
@@ -498,7 +494,7 @@ class MaintenancesController extends Controller
                     'item_unit_id' => $maintenance->item_room_id,
                     'technician_id' => $maintenance->technician_id,
                 ];
-    
+
                 $technicianLog = [
                     'norec' => auth()->user()->technician->norec,
                     'module_id' => 3,
@@ -507,7 +503,7 @@ class MaintenancesController extends Controller
                     'item_unit_id' => $maintenance->item_room_id,
                     'technician_id' => $maintenance->technician_id,
                 ];
-    
+
                 $itemLog = [
                     'norec' => $items->norec,
                     'module_id' => 7,
@@ -517,7 +513,7 @@ class MaintenancesController extends Controller
                     'item_unit_id' => $maintenance->item_room_id,
                     'technician_id' => $maintenance->technician_id,
                 ];
-    
+
                 createLog($maintenanceLog);
                 createLog($technicianLog);
                 createLog($itemLog);
@@ -593,7 +589,7 @@ class MaintenancesController extends Controller
                 $request->validate([
                     'newMaintenance_date' => 'required',
                 ]);
-    
+
                 $maintenance = Maintenances::find($id);
                 $itemUnit = Items_units::find($maintenance->item_room_id);
                 $maintenance->status = 7;
@@ -640,7 +636,7 @@ class MaintenancesController extends Controller
                 'status' => 'required',
                 'evidence' => 'required',
             ]);
-    
+
             $maintenance = Maintenances::find($id);
             $item_unit = Items_units::find($maintenance->item_room_id);
             $oldMaintenance = $maintenance->toJson();
@@ -650,9 +646,9 @@ class MaintenancesController extends Controller
             $maintenance->remarks = $request->remarks;
             $maintenance->description = $request->description;
             $maintenance->evidence = $request->evidence;
-    
+
             $item_unit->status = $request->status;
-    
+
             if ($request->status == 'Running') {
                 $maintenance->status = 3;
             } elseif ($request->status == 'System Down') {
@@ -660,7 +656,7 @@ class MaintenancesController extends Controller
             } elseif ($request->status == 'Restricted') {
                 $maintenance->status = 4;
             }
-    
+
             $maintenance->save();
             $item_unit->save();
 
@@ -696,14 +692,13 @@ class MaintenancesController extends Controller
             createLog($maintenanceLog);
             createLog($technicianLog);
             createLog($itemLog);
-    
+
             DB::commit();
             return response()->json(['success' => 'Maintenance status updated']);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['error' => 'Failed to update maintenance status: ' . $e->getMessage()]);
         }
-
     }
 
     /**
@@ -776,7 +771,7 @@ class MaintenancesController extends Controller
                         'module_id' => 3,
                         'status' => 'is_maintenance',
                     ];
-                    $showLogBtn = 
+                    $showLogBtn =
                         "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
                             data-bs-target='#exampleModal'
                             data-title='Detail Log' data-bs-tooltip='tooltip'
@@ -816,12 +811,19 @@ class MaintenancesController extends Controller
                     return $row->item_room->serial_number;
                 })
                 ->addColumn('maintenance_date', function ($row) {
-                    return Carbon::parse($row->item_room->maintenance_date)->isoFormat('D MMMM Y');
+                    if (Carbon::parse($row->item_room->maintenance_date)->lessThan(now())) {
+                        $info = Carbon::parse($row->item_room->maintenance_date)->isoFormat('D MMMM Y') . '  <span class="badge rounded-pill text-bg-danger">Overdue</span>';
+                    } else {
+                        $info = Carbon::parse($row->item_room->maintenance_date)->isoFormat('D MMMM Y');
+                    }
+                    return $info;
                 })
                 ->addColumn('action', function ($row) {
                     if ($row->status == 5) {
                         $btn = '<div class="d-flex justify-content-center align-items-center">';
-                        $btn = '<button type="button" class="btn btn-success btn-sm accMaintenance me-2" title="Accept Maintenance" data-id="' . encrypt($row->id) . '" data-name="' . $row->item_room->items->item_name . '"><i class="ph ph-duotone ph-check"></i></button>';
+                        if (Carbon::parse($row->item_room->maintenance_date)->greaterThan(now())) {
+                            $btn = '<button type="button" class="btn btn-success btn-sm accMaintenance me-2" title="Accept Maintenance" data-id="' . encrypt($row->id) . '" data-name="' . $row->item_room->items->item_name . '"><i class="ph ph-duotone ph-check"></i></button>';
+                        }
                         $btn .= '<button type="button" class="btn btn-warning btn-sm rescheduleMaintenance" title="Reschedule Maintenance" data-id="' . encrypt($row->id) . '" data-name="' . $row->item_room->items->item_name . '"><i class="ph ph-duotone ph-pencil-line"></i></button>';
                         $btn .= '</div>';
                     } else if ($row->schedule_by_room == $row->item_room->maintenance_date) {
@@ -833,7 +835,7 @@ class MaintenancesController extends Controller
                     }
                     return $btn;
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['action', 'maintenance_date'])
                 ->make(true);
         } else {
             return view('maintenances.confirmation');

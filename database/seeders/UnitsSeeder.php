@@ -25,6 +25,7 @@ class UnitsSeeder extends Seeder
             'district' => 'BOJONGSOANG',
             'village' => 'LENGKONG',
             'serial_no' => '123456',
+            'image' => 'unit-1.jpeg',
             'norec' => Str::orderedUuid(),
         ]);
     }

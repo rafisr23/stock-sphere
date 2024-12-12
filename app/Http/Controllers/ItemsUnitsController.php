@@ -112,6 +112,7 @@ class ItemsUnitsController extends Controller
             foreach ($request['item_id'] as $key => $value) {
                 $item = Items::find($value);
                 $maintenance_date = date('Y-m-d', strtotime($request['installation_date']) + ($item->downtime * 86400));
+                $calibration_date = date('Y-m-d', strtotime('+1 year', strtotime($request['installation_date'])));
 
                 $items_units = Items_units::create([
                     'item_id' => $value,
@@ -126,6 +127,7 @@ class ItemsUnitsController extends Controller
                     'status' => $request['status'],
                     'last_checked_date' => $request['last_checked_date'],
                     'maintenance_date' => $maintenance_date,
+                    'calibration_date' => $calibration_date,
                 ]);
                 $log = [
                     'norec' => $items_units->norec,
@@ -140,7 +142,6 @@ class ItemsUnitsController extends Controller
             }
             DB::commit();
             return redirect()->route('items_units.index')->with('success', 'Items added successfully.');
-
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->route('items_units.index')->with('error', 'Items not added.');
@@ -206,6 +207,8 @@ class ItemsUnitsController extends Controller
             ? date('Y-m-d', strtotime($request['installation_date']) + ($itemUnits->items->downtime * 86400))
             : $itemUnits->maintenance_date;
 
+        $calibration_date = $request->installation_date != $itemUnits->installation_date ? date('Y-m-d', strtotime('+1 year', strtotime($request['installation_date']))) : $itemUnits->calibration_date;
+
         DB::beginTransaction();
         try {
             $itemUnits->update([
@@ -221,6 +224,7 @@ class ItemsUnitsController extends Controller
                 'status' => $request['status'],
                 'last_checked_date' => $last_checked_date,
                 'maintenance_date' => $maintenance_date,
+                'calibration_date' => $calibration_date,
             ]);
             $log = [
                 'norec' => $itemUnits->norec,

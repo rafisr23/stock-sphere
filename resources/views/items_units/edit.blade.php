@@ -1,10 +1,10 @@
 @extends('layouts.main')
 
-@section('title', 'Edit Units Item')
+@section('title', 'Edit Rooms Item')
 
 @section('breadcrumb-item', 'Data Master')
 
-@section('breadcrumb-item-active', 'Edit Units Item')
+@section('breadcrumb-item-active', 'Edit Rooms Item')
 
 @section('css')
     <style>
@@ -22,7 +22,7 @@
         <div class="col-sm-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="card-title">Edit Units Item</h4>
+                    <h4 class="card-title">Edit Rooms Item</h4>
                     <a href="{{ route('items_units.index') }}" class="btn btn-secondary">Back</a>
                 </div>
                 <div class="card-body">
