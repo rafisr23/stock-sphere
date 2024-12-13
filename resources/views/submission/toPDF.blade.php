@@ -118,10 +118,11 @@
     <h1>Repairment Report</h1>
 
     <div class="section">
-        <h3>Alasan Kunjungan</h3>
+        <h3>Reason Of Visit</h3>
         <table>
             <thead>
                 <tr>
+                    <th>Room</th>
                     <th>Item Name</th>
                     <th>Description</th>
                 </tr>
@@ -129,6 +130,7 @@
             <tbody>
                 @foreach ($detailsWithWorkHours as $d)
                     <tr>
+                        <td>{{ $d['detail']->itemUnit->rooms->name }}</td>
                         <td>{{ $d['detail']->itemUnit->items->item_name }}</td>
                         <td>{{ $d['detail']->description }}</td>
                     </tr>
@@ -143,17 +145,35 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Item Name</th>
-                        <th>Remarks</th>
-                        <th>Evidence</th>
+                        <th>Detail Activity</th>
+                        {{-- <th>Remarks</th> --}}
+                        {{-- <th>Evidence</th>  --}}
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td>{{ $d['detail']->itemUnit->items->item_name }}</td>
+                        {{-- <td>{{ $d['detail']->remarks }}</td> --}}
+                        {{-- <td><img src="{{ public_path('temp/' . $d['detail']->evidence) }}" alt="evidence"
+                                width="100" height="100"></td> --}}
+                    </tr>
+                </tbody>
+            </table>
+            
+            <table>
+                <thead>
+                    <tr>
+                        {{-- <th>Item Name</th> --}}
+                        <th>Remarks</th>
+                        {{-- <th>Evidence</th>  --}}
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        {{-- <td>{{ $d['detail']->itemUnit->items->item_name }}</td> --}}
                         <td>{{ $d['detail']->remarks }}</td>
-                        <td><img src="{{ public_path('temp/' . $d['detail']->evidence) }}" alt="evidence"
-                                width="100" height="100"></td>
+                        {{-- <td><img src="{{ public_path('temp/' . $d['detail']->evidence) }}" alt="evidence"
+                                width="100" height="100"></td> --}}
                     </tr>
                 </tbody>
             </table>
