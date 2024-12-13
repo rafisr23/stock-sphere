@@ -31,7 +31,8 @@
                             <label for="item_name" class="col-sm-3 col-form-label required">Item Name</label>
                             <div class="col-sm-9 mb-4">
                                 <input type="text" class="form-control @error('item_name') is-invalid @enderror"
-                                    id="item_name" name="item_name" required placeholder="Enter item name" value="{{ old('item_name') }}">
+                                    id="item_name" name="item_name" required placeholder="Enter item name"
+                                    value="{{ old('item_name') }}">
                                 @error('item_name')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
@@ -49,21 +50,34 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="downtime" class="col-sm-3 col-form-label required">Downtime</label>
+                            <label for="modality" class="col-sm-3 col-form-label required">Modality</label>
                             <div class="col-sm-9 mb-4">
-                                <input type="number" class="form-control @error('downtime') is-invalid @enderror"
-                                    id="downtime" name="downtime" required placeholder="Enter downtime" value="{{ old('downtime') }}">
-                                @error('downtime')
+                                <input type="text" class="form-control @error('modality') is-invalid @enderror"
+                                    id="modality" name="modality" required placeholder="Enter modality"
+                                    value="{{ old('modality') }}">
+                                @error('modality')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="modality" class="col-sm-3 col-form-label required">Modality</label>
+                            <label for="distributor" class="col-sm-3 col-form-label required">Distributor</label>
                             <div class="col-sm-9 mb-4">
-                                <input type="text" class="form-control @error('modality') is-invalid @enderror"
-                                    id="modality" name="modality" required placeholder="Enter modality" value="{{ old('modality') }}">
-                                @error('modality')
+                                <input type="text" class="form-control @error('distributor') is-invalid @enderror"
+                                    id="distributor" name="distributor" required placeholder="Enter distributor"
+                                    value="{{ old('distributor') }}">
+                                @error('distributor')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="merk" class="col-sm-3 col-form-label required">Merk</label>
+                            <div class="col-sm-9 mb-4">
+                                <input type="text" class="form-control @error('merk') is-invalid @enderror"
+                                    id="merk" name="merk" required placeholder="Enter merk"
+                                    value="{{ old('merk') }}">
+                                @error('merk')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>

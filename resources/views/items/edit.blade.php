@@ -31,7 +31,7 @@
                                                     {{ $item->item_name }}
                                                 </p>
                                                 <span
-                                                    class="text-white text-opacity-75 mb-0 text-sm text-truncate w-100">{{$item->updated_at}}</span>
+                                                    class="text-white text-opacity-75 mb-0 text-sm text-truncate w-100">{{ $item->updated_at }}</span>
                                             </div>
                                         </div>
                                     </a>
@@ -73,23 +73,35 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="downtime" class="col-sm-3 col-form-label">Downtime</label>
-                            <div class="col-sm-9 mb-4">
-                                <input type="number" class="form-control @error('downtime') is-invalid @enderror"
-                                    id="downtime" name="downtime" @error('downtime') is-invalid @enderror
-                                    value="{{ old('downtime') . $item->downtime }}" required placeholder="Enter downtime">
-                                @error('downtime')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-                        <div class="form-group row">
                             <label for="modality" class="col-sm-3 col-form-label">Modality</label>
                             <div class="col-sm-9 mb-4">
                                 <input type="text" class="form-control @error('modality') is-invalid @enderror"
                                     id="modality" name="modality" @error('modality') is-invalid @enderror
                                     value="{{ old('modality') . $item->modality }}" required placeholder="Enter modality">
                                 @error('modality')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="distributor" class="col-sm-3 col-form-label">Distributor</label>
+                            <div class="col-sm-9 mb-4">
+                                <input type="text" class="form-control @error('distributor') is-invalid @enderror"
+                                    id="distributor" name="distributor" @error('distributor') is-invalid @enderror
+                                    value="{{ old('distributor') . $item->distributor }}" required
+                                    placeholder="Enter distributor">
+                                @error('distributor')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="merk" class="col-sm-3 col-form-label">Merk</label>
+                            <div class="col-sm-9 mb-4">
+                                <input type="text" class="form-control @error('merk') is-invalid @enderror"
+                                    id="merk" name="merk" @error('merk') is-invalid @enderror
+                                    value="{{ old('merk') . $item->merk }}" required placeholder="Enter merk">
+                                @error('merk')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>

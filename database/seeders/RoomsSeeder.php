@@ -40,5 +40,32 @@ class RoomsSeeder extends Seeder
             'serial_no' => strval(random_int(1000, 9999)),
             'norec' => Str::orderedUuid(),
         ]);
+
+        DB::table('rooms')->insert([
+            'user_id' => 40,
+            'unit_id' => 1,
+            'name' => 'Rajal',
+            'description' => 'Unit Rawat Jalan',
+            'serial_no' => strval(random_int(1000, 9999)),
+            'norec' => Str::orderedUuid(),
+        ]);
+
+        DB::table('rooms')->insert([
+            'user_id' => 41,
+            'unit_id' => 1,
+            'name' => 'IBS',
+            'description' => 'IBS Unit',
+            'serial_no' => strval(random_int(1000, 9999)),
+            'norec' => Str::orderedUuid(),
+        ]);
+
+        DB::table('rooms')->insert([
+            'user_id' => 42,
+            'unit_id' => 1,
+            'name' => 'VK',
+            'description' => 'VK Unit',
+            'serial_no' => strval(random_int(1000, 9999)),
+            'norec' => Str::orderedUuid(),
+        ]);
     }
 }
