@@ -71,8 +71,10 @@ class ItemsController extends Controller
         $validator = Validator::make($request->all(), [
             'item_name' => 'required',
             'item_description' => 'required',
-            'downtime' => 'required',
+            // 'downtime' => 'required',
             'modality' => 'required',
+            'distributor' => 'required',
+            'merk' => 'required',
             'image' => 'required',
         ]);
 
@@ -131,8 +133,10 @@ class ItemsController extends Controller
         $validator = Validator::make($request->all(), [
             'item_name' => 'required',
             'item_description' => 'required',
-            'downtime' => 'required',
+            // 'downtime' => 'required',
             'modality' => 'required',
+            'distributor' => 'required',
+            'merk' => 'required',
             'image' => 'required',
         ]);
 

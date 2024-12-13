@@ -22,8 +22,9 @@
                         <thead>
                             <th>No</th>
                             <th>Item Name</th>
-                            <th>Downtime</th>
                             <th>Modality</th>
+                            <th>Distributor</th>
+                            <th>Merk</th>
                             <th>Action</th>
                         </thead>
                     </table>
@@ -51,12 +52,16 @@
                     name: 'item_name'
                 },
                 {
-                    data: 'downtime',
-                    name: 'downtime'
-                },
-                {
                     data: 'modality',
                     name: 'modality'
+                },
+                {
+                    data: 'distributor',
+                    name: 'distributor'
+                },
+                {
+                    data: 'merk',
+                    name: 'merk'
                 },
                 {
                     data: 'action',
