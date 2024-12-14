@@ -118,102 +118,55 @@
     <h1>Repairment Report</h1>
 
     <div class="section">
-        <h3>Alasan Kunjungan</h3>
+        <h3>Pengajuan Perbaikan</h3>
         <table>
-            <thead>
-                <tr>
-                    <th>Item Name</th>
-                    <th>Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($detailsWithWorkHours as $d)
-                    <tr>
-                        <td>{{ $d['detail']->itemUnit->items->item_name }}</td>
-                        <td>{{ $d['detail']->description }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
+            <tr>
+                <td><strong>Ruangan:</strong></td>
+                <td>{{ $detail->itemUnit->rooms->name }}</td>
+            </tr>
+            <tr>
+                <td><strong>Alat:</strong></td>
+                <td>{{ $detail->itemUnit->items->item_name }}</td>
+            </tr>
+            <tr>
+                <td><strong>No Seri:</strong></td>
+                <td>{{ $detail->itemUnit->serial_number }}</td>
+            </tr>
+            <tr>
+                <td><strong>Deskripsi:</strong></td>
+                <td>{{ $detail->description }}</td>
+            </tr>
+            <tr>
+                <td><strong>Evidence:</strong></td>
+                <td>
+                    @if ($detail->evidence || $detail->evidence != '')
+                        <img src="{{ public_path('temp/' . $detail->evidence) }}" alt="evidence" width="100"
+                            height="100">
+                    @else
+                        No evidence
+                    @endif
+                </td>
+            </tr>
         </table>
     </div>
 
     <div class="section">
         <h3>Activity</h3>
-        @foreach ($detailsWithWorkHours as $d)
-            <table>
-                <thead>
-                    <tr>
-                        <th>Item Name</th>
-                        <th>Remarks</th>
-                        <th>Evidence</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>{{ $d['detail']->itemUnit->items->item_name }}</td>
-                        <td>{{ $d['detail']->remarks }}</td>
-                        <td>
-                            @if ($d['detail']->evidence || $d['detail']->evidence != '')
-                                <img src="{{ public_path('temp/' . $d['detail']->evidence) }}" alt="evidence"
-                                    width="100" height="100">
-                            @else
-                                <p>No evidence</p>
-                            @endif
-
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h4>Evidance From Technician</h4>
-            <ul style="list-style: none;">
-                @if (count($d['detail']->evidenceTechnician) == 0 && isset($d['detail']->evidenceTechnician))
-                    <li>No evidence</li>
-                @else
-                    @foreach ($d['detail']->evidenceTechnician as $eT)
-                        <li><img src="{{ public_path($eT->evidence) }}" alt="evidence" width="100" height="100">
-                        </li>
-                    @endforeach
-                @endif
-            </ul>
-
-            <p><strong>Work Hours:</strong> 1 hours, 2 minutes</p>
-        @endforeach
+        <p>Hours: {{ $workHour['hours'] }}</p>
+        <p>Minutes: {{ $workHour['minutes'] }}</p>
     </div>
 
     <div class="section">
         <h3>Sparepart Used</h3>
         <ul>
-            -
+            @foreach ($detail->sparepartsOfRepair as $sparepart)
+                <li>{{ $sparepart->sparepart->name }} - {{ $sparepart->quantity }}</li>
+            @endforeach
         </ul>
     </div>
 
     <div class="section">
         <h3>Technician Detail</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Technician Name</th>
-                    <th>Start Date</th>
-                    <th>Finish Date</th>
-                    <th>Hours</th>
-                    <th>Minutes</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($detailsWithWorkHours as $d)
-                    <tr>
-                        <td>2024-12-12 16:15:00</td>
-                        <td>{{ $d['technician'] }}</td>
-                        <td>2024-12-12 16:15:00</td>
-                        <td>2024-12-12 17:17:00</td>
-                        <td>1</td>
-                        <td>2</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
     </div>
 
     <div class="technician-signature" style="margin-left: 20px; margin-right: 20px">
@@ -222,7 +175,7 @@
             <br>
             <br>
             <br>
-            <p><strong>{{ $detailsWithWorkHours[0]['technician'] }}</strong></p>
+            <p><strong>{{ $detail->technician->name }}</strong></p>
             <p style="margin-top: 0">Technician</p>
         </div>
         <div class="kanan">
