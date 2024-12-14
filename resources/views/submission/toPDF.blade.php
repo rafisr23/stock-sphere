@@ -72,6 +72,18 @@
             font-size: 12px;
         }
 
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        col {
+            flex: 0 0 30%;
+            max-width: 30%;
+            padding: 5px;
+        }
+
         .technician-signature {
             margin-top: 20px;
             text-align: center;
@@ -118,67 +130,92 @@
     <h1>Repairment Report</h1>
 
     <div class="section">
-        <h3>Alasan Kunjungan</h3>
+        <h3>Reason of visit</h3>
         <table>
             <thead>
                 <tr>
+                    <th>Room</th>
                     <th>Item Name</th>
                     <th>Description</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach ($detailsWithWorkHours as $d)
-                    <tr>
-                        <td>{{ $d['detail']->itemUnit->items->item_name }}</td>
-                        <td>{{ $d['detail']->description }}</td>
-                    </tr>
-                @endforeach
+                <tr>
+                    <td>{{ $detail->itemUnit->rooms->name }}</td>
+                    <td>{{ $detail->itemUnit->items->item_name }}</td>
+                    <td>{{ $detail->description }}</td>
+                </tr>
             </tbody>
         </table>
     </div>
 
     <div class="section">
         <h3>Activity</h3>
-        @foreach ($detailsWithWorkHours as $d)
-            <table>
-                <thead>
-                    <tr>
-                        <th>Item Name</th>
-                        <th>Remarks</th>
-                        <th>Evidence</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>{{ $d['detail']->itemUnit->items->item_name }}</td>
-                        <td>{{ $d['detail']->remarks }}</td>
-                        <td><img src="{{ public_path('temp/' . $d['detail']->evidence) }}" alt="evidence"
-                                width="100" height="100"></td>
-                    </tr>
-                </tbody>
-            </table>
+        <table>
+            <thead>
+                <tr>
+                    <th><strong>Detail Activity</strong></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ $detail->itemUnit->items->item_name }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th><strong>Remarks</strong></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ $detail->remarks ?? 'No Remarks' }}</td>
+                </tr>
+            </tbody>
+        </table>
 
-            <h4>Evidance From Technician</h4>
-            <ul style="list-style: none;">
-                @if (count($d['detail']->evidenceTechnician) == 0 && isset($d['detail']->evidenceTechnician))
-                    <li>No evidence</li>
-                @else
-                    @foreach ($d['detail']->evidenceTechnician as $eT)
-                        <li><img src="{{ public_path($eT->evidence) }}" alt="evidence" width="100"
-                                height="100"></li>
-                    @endforeach
-                @endif
-            </ul>
+        <h4>Evidance From Technician</h4>
+        <div class="row">
+            @if (count($detail->evidenceTechnician) == 0 && isset($detail->evidenceTechnician))
+                <col>No evidence</col>
+            @else
+                @foreach ($detail->evidenceTechnician as $eT)
+                    <col><img src="{{ public_path($eT->evidence) }}" alt="evidence" width="100" height="100">
+                    </col>
+                @endforeach
+            @endif
+        </div>
 
-            <p><strong>Work Hours:</strong> 1 hours, 2 minutes</p>
-        @endforeach
+        <p><strong>Work Hours:</strong>{{ $workHour['hours'] }} hour(s), {{ $workHour['minutes'] }} minute(s)</p>
     </div>
 
     <div class="section">
         <h3>Sparepart Used</h3>
-        <ul>
-            -
-        </ul>
+        <table>
+            <thead>
+                <tr>
+                    <th>Sparepart Name</th>
+                    <th>Serial Number</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (count($detail->sparepartsOfRepair) == 0)
+                    <tr>
+                        <td colspan="3">No sparepart used</td>
+                    </tr>
+                @endif
+                @foreach ($detail->sparepartsOfRepair as $sparepart)
+                    <tr>
+                        <td>{{ $sparepart->sparepart->name }}</td>
+                        <td>{{ $sparepart->sparepart->serial_no }}</td>
+                        <td>{{ $sparepart->sparepart->description }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
 
     <div class="section">
@@ -195,16 +232,23 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($detailsWithWorkHours as $d)
+                @for ($i = 0; $i < count($workHour['hoursArr']); $i++)
                     <tr>
-                        <td>2024-12-12 16:15:00</td>
-                        <td>{{ $d['technician'] }}</td>
-                        <td>2024-12-12 16:15:00</td>
-                        <td>2024-12-12 17:17:00</td>
-                        <td>1</td>
-                        <td>2</td>
+                        <td>{{ $detail->created_at }}</td>
+                        <td>{{ $detail->technician->name }}</td>
+                        <td>{{ $workHour['start'] }}</td>
+                        <td>{{ $workHour['start']->day == $workHour['end']->day ? $workHour['end'] : $workHour['start']->copy()->hour(17)->minute(0)->second(0) }}
+                        </td>
+                        <td>{{ $workHour['hoursArr'][$i] }}</td>
+                        <td>{{ $workHour['minutesArr'][$i] }}</td>
                     </tr>
-                @endforeach
+                    @php
+                        $workHour['start']->addDay()->hour(8)->minute(0)->second(0);
+                        if ($workHour['start']->isWeekend()) {
+                            $workHour['start']->nextWeekday()->hour(8)->minute(0)->second(0);
+                        }
+                    @endphp
+                @endfor
             </tbody>
         </table>
     </div>
@@ -215,7 +259,7 @@
             <br>
             <br>
             <br>
-            <p><strong>{{ $detailsWithWorkHours[0]['technician'] }}</strong></p>
+            <p><strong>{{ $detail->technician->name }}</strong></p>
             <p style="margin-top: 0">Technician</p>
         </div>
         <div class="kanan">
