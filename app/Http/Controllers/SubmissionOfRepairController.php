@@ -153,11 +153,9 @@ class SubmissionOfRepairController extends Controller
             ]);
 
             $itemUnitId = explode(',', $request->items);
-
             foreach ($itemUnitId as $key => $value) {
                 // if ($key == 0) continue;
                 // return $request->evidence[$value] . ' - ' . $request->description[$value];
-
                 $item = Items_units::find($value);
                 $evidence = $request->evidence ? $request->evidence[$value] : '';
                 $detail = $submissionOfRepair->details()->create([
@@ -176,7 +174,6 @@ class SubmissionOfRepairController extends Controller
                     'item_unit_id' => $item->id,
                     'item_unit_status' => $item->status,
                 ];
-
                 $detailLog = [
                     'norec' => $detail->norec,
                     'norec_parent' => $submissionOfRepair->norec,
@@ -186,7 +183,6 @@ class SubmissionOfRepairController extends Controller
                     'item_unit_id' => $item->id,
                     'item_unit_status' => $item->status,
                 ];
-
                 createLog($log);
                 createLog($detailLog);
             }
@@ -198,7 +194,6 @@ class SubmissionOfRepairController extends Controller
                 'is_repair' => true,
                 'desc' => 'Submission of repair has been submitted by ' . auth()->user()->name . ' from ' . $room->name . ' (' . $unit->customer_name . ')' . ' with ' . count($itemUnitId) . ' item(s)',
             ];
-
             createLog($submissionLog);
 
             DB::commit();
@@ -256,7 +251,7 @@ class SubmissionOfRepairController extends Controller
                     $btn = '<div class="d-flex justify-content-center align-items-center">';
                     $btn .= '<a href="' . $detailUrl . '" class="view btn btn-info btn-sm me-2" title="See Details"><i class="ph-duotone ph-eye"></i></a>';
                     // $btn .= '<a href="#" class="delete btn btn-danger btn-sm" data-id="' . encrypt($row->id) . '" title="Delete Data"><i class="ph-duotone ph-trash"></i></a>';
-
+    
                     $log = [
                         'norec' => $row->norec ?? null,
                         'module_id' => 2,
@@ -334,7 +329,7 @@ class SubmissionOfRepairController extends Controller
                 $btn .= '<a href="' . $detailUrl . '" class="view btn btn-info btn-sm me-2" title="Detail Submission"><i class="ph-duotone ph-eye"></i></a>';
                 // $btn .= '<a href="' . route('items_units.edit', $row->id) . '" class="edit btn btn-warning btn-sm me-2" title="Edit Data"><i class="ph-duotone ph-pencil-line"></i></a>';
                 // $btn .= '<a href="#" class="delete btn btn-danger btn-sm" data-id="' . encrypt($row->id) . '" title="Delete Data"><i class="ph-duotone ph-trash"></i></a>';
-
+    
                 $log = [
                     'norec' => $row->norec ?? null,
                     'module_id' => 2,
@@ -491,7 +486,7 @@ class SubmissionOfRepairController extends Controller
         $workHour = $this->calculateWorkHourDifference($date_worked_on, $date_completed);
 
         $pdf = app('dompdf.wrapper');
-        $pdf->loadView('submission.toPDF2', compact('detail', 'workHour'));
+        $pdf->loadView('submission.toPDF', compact('detail', 'workHour'));
 
         return $pdf->stream('submission-of-repair.pdf');
     }
@@ -504,10 +499,11 @@ class SubmissionOfRepairController extends Controller
         if ($start->greaterThanOrEqualTo($end)) {
             return 0;
         }
-
         $workStart = 8;
         $workEnd = 17;
         $totalMinutes = 0;
+        $minutes = [];
+        $hours = [];
 
         while ($start->lessThan($end)) {
             if ($start->isWeekday()) {
@@ -517,15 +513,20 @@ class SubmissionOfRepairController extends Controller
                 if ($start->between($workDayStart, $workDayEnd)) {
                     $endOfDay = $workDayEnd->lessThan($end) ? $workDayEnd : $end;
                     $totalMinutes += $start->diffInMinutes($endOfDay);
+                    $hours[] = intdiv($start->diffInMinutes($endOfDay), 60);
+                    $minutes[] = $start->diffInMinutes($endOfDay) % 60;
                 }
             }
-
             $start->addDay()->hour($workStart)->minute(0)->second(0);
         }
 
         return [
+            'start' => Carbon::parse($datesWorkedOn),
+            'end' => Carbon::parse($datesCompleted),
             'hours' => intdiv($totalMinutes, 60),
             'minutes' => $totalMinutes % 60,
+            'hoursArr' => $hours,
+            'minutesArr' => $minutes,
         ];
     }
 }
