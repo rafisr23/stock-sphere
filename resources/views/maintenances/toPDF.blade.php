@@ -155,7 +155,7 @@
             </tbody>
         </table>
 
-        <p><strong>Work Hours:</strong> {{ $workHours['0']['hours'] }} hours {{ $workHours['0']['minutes'] }} minutes</p>
+        <p><strong>Work Hours:</strong> {{ $workHours['hours'] }} hours {{ $workHours['minutes'] }} minutes</p>
     </div>
 
     <div class="section">
@@ -167,8 +167,6 @@
                     <th>Technician Name</th>
                     <th>Start Date</th>
                     <th>Finish Date</th>
-                    <th>Hours</th>
-                    <th>Minutes</th>
                 </tr>
             </thead>
             <tbody>
@@ -177,8 +175,6 @@
                     <td>{{ $technician->name }}</td>
                     <td>{{ $maintenance->date_worked_on }}</td>
                     <td> {{ $maintenance->date_completed }}</td>
-                    <td>{{ $workHours['0']['hours'] }}</td>
-                    <td>{{ $workHours['0']['minutes'] }}</td>
                 </tr>
             </tbody>
         </table>

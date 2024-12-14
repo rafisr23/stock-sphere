@@ -488,7 +488,7 @@ class SubmissionOfRepairController extends Controller
         $detail = DetailsOfRepairSubmission::where('date_cancelled', null)->where('id', decrypt($detailId))->first();
         $date_worked_on = $detail->date_worked_on;
         $date_completed = $detail->date_completed;
-        $workHour = $this->calculateWorkHourDifference2($date_worked_on, $date_completed);
+        $workHour = $this->calculateWorkHourDifference($date_worked_on, $date_completed);
 
         $pdf = app('dompdf.wrapper');
         $pdf->loadView('submission.toPDF2', compact('detail', 'workHour'));
