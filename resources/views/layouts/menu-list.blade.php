@@ -108,7 +108,7 @@
             <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
             @foreach ($maintenance_count as $mc)
                 <span
-                    class="pc-badge {{ $mc->status == 1 ? 'bg-secondary' : ($mc->status == 5 ? 'bg-info' : ($mc->status == 6 ? 'bg-primary' : '')) }}">
+                    class="pc-badge {{ $mc->status == 0 ? 'bg-primary' : ($mc->status == 1 ? 'bg-secondary' : ($mc->status == 2 ? 'bg-warning' : ($mc->status == 3 ? 'bg-success' : ($mc->status == 4 ? 'bg-danger' : ($mc->status == 5 ? 'bg-primary' : ($mc->status == 6 ? 'bg-success' : ($mc->status == 7 ? 'bg-info' : ''))))))) }}">
                     {{ $mc->total }}
                 </span>
             @endforeach
@@ -136,6 +136,12 @@
                 </span>
                 <span class="pc-mtext">Calibrations</span>
                 <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
+                @foreach ($calibration_count as $cc)
+                    <span
+                        class="pc-badge {{ $cc->status == 0 ? 'bg-primary' : ($cc->status == 1 ? 'bg-secondary' : ($cc->status == 2 ? 'bg-warning' : ($cc->status == 3 ? 'bg-success' : ($cc->status == 4 ? 'bg-danger' : ($cc->status == 5 ? 'bg-primary' : ($cc->status == 6 ? 'bg-success' : ($cc->status == 7 ? 'bg-info' : ''))))))) }}">
+                        {{ $cc->total }}
+                    </span>
+                @endforeach
             </a>
             <ul class="pc-submenu">
                 @if (!auth()->user()->hasRole('room'))

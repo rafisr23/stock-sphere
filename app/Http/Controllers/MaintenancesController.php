@@ -224,8 +224,10 @@ class MaintenancesController extends Controller
                         if (!$row->date_completed) {
                             $btn .= '<a href="#" class="update btn btn-warning btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Update Maintenance"><i class="ph-duotone ph-pencil-line"></i></a>';
                         }
-                        $btn .= '<a href="#" class="finish btn btn-success btn-sm" data-id="' . encrypt($row->id) . '" title="Finish Maintenance"';
-                        $btn .= '><i class="ph-duotone ph-check"></i></a>';
+                        if ($row->evidence && !$row->date_completed && $row->remarks) {
+                            $btn .= '<a href="#" class="finish btn btn-success btn-sm" data-id="' . encrypt($row->id) . '" title="Finish Maintenance"';
+                            $btn .= '><i class="ph-duotone ph-check"></i></a>';
+                        }
                         $btn .= '</div>';
                         return $btn;
                     })
