@@ -499,7 +499,6 @@ class SubmissionOfRepairController extends Controller
         if ($start->greaterThanOrEqualTo($end)) {
             return 0;
         }
-
         $workStart = 8;
         $workEnd = 17;
         $totalMinutes = 0;
