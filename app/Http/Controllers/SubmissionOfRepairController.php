@@ -253,10 +253,8 @@ class SubmissionOfRepairController extends Controller
                 })
                 ->addColumn('action', function ($row) {
                     $detailUrl = route('submission-of-repair.detail', encrypt($row->id));
-                    $toPDFURL = route('submission-of-repair.toPDF', encrypt($row->id));
                     $btn = '<div class="d-flex justify-content-center align-items-center">';
                     $btn .= '<a href="' . $detailUrl . '" class="view btn btn-info btn-sm me-2" title="See Details"><i class="ph-duotone ph-eye"></i></a>';
-                    $btn .= '<a href="' . $toPDFURL . '" class="edit btn btn-danger btn-sm me-2" title="Export to PDF"><i class="ph-duotone ph-file-pdf"></i></a>';
                     // $btn .= '<a href="#" class="delete btn btn-danger btn-sm" data-id="' . encrypt($row->id) . '" title="Delete Data"><i class="ph-duotone ph-trash"></i></a>';
 
                     $log = [
@@ -485,90 +483,49 @@ class SubmissionOfRepairController extends Controller
         return view('submission.assign', compact('submission', 'technicians', 'details'));
     }
 
-    public function toPDF($submissionId)
+    public function toPDF($detailId)
     {
-        $submission = SubmissionOfRepair::where('date_cancelled', null)->where('id', decrypt($submissionId))->first();
-        $date_worked_on = $submission->details->pluck('date_worked_on');
-        $date_completed = $submission->details->pluck('date_completed');
-        $technician = $submission->details->pluck('technician_id');
-        $workHours = $this->calculateWorkHoursDifference($date_worked_on, $date_completed);
-        $detailsWithWorkHours = $submission->details->map(function ($detail, $key) use ($workHours) {
-            return [
-                'detail' => $detail,
-                'workHours' => $workHours[$key] ?? ['hours' => 0, 'minutes' => 0],
-                'technician' => Technician::find($detail->technician_id)->name,
-            ];
-        });
-        // dd($detailsWithWorkHours);
-        // return $submission;
+        $detail = DetailsOfRepairSubmission::where('date_cancelled', null)->where('id', decrypt($detailId))->first();
+        $date_worked_on = $detail->date_worked_on;
+        $date_completed = $detail->date_completed;
+        $workHour = $this->calculateWorkHourDifference2($date_worked_on, $date_completed);
+
         $pdf = app('dompdf.wrapper');
-        $pdf->loadView('submission.toPDF', compact('submission', 'detailsWithWorkHours'));
-        // stream the pdf to the browser
+        $pdf->loadView('submission.toPDF2', compact('detail', 'workHour'));
+
         return $pdf->stream('submission-of-repair.pdf');
-        // return $pdf->download('submission-of-repair.pdf');
     }
 
-    private function calculateWorkHoursDifference($datesWorkedOn, $datesCompleted)
+    private function calculateWorkHourDifference($datesWorkedOn, $datesCompleted)
     {
-        if ($datesWorkedOn->isEmpty() || $datesCompleted->isEmpty()) {
-            return [];
+        $start = Carbon::parse($datesWorkedOn);
+        $end = Carbon::parse($datesCompleted);
+
+        if ($start->greaterThanOrEqualTo($end)) {
+            return 0;
         }
 
-        $workHoursArray = [];
+        $workStart = 8;
+        $workEnd = 17;
+        $totalMinutes = 0;
 
-        foreach ($datesWorkedOn as $key => $workedOn) {
-            $completed = $datesCompleted[$key] ?? null;
+        while ($start->lessThan($end)) {
+            if ($start->isWeekday()) {
+                $workDayStart = $start->copy()->hour($workStart)->minute(0)->second(0);
+                $workDayEnd = $start->copy()->hour($workEnd)->minute(0)->second(0);
 
-            if (!$workedOn || !$completed) {
-                $workHoursArray[] = [
-                    'start' => $workedOn,
-                    'end' => $completed,
-                    'hours' => 0,
-                    'minutes' => 0,
-                ];
-                continue;
-            }
-
-            $start = Carbon::parse($workedOn);
-            $end = Carbon::parse($completed);
-
-            if ($start->greaterThanOrEqualTo($end)) {
-                $workHoursArray[] = [
-                    'start' => $workedOn,
-                    'end' => $completed,
-                    'hours' => 0,
-                    'minutes' => 0,
-                ];
-                continue;
-            }
-
-            $workStart = 8;
-            $workEnd = 17;
-            $totalMinutes = 0;
-
-            while ($start->lessThan($end)) {
-                if ($start->isWeekday()) {
-                    $workDayStart = $start->copy()->hour($workStart)->minute(0)->second(0);
-                    $workDayEnd = $start->copy()->hour($workEnd)->minute(0)->second(0);
-
-                    if ($start->between($workDayStart, $workDayEnd)) {
-                        $endOfDay = $workDayEnd->lessThan($end) ? $workDayEnd : $end;
-                        $totalMinutes += $start->diffInMinutes($endOfDay);
-                    }
+                if ($start->between($workDayStart, $workDayEnd)) {
+                    $endOfDay = $workDayEnd->lessThan($end) ? $workDayEnd : $end;
+                    $totalMinutes += $start->diffInMinutes($endOfDay);
                 }
-
-                // Pindah ke hari berikutnya
-                $start->addDay()->hour($workStart)->minute(0)->second(0);
             }
 
-            $workHoursArray[] = [
-                'start' => $workedOn,
-                'end' => $completed,
-                'hours' => intdiv($totalMinutes, 60),
-                'minutes' => $totalMinutes % 60,
-            ];
+            $start->addDay()->hour($workStart)->minute(0)->second(0);
         }
 
-        return $workHoursArray;
+        return [
+            'hours' => intdiv($totalMinutes, 60),
+            'minutes' => $totalMinutes % 60,
+        ];
     }
 }

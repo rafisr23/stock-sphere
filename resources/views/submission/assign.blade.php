@@ -29,8 +29,11 @@
                                 @if ($submission->room->units->image)
                                     <tr>
                                         <td colspan="2">
-                                            <a class="card-gallery" data-fslightbox="gallery" href="{{ asset('images/units/' . $submission->room->units->image) }}">
-                                                <img class="img-fluid" src="{{ asset('images/units/' . $submission->room->units->image) }}" alt="Card image">
+                                            <a class="card-gallery" data-fslightbox="gallery"
+                                                href="{{ asset('images/units/' . $submission->room->units->image) }}">
+                                                <img class="img-fluid"
+                                                    src="{{ asset('images/units/' . $submission->room->units->image) }}"
+                                                    alt="Card image">
                                             </a>
                                         </td>
                                     </tr>
@@ -49,7 +52,12 @@
                                 </tr>
                                 <tr>
                                     <th>Address</th>
-                                    <td>{{ $submission->room->units->street ?? '-' }}, {{ $submission->room->units->province ?? '' }}, {{ $submission->room->units->city ?? '' }}, {{ $submission->room->units->district ?? '' }}, {{ $submission->room->units->village ?? '' }}, {{ $submission->room->units->postal_code ?? '' }}</td>
+                                    <td>{{ $submission->room->units->street ?? '-' }},
+                                        {{ $submission->room->units->province ?? '' }},
+                                        {{ $submission->room->units->city ?? '' }},
+                                        {{ $submission->room->units->district ?? '' }},
+                                        {{ $submission->room->units->village ?? '' }},
+                                        {{ $submission->room->units->postal_code ?? '' }}</td>
                                 </tr>
                                 <tr>
                                     <th>Room</th>
@@ -107,17 +115,26 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                        <a href="{{ asset('temp/' . $detail->evidence) }}" target="_blank" class="btn btn-primary btn-sm" title="See Evidance"><i class="ph-duotone ph-file-image"></i></a>
+                                        <a href="{{ asset('temp/' . $detail->evidence) }}" target="_blank"
+                                            class="btn btn-primary btn-sm" title="See Evidance"><i
+                                                class="ph-duotone ph-file-image"></i></a>
                                         @role('superadmin|technician')
-                                            <a href="#" class="view btn btn-info btn-sm btn-assign" title="Assign Technician" data-id="{{ $detail->id }}"><i class="ph-duotone ph-user-plus"></i></a>
-                                        @elserole('room|unit|superadmin')
+                                            <a href="#" class="view btn btn-info btn-sm btn-assign"
+                                                title="Assign Technician" data-id="{{ $detail->id }}"><i
+                                                    class="ph-duotone ph-user-plus"></i></a>
+                                            @elserole('room|unit|superadmin')
                                             @isset($detail->technician)
-                                                <a href="#" type="button" data-bs-toggle="modal" data-bs-target=".bd-example-modal-lg" class="view btn btn-info btn-sm btn-show" title="Show Technician" data-id="{{ encrypt($detail->technician->id) }}"><i class="ph-duotone ph-user-gear"></i></a>
+                                                <a href="#" type="button" data-bs-toggle="modal"
+                                                    data-bs-target=".bd-example-modal-lg" class="view btn btn-info btn-sm btn-show"
+                                                    title="Show Technician" data-id="{{ encrypt($detail->technician->id) }}"><i
+                                                        class="ph-duotone ph-user-gear"></i></a>
                                             @endisset
                                         @endrole
+                                        <a href="{{ route('submission-of-repair.toPDF', encrypt($detail->id)) }}"
+                                            class='btn btn-sm btn-danger' title="Export to PDF"
+                                            data-id="{{ $detail->id }}"><i class="ph-duotone ph-file-pdf"></i></a>
                                         <a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
-                                            data-bs-target='#exampleModal'
-                                            data-title='Detail Log' data-bs-tooltip='tooltip'
+                                            data-bs-target='#exampleModal' data-title='Detail Log' data-bs-tooltip='tooltip'
                                             data-remote="{{ route('log.getLog', ['norec' => $detail->norec, 'module' => 2, 'status' => 'is_repair']) }}"
                                             title='Log Information'>
                                             <i class='ph-duotone ph-info'></i>
@@ -138,7 +155,8 @@
         </div>
     </div>
 
-    <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -149,15 +167,18 @@
                     <div class="row align-items-center">
                         <div class="col-md-4 d-flex align-items-center justify-content-center mb-3">
                             <div>
-                                <img src="{{ URL::asset('build/images/user/avatar-1.jpg') }}" alt="user-image" class="user-avtar rounded-circle">
+                                <img src="{{ URL::asset('build/images/user/avatar-1.jpg') }}" alt="user-image"
+                                    class="user-avtar rounded-circle">
                             </div>
                         </div>
                         <div class="col-md-8">
                             <div class="row mb-3">
                                 <div class="col-md-12">
                                     <div class="input-group">
-                                        <div class="input-group-text"><i class="ph-duotone ph-identification-card"></i></div>
-                                        <input type="text" class="form-control" id="name" placeholder="Name" readonly style="opacity: 1 !important">
+                                        <div class="input-group-text"><i class="ph-duotone ph-identification-card"></i>
+                                        </div>
+                                        <input type="text" class="form-control" id="name" placeholder="Name"
+                                            readonly style="opacity: 1 !important">
                                     </div>
                                 </div>
                             </div>
@@ -165,7 +186,8 @@
                                 <div class="col-md-12">
                                     <div class="input-group">
                                         <div class="input-group-text"><i class="ph-duotone ph-phone"></i></div>
-                                        <input type="text" class="form-control" id="phone" placeholder="Phone Number" readonly style="opacity: 1 !important">
+                                        <input type="text" class="form-control" id="phone"
+                                            placeholder="Phone Number" readonly style="opacity: 1 !important">
                                     </div>
                                 </div>
                             </div>
@@ -192,7 +214,7 @@
                         let data = response.data
                         let options = []
                         data.forEach(element => {
-                            options += `<option value="${element.id}">${element.name}</option>` 
+                            options += `<option value="${element.id}">${element.name}</option>`
                         });
                         Swal.fire({
                             title: 'Assign Technician',
@@ -201,7 +223,7 @@
                                 <div class="col-md-12">
                                     <select class="form-control" data-trigger name="technician_id" id="technician_id" required>
                                         ${options}
-                                    </select>    
+                                    </select>
                                 </div>
                             </div>
                             `,
@@ -209,20 +231,25 @@
                             confirmButtonText: 'Submit',
                             focusConfirm: false,
                             didOpen: () => {
-                                const multipleCancelButton = new Choices(document.getElementById('technician_id'), {
-                                    removeItemButton: true,
-                                    allowHTML: true,
-                                    position: 'bottom',
-                                    placeholder: true,
-                                    placeholderValue: 'Select Technician',
-                                    searchPlaceholderValue: 'Search Technician',
-                                    renderChoiceLimit: 5
-                                });
-                                document.querySelector('.choices__list--dropdown').style.zIndex = '9999';
+                                const multipleCancelButton = new Choices(document
+                                    .getElementById('technician_id'), {
+                                        removeItemButton: true,
+                                        allowHTML: true,
+                                        position: 'bottom',
+                                        placeholder: true,
+                                        placeholderValue: 'Select Technician',
+                                        searchPlaceholderValue: 'Search Technician',
+                                        renderChoiceLimit: 5
+                                    });
+                                document.querySelector('.choices__list--dropdown').style
+                                    .zIndex = '9999';
                             },
                             preConfirm: () => {
-                                const technician = Swal.getPopup().querySelector('#technician_id').value
-                                return { technician: technician }
+                                const technician = Swal.getPopup().querySelector(
+                                    '#technician_id').value
+                                return {
+                                    technician: technician
+                                }
                             },
                         }).then((result) => {
                             if (result.isConfirmed) {
@@ -247,7 +274,8 @@
                                                 timerProgressBar: true,
                                             }).then((result) => {
                                                 setTimeout(() => {
-                                                    location.reload();
+                                                    location
+                                                        .reload();
                                                 }, 100);
                                             });
                                         } else {
