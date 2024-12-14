@@ -295,6 +295,9 @@ $("#work_on_repairment_table").on("click", ".finish", function (e) {
     e.preventDefault();
     let id = $(this).data("id");
     let url = "repairments/finish/" + id;
+    let status = $(this).closest("tr").find(".status").val();
+    let remarks = $(this).closest("tr").find(".remarks").val();
+
     $.ajax({
         url: url,
         type: "POST",
@@ -302,6 +305,8 @@ $("#work_on_repairment_table").on("click", ".finish", function (e) {
             _method: "PUT",
             _token: CSRF_TOKEN,
             id: id,
+            remarks: remarks,
+            status: status,
         },
         success: function (response) {
             if (response.success) {
@@ -388,10 +393,10 @@ $(document).on("change", 'input[type="file"]', function () {
                 console.log(itemId + "_file");
                 $("#" + itemId).after(
                     '<p>File uploaded: <a href="/temp/' +
-                        response.fileName +
-                        '" target="_blank" id="temp_file" name="temp_file" value="' +
-                        response.fileName +
-                        '">View file</a></p>'
+                    response.fileName +
+                    '" target="_blank" id="temp_file" name="temp_file" value="' +
+                    response.fileName +
+                    '">View file</a></p>'
                 );
             }
         },
