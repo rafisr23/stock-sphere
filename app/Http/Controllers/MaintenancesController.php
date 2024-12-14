@@ -771,8 +771,10 @@ class MaintenancesController extends Controller
                         'module_id' => 3,
                         'status' => 'is_maintenance',
                     ];
-                    $toPDFURL = route('maintenances.toPDF', encrypt($row->id));
-                    $btn .= '<a href="' . $toPDFURL . '" class="edit btn btn-danger btn-sm me-2" title="Export to PDF"><i class="ph-duotone ph-file-pdf"></i></a>';
+                    if ($row->status == 3) {
+                        $toPDFURL = route('maintenances.toPDF', encrypt($row->id));
+                        $btn .= '<a href="' . $toPDFURL . '" class="edit btn btn-danger btn-sm me-2" title="Export to PDF"><i class="ph-duotone ph-file-pdf"></i></a>';
+                    }
                     $showLogBtn =
                         "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
                             data-bs-target='#exampleModal'
