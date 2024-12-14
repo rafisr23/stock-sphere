@@ -151,61 +151,6 @@
 
     <div class="section">
         <h3>Activity</h3>
-        @foreach ($detailsWithWorkHours as $d)
-            <table>
-                <thead>
-                    <tr>
-                        <th>Detail Activity</th>
-                        {{-- <th>Remarks</th> --}}
-                        {{-- <th>Evidence</th>  --}}
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>{{ $d['detail']->itemUnit->items->item_name }}</td>
-                        {{-- <td>{{ $d['detail']->remarks }}</td> --}}
-                        {{-- <td><img src="{{ public_path('temp/' . $d['detail']->evidence) }}" alt="evidence"
-                                width="100" height="100"></td> --}}
-                    </tr>
-                </tbody>
-            </table>
-            
-            <table>
-                <thead>
-                    <tr>
-                        {{-- <th>Item Name</th> --}}
-                        <th>Remarks</th>
-                        {{-- <th>Evidence</th>  --}}
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        {{-- <td>{{ $d['detail']->itemUnit->items->item_name }}</td> --}}
-                        <td>{{ $d['detail']->remarks }}</td>
-                        <td>
-                            @if ($d['detail']->evidence || $d['detail']->evidence != '')
-                                <img src="{{ public_path('temp/' . $d['detail']->evidence) }}" alt="evidence"
-                                    width="100" height="100">
-                            @else
-                                <p>No evidence</p>
-                            @endif
-
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h4>Evidance From Technician</h4>
-            <ul style="list-style: none;">
-                @if (count($d['detail']->evidenceTechnician) == 0 && isset($d['detail']->evidenceTechnician))
-                    <li>No evidence</li>
-                @else
-                    @foreach ($d['detail']->evidenceTechnician as $eT)
-                        <li><img src="{{ public_path($eT->evidence) }}" alt="evidence" width="100" height="100">
-                        </li>
-                    @endforeach
-                @endif
-            </ul>
         <table>
             <thead>
                 <tr>
