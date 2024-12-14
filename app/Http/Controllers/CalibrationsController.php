@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Rooms;
+use App\Models\NewLog;
 use App\Models\Technician;
 use App\Models\Items_units;
 use App\Models\Calibrations;
@@ -579,7 +580,7 @@ class CalibrationsController extends Controller
                         'module_id' => 10,
                         'status' => 'is_maintenance',
                     ];
-                    $btn .= '<a href="' . route('calibrations.toPDF', encrypt($row->id)) . '" class="edit btn btn-danger btn-sm me-2" title="Export to PDF"><i class="ph-duotone ph-file-pdf"></i></a>';
+                    $btn .= '<a href="' . route('calibrations.toPDF', encrypt($row->id)) . '" class="edit btn btn-danger btn-sm me-2" target="_blank" title="Export to PDF"><i class="ph-duotone ph-file-pdf"></i></a>';
                     $showLogBtn =
                         "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
                             data-bs-target='#exampleModal'
@@ -680,9 +681,10 @@ class CalibrationsController extends Controller
         $date_completed = $calibration->date_completed;
         // $technician = Technician::where('id', $calibration->technician_id)->first();
         $workHours = $this->calculateWorkHourDifference($date_worked_on, $date_completed);
+        $calibrationLog = NewLog::where('norec', $calibration->norec)->where('module_id', 10)->get();
         $pdf = app('dompdf.wrapper');
-        $pdf->loadView('calibrations.toPDF', compact('calibration', 'workHours'));
-        return $pdf->download(date(now()) . '_calibration_' . $calibration->item_room->items->item_name . '.pdf');
+        $pdf->loadView('calibrations.toPDF', compact('calibration', 'workHours', 'calibrationLog'));
+        return $pdf->stream(date(now()) . '_calibration_' . $calibration->item_room->items->item_name . '.pdf');
     }
 
     private function calculateWorkHourDifference($datesWorkedOn, $datesCompleted)
