@@ -45,17 +45,21 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="form-group row">
-                                <label for="serial_number" class="col-sm-3 col-form-label fw-bold">Downtime :</label>
+                                <label for="modality" class="col-sm-3 col-form-label fw-bold">Modality :</label>
                                 <div class="col-sm-9">
-                                    <label for="item_description"
-                                        class="col-sm-3 col-form-label">{{ $item->downtime }}</label>
+                                    <p name="modality" class="col-sm-3 col-form-label">{{ $item->modality }}</p>
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="serial_number" class="col-sm-3 col-form-label fw-bold">Modality :</label>
+                                <label for="distributor" class="col-sm-3 col-form-label fw-bold">Distributor :</label>
                                 <div class="col-sm-9">
-                                    <label for="item_description"
-                                        class="col-sm-3 col-form-label">{{ $item->modality }}</label>
+                                    <p name="distributor" class="col-sm-3 col-form-label">{{ $item->distributor }}</p>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="merk" class="col-sm-3 col-form-label fw-bold">Merk :</label>
+                                <div class="col-sm-9">
+                                    <p name="merk" class="col-sm-3 col-form-label">{{ $item->merk }}</p>
                                 </div>
                             </div>
                         </div>

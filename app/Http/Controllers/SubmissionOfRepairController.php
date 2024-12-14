@@ -153,11 +153,9 @@ class SubmissionOfRepairController extends Controller
             ]);
 
             $itemUnitId = explode(',', $request->items);
-
             foreach ($itemUnitId as $key => $value) {
                 // if ($key == 0) continue;
                 // return $request->evidence[$value] . ' - ' . $request->description[$value];
-
                 $item = Items_units::find($value);
                 $evidence = $request->evidence ? $request->evidence[$value] : '';
                 $detail = $submissionOfRepair->details()->create([
@@ -176,7 +174,6 @@ class SubmissionOfRepairController extends Controller
                     'item_unit_id' => $item->id,
                     'item_unit_status' => $item->status,
                 ];
-
                 $detailLog = [
                     'norec' => $detail->norec,
                     'norec_parent' => $submissionOfRepair->norec,
@@ -186,7 +183,6 @@ class SubmissionOfRepairController extends Controller
                     'item_unit_id' => $item->id,
                     'item_unit_status' => $item->status,
                 ];
-
                 createLog($log);
                 createLog($detailLog);
             }
@@ -198,7 +194,6 @@ class SubmissionOfRepairController extends Controller
                 'is_repair' => true,
                 'desc' => 'Submission of repair has been submitted by ' . auth()->user()->name . ' from ' . $room->name . ' (' . $unit->customer_name . ')' . ' with ' . count($itemUnitId) . ' item(s)',
             ];
-
             createLog($submissionLog);
 
             DB::commit();
@@ -253,12 +248,10 @@ class SubmissionOfRepairController extends Controller
                 })
                 ->addColumn('action', function ($row) {
                     $detailUrl = route('submission-of-repair.detail', encrypt($row->id));
-                    $toPDFURL = route('submission-of-repair.toPDF', encrypt($row->id));
                     $btn = '<div class="d-flex justify-content-center align-items-center">';
                     $btn .= '<a href="' . $detailUrl . '" class="view btn btn-info btn-sm me-2" title="See Details"><i class="ph-duotone ph-eye"></i></a>';
-                    $btn .= '<a href="' . $toPDFURL . '" class="edit btn btn-danger btn-sm me-2" title="Export to PDF"><i class="ph-duotone ph-file-pdf"></i></a>';
                     // $btn .= '<a href="#" class="delete btn btn-danger btn-sm" data-id="' . encrypt($row->id) . '" title="Delete Data"><i class="ph-duotone ph-trash"></i></a>';
-
+    
                     $log = [
                         'norec' => $row->norec ?? null,
                         'module_id' => 2,
@@ -336,7 +329,7 @@ class SubmissionOfRepairController extends Controller
                 $btn .= '<a href="' . $detailUrl . '" class="view btn btn-info btn-sm me-2" title="Detail Submission"><i class="ph-duotone ph-eye"></i></a>';
                 // $btn .= '<a href="' . route('items_units.edit', $row->id) . '" class="edit btn btn-warning btn-sm me-2" title="Edit Data"><i class="ph-duotone ph-pencil-line"></i></a>';
                 // $btn .= '<a href="#" class="delete btn btn-danger btn-sm" data-id="' . encrypt($row->id) . '" title="Delete Data"><i class="ph-duotone ph-trash"></i></a>';
-
+    
                 $log = [
                     'norec' => $row->norec ?? null,
                     'module_id' => 2,
@@ -485,90 +478,55 @@ class SubmissionOfRepairController extends Controller
         return view('submission.assign', compact('submission', 'technicians', 'details'));
     }
 
-    public function toPDF($submissionId)
+    public function toPDF($detailId)
     {
-        $submission = SubmissionOfRepair::where('date_cancelled', null)->where('id', decrypt($submissionId))->first();
-        $date_worked_on = $submission->details->pluck('date_worked_on');
-        $date_completed = $submission->details->pluck('date_completed');
-        $technician = $submission->details->pluck('technician_id');
-        $workHours = $this->calculateWorkHoursDifference($date_worked_on, $date_completed);
-        $detailsWithWorkHours = $submission->details->map(function ($detail, $key) use ($workHours) {
-            return [
-                'detail' => $detail,
-                'workHours' => $workHours[$key] ?? ['hours' => 0, 'minutes' => 0],
-                'technician' => Technician::find($detail->technician_id)->name,
-            ];
-        });
-        // dd($detailsWithWorkHours);
-        // return $submission;
+        $detail = DetailsOfRepairSubmission::where('date_cancelled', null)->where('id', decrypt($detailId))->first();
+        $date_worked_on = $detail->date_worked_on;
+        $date_completed = $detail->date_completed;
+        $workHour = $this->calculateWorkHourDifference($date_worked_on, $date_completed);
+
         $pdf = app('dompdf.wrapper');
-        $pdf->loadView('submission.toPDF', compact('submission', 'detailsWithWorkHours'));
-        // stream the pdf to the browser
+        $pdf->loadView('submission.toPDF', compact('detail', 'workHour'));
+
         return $pdf->stream('submission-of-repair.pdf');
-        // return $pdf->download('submission-of-repair.pdf');
     }
 
-    private function calculateWorkHoursDifference($datesWorkedOn, $datesCompleted)
+    private function calculateWorkHourDifference($datesWorkedOn, $datesCompleted)
     {
-        if ($datesWorkedOn->isEmpty() || $datesCompleted->isEmpty()) {
-            return [];
+        $start = Carbon::parse($datesWorkedOn);
+        $end = Carbon::parse($datesCompleted);
+
+        if ($start->greaterThanOrEqualTo($end)) {
+            return 0;
         }
+        $workStart = 8;
+        $workEnd = 17;
+        $totalMinutes = 0;
+        $minutes = [];
+        $hours = [];
 
-        $workHoursArray = [];
+        while ($start->lessThan($end)) {
+            if ($start->isWeekday()) {
+                $workDayStart = $start->copy()->hour($workStart)->minute(0)->second(0);
+                $workDayEnd = $start->copy()->hour($workEnd)->minute(0)->second(0);
 
-        foreach ($datesWorkedOn as $key => $workedOn) {
-            $completed = $datesCompleted[$key] ?? null;
-
-            if (!$workedOn || !$completed) {
-                $workHoursArray[] = [
-                    'start' => $workedOn,
-                    'end' => $completed,
-                    'hours' => 0,
-                    'minutes' => 0,
-                ];
-                continue;
-            }
-
-            $start = Carbon::parse($workedOn);
-            $end = Carbon::parse($completed);
-
-            if ($start->greaterThanOrEqualTo($end)) {
-                $workHoursArray[] = [
-                    'start' => $workedOn,
-                    'end' => $completed,
-                    'hours' => 0,
-                    'minutes' => 0,
-                ];
-                continue;
-            }
-
-            $workStart = 8;
-            $workEnd = 17;
-            $totalMinutes = 0;
-
-            while ($start->lessThan($end)) {
-                if ($start->isWeekday()) {
-                    $workDayStart = $start->copy()->hour($workStart)->minute(0)->second(0);
-                    $workDayEnd = $start->copy()->hour($workEnd)->minute(0)->second(0);
-
-                    if ($start->between($workDayStart, $workDayEnd)) {
-                        $endOfDay = $workDayEnd->lessThan($end) ? $workDayEnd : $end;
-                        $totalMinutes += $start->diffInMinutes($endOfDay);
-                    }
+                if ($start->between($workDayStart, $workDayEnd)) {
+                    $endOfDay = $workDayEnd->lessThan($end) ? $workDayEnd : $end;
+                    $totalMinutes += $start->diffInMinutes($endOfDay);
+                    $hours[] = intdiv($start->diffInMinutes($endOfDay), 60);
+                    $minutes[] = $start->diffInMinutes($endOfDay) % 60;
                 }
-
-                // Pindah ke hari berikutnya
-                $start->addDay()->hour($workStart)->minute(0)->second(0);
             }
-
-            $workHoursArray[] = [
-                'start' => $workedOn,
-                'end' => $completed,
-                'hours' => intdiv($totalMinutes, 60),
-                'minutes' => $totalMinutes % 60,
-            ];
+            $start->addDay()->hour($workStart)->minute(0)->second(0);
         }
 
-        return $workHoursArray;
+        return [
+            'start' => Carbon::parse($datesWorkedOn),
+            'end' => Carbon::parse($datesCompleted),
+            'hours' => intdiv($totalMinutes, 60),
+            'minutes' => $totalMinutes % 60,
+            'hoursArr' => $hours,
+            'minutesArr' => $minutes,
+        ];
     }
 }

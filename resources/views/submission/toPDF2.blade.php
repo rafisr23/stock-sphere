@@ -115,69 +115,58 @@
         </table>
     </div>
 
-    <h1>Maintenance Report</h1>
+    <h1>Repairment Report</h1>
 
     <div class="section">
-        <h3>Alasan Kunjungan</h3>
+        <h3>Pengajuan Perbaikan</h3>
         <table>
-            <thead>
-                <tr>
-                    <th>Item Name</th>
-                    <th>Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>{{ $maintenance->item_room->items->item_name }}</td>
-                    <td>{{ $maintenance->description }}</td>
-                </tr>
-            </tbody>
+            <tr>
+                <td><strong>Ruangan:</strong></td>
+                <td>{{ $detail->itemUnit->rooms->name }}</td>
+            </tr>
+            <tr>
+                <td><strong>Alat:</strong></td>
+                <td>{{ $detail->itemUnit->items->item_name }}</td>
+            </tr>
+            <tr>
+                <td><strong>No Seri:</strong></td>
+                <td>{{ $detail->itemUnit->serial_number }}</td>
+            </tr>
+            <tr>
+                <td><strong>Deskripsi:</strong></td>
+                <td>{{ $detail->description }}</td>
+            </tr>
+            <tr>
+                <td><strong>Evidence:</strong></td>
+                <td>
+                    @if ($detail->evidence || $detail->evidence != '')
+                        <img src="{{ public_path('temp/' . $detail->evidence) }}" alt="evidence" width="100"
+                            height="100">
+                    @else
+                        No evidence
+                    @endif
+                </td>
+            </tr>
         </table>
     </div>
 
     <div class="section">
         <h3>Activity</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Item Name</th>
-                    <th>Remarks</th>
-                    <th>Evidence</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>{{ $maintenance->item_room->items->item_name }}</td>
-                    <td>{{ $maintenance->remarks }}</td>
-                    <td><img src="{{ public_path('temp/' . $maintenance->evidence) }}" alt="evidence" width="100"
-                            height="100"></td>
-                </tr>
-            </tbody>
-        </table>
+        <p>Hours: {{ $workHour['hours'] }}</p>
+        <p>Minutes: {{ $workHour['minutes'] }}</p>
+    </div>
 
-        <p><strong>Work Hours:</strong> {{ $workHours['hours'] }} hours {{ $workHours['minutes'] }} minutes</p>
+    <div class="section">
+        <h3>Sparepart Used</h3>
+        <ul>
+            @foreach ($detail->sparepartsOfRepair as $sparepart)
+                <li>{{ $sparepart->sparepart->name }} - {{ $sparepart->quantity }}</li>
+            @endforeach
+        </ul>
     </div>
 
     <div class="section">
         <h3>Technician Detail</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Technician Name</th>
-                    <th>Start Date</th>
-                    <th>Finish Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>{{ $maintenance->created_at }}</td>
-                    <td>{{ $technician->name }}</td>
-                    <td>{{ $maintenance->date_worked_on }}</td>
-                    <td> {{ $maintenance->date_completed }}</td>
-                </tr>
-            </tbody>
-        </table>
     </div>
 
     <div class="technician-signature" style="margin-left: 20px; margin-right: 20px">
@@ -186,7 +175,7 @@
             <br>
             <br>
             <br>
-            <p><strong>{{ $technician->name }}</strong></p>
+            <p><strong>{{ $detail->technician->name }}</strong></p>
             <p style="margin-top: 0">Technician</p>
         </div>
         <div class="kanan">

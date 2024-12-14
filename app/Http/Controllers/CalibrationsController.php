@@ -207,12 +207,6 @@ class CalibrationsController extends Controller
                         'item_room_id' => decrypt($request->item_unit_id),
                         'status' => 5,
                     ]);
-                    // if ($create) {
-                    //     // createLog(3, $create->id, 'alert calibration to unit', null, now());
-                    //     return response()->json(['success' => 'The room has been successfully alerted!']);
-                    // } else {
-                    //     return response()->json(['error' => 'Failed to alert calibration to unit']);
-                    // }
                     $itemUnit = Items_units::find(decrypt($request->item_unit_id));
                     $itemLog = [
                         'norec' => $itemUnit->norec,
@@ -245,32 +239,7 @@ class CalibrationsController extends Controller
                 return response()->json(['error' => 'Failed to alert calibration to unit']);
             }
         } else {
-            // $request->validate([
-            //     'item_unit_id' => 'required',
-            //     'technician' => 'required',
-            // ]);
-
-            // if (auth()->user()->can('assign technician') || auth()->user()->hasRole('superadmin')) {
-            //     $create = Maintenances::updateOrCreate(
-            //         [
-            //             'item_room_id' => decrypt($request->item_unit_id),
-            //         ],
-            //         [
-            //             'room_id' => Items_units::find(decrypt($request->item_unit_id))->room_id,
-            //             'technician_id' => decrypt($request->technician),
-            //             'status' => 0,
-            //         ]
-            //     );
-            // } else {
-            //     return redirect()->back()->with('error', 'You are not authorized to assign maintenance to technician');
-            // }
-
-            // if ($create) {
-            //     createLog(3, $create->id, 'assign maintenance to technician', null, Items_units::where('id', $create->item_room_id)->get('maintenance_date')->toJson());
-            //     return redirect()->back()->with('success', 'Maintenance assigned to technician');
-            // } else {
-            //     return redirect()->back()->with('error', 'Failed to assign maintenance to technician');
-            // }
+            return response()->json(['error' => 'Failed to alert calibration to unit']);
         }
     }
 
@@ -599,6 +568,7 @@ class CalibrationsController extends Controller
                         'module_id' => 10,
                         'status' => 'is_maintenance',
                     ];
+                    $btn .= '<a href="' . route('calibrations.toPDF', encrypt($row->id)) . '" class="edit btn btn-danger btn-sm me-2" title="Export to PDF"><i class="ph-duotone ph-file-pdf"></i></a>';
                     $showLogBtn =
                         "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
                             data-bs-target='#exampleModal'
@@ -608,7 +578,6 @@ class CalibrationsController extends Controller
                             <i class='ph-duotone ph-info'></i>
                         </a>
                     ";
-
                     $btn .= $showLogBtn . '</div>';
                     return $btn;
                 })
@@ -691,5 +660,50 @@ class CalibrationsController extends Controller
                 'fileName' => $fileName
             ]);
         }
+    }
+
+    public function toPDF($id)
+    {
+        $calibration = Calibrations::where('date_completed', '!=', null)->where('id', decrypt($id))->first();
+        $date_worked_on = $calibration->date_worked_on;
+        $date_completed = $calibration->date_completed;
+        // $technician = Technician::where('id', $calibration->technician_id)->first();
+        $workHours = $this->calculateWorkHourDifference($date_worked_on, $date_completed);
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('calibrations.toPDF', compact('calibration', 'workHours'));
+        return $pdf->download(date(now()) . '_calibration_' . $calibration->item_room->items->item_name . '.pdf');
+    }
+
+    private function calculateWorkHourDifference($datesWorkedOn, $datesCompleted)
+    {
+        $start = Carbon::parse($datesWorkedOn);
+        $end = Carbon::parse($datesCompleted);
+
+        if ($start->greaterThanOrEqualTo($end)) {
+            return 0;
+        }
+
+        $workStart = 8;
+        $workEnd = 17;
+        $totalMinutes = 0;
+
+        while ($start->lessThan($end)) {
+            if ($start->isWeekday()) {
+                $workDayStart = $start->copy()->hour($workStart)->minute(0)->second(0);
+                $workDayEnd = $start->copy()->hour($workEnd)->minute(0)->second(0);
+
+                if ($start->between($workDayStart, $workDayEnd)) {
+                    $endOfDay = $workDayEnd->lessThan($end) ? $workDayEnd : $end;
+                    $totalMinutes += $start->diffInMinutes($endOfDay);
+                }
+            }
+
+            $start->addDay()->hour($workStart)->minute(0)->second(0);
+        }
+
+        return [
+            'hours' => intdiv($totalMinutes, 60),
+            'minutes' => $totalMinutes % 60,
+        ];
     }
 }

@@ -224,8 +224,10 @@ class MaintenancesController extends Controller
                         if (!$row->date_completed) {
                             $btn .= '<a href="#" class="update btn btn-warning btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Update Maintenance"><i class="ph-duotone ph-pencil-line"></i></a>';
                         }
-                        $btn .= '<a href="#" class="finish btn btn-success btn-sm" data-id="' . encrypt($row->id) . '" title="Finish Maintenance"';
-                        $btn .= '><i class="ph-duotone ph-check"></i></a>';
+                        if ($row->evidence && !$row->date_completed && $row->remarks) {
+                            $btn .= '<a href="#" class="finish btn btn-success btn-sm" data-id="' . encrypt($row->id) . '" title="Finish Maintenance"';
+                            $btn .= '><i class="ph-duotone ph-check"></i></a>';
+                        }
                         $btn .= '</div>';
                         return $btn;
                     })
@@ -798,68 +800,45 @@ class MaintenancesController extends Controller
         $maintenance = Maintenances::where('date_completed', '!=', null)->where('id', decrypt($maintenanceId))->first();
         $date_worked_on = $maintenance->date_worked_on;
         $date_completed = $maintenance->date_completed;
-        $workHours = $this->calculateWorkHoursDifference($date_worked_on, $date_completed);
+        $technician = Technician::where('id', $maintenance->technician_id)->first();
+        $workHours = $this->calculateWorkHourDifference($date_worked_on, $date_completed);
         $pdf = app('dompdf.wrapper');
-        $pdf->loadView('maintenances.toPDF', compact('maintenance', 'workHours'));
-        return $pdf->download($maintenance->updated_at . 'maintenance_' . $maintenance->item_room->items->item_name . '.pdf');
+        $pdf->loadView('maintenances.toPDF', compact('maintenance', 'workHours', 'technician'));
+        return $pdf->download(date(now()) . '_maintenance_' . $maintenance->item_room->items->item_name . '.pdf');
     }
 
-    private function calculateWorkHoursDifference($datesWorkedOn, $datesCompleted)
+    private function calculateWorkHourDifference($datesWorkedOn, $datesCompleted)
     {
-        if ($datesWorkedOn->isEmpty() || $datesCompleted->isEmpty()) {
-            return [];
+        $start = Carbon::parse($datesWorkedOn);
+        $end = Carbon::parse($datesCompleted);
+
+
+        if ($start->greaterThanOrEqualTo($end)) {
+            return 0;
         }
 
-        $workHoursArray = [];
+        $workStart = 8;
+        $workEnd = 17;
+        $totalMinutes = 0;
 
-        foreach ($datesWorkedOn as $key => $workedOn) {
-            $completed = $datesCompleted[$key] ?? null;
+        while ($start->lessThan($end)) {
+            if ($start->isWeekday()) {
+                $workDayStart = $start->copy()->hour($workStart)->minute(0)->second(0);
+                $workDayEnd = $start->copy()->hour($workEnd)->minute(0)->second(0);
 
-            if (!$workedOn || !$completed) {
-                $workHoursArray[] = [
-                    'hours' => 0,
-                    'minutes' => 0,
-                ];
-                continue;
-            }
-
-            $start = Carbon::parse($workedOn);
-            $end = Carbon::parse($completed);
-
-            if ($start->greaterThanOrEqualTo($end)) {
-                $workHoursArray[] = [
-                    'hours' => 0,
-                    'minutes' => 0,
-                ];
-                continue;
-            }
-
-            $workStart = 8;
-            $workEnd = 17;
-            $totalMinutes = 0;
-
-            while ($start->lessThan($end)) {
-                if ($start->isWeekday()) {
-                    $workDayStart = $start->copy()->hour($workStart)->minute(0)->second(0);
-                    $workDayEnd = $start->copy()->hour($workEnd)->minute(0)->second(0);
-
-                    if ($start->between($workDayStart, $workDayEnd)) {
-                        $endOfDay = $workDayEnd->lessThan($end) ? $workDayEnd : $end;
-                        $totalMinutes += $start->diffInMinutes($endOfDay);
-                    }
+                if ($start->between($workDayStart, $workDayEnd)) {
+                    $endOfDay = $workDayEnd->lessThan($end) ? $workDayEnd : $end;
+                    $totalMinutes += $start->diffInMinutes($endOfDay);
                 }
-
-                // Pindah ke hari berikutnya
-                $start->addDay()->hour($workStart)->minute(0)->second(0);
             }
 
-            $workHoursArray[] = [
-                'hours' => intdiv($totalMinutes, 60),
-                'minutes' => $totalMinutes % 60,
-            ];
+            $start->addDay()->hour($workStart)->minute(0)->second(0);
         }
 
-        return $workHoursArray;
+        return [
+            'hours' => intdiv($totalMinutes, 60),
+            'minutes' => $totalMinutes % 60,
+        ];
     }
 
     public function confirmation()

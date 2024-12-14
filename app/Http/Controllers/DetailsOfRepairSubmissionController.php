@@ -246,7 +246,7 @@ class DetailsOfRepairSubmissionController extends Controller
                 DB::commit();
             } catch (\Exception $e) {
                 DB::rollBack();
-                
+
                 return response()->json(['error' => 'Failed to accept repairments: ' . $e->getMessage()]);
 
             }
@@ -570,12 +570,15 @@ class DetailsOfRepairSubmissionController extends Controller
     public function finish(Request $request)
     {
         DB::beginTransaction();
-
         try {
             $details_of_repair_submission = $this->getRepairmentsById($request);
             $submission_of_repair = SubmissionOfRepair::find($details_of_repair_submission->submission_of_repair_id);
+            $item_unit = Items_units::find($details_of_repair_submission->item_unit_id);
             $details_of_repair_submission->status = 2;
             $details_of_repair_submission->date_completed = now();
+            $item_unit->status = $request->status;
+            $details_of_repair_submission->remarks = $request->remarks;
+            $item_unit = Items_units::find($details_of_repair_submission->item_unit_id);
             $fullData = DetailsOfRepairSubmission::where('submission_of_repair_id', $details_of_repair_submission->submission_of_repair_id)->count();
             $allCompleted = DetailsOfRepairSubmission::where('submission_of_repair_id', $details_of_repair_submission->submission_of_repair_id)
                 ->whereNotNull('date_completed')
@@ -588,6 +591,7 @@ class DetailsOfRepairSubmissionController extends Controller
                 $submission_of_repair->status = 3;
             }
 
+            $item_unit->save();
             $details_of_repair_submission->save();
             $submission_of_repair->save();
 

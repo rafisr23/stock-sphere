@@ -115,7 +115,7 @@
         </table>
     </div>
 
-    <h1>Maintenance Report</h1>
+    <h1>Calibration Report</h1>
 
     <div class="section">
         <h3>Alasan Kunjungan</h3>
@@ -128,8 +128,8 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>{{ $maintenance->item_room->items->item_name }}</td>
-                    <td>{{ $maintenance->description }}</td>
+                    <td>{{ $calibration->item_room->items->item_name }}</td>
+                    <td>Routine Calibration</td>
                 </tr>
             </tbody>
         </table>
@@ -147,9 +147,9 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>{{ $maintenance->item_room->items->item_name }}</td>
-                    <td>{{ $maintenance->remarks }}</td>
-                    <td><img src="{{ public_path('temp/' . $maintenance->evidence) }}" alt="evidence" width="100"
+                    <td>{{ $calibration->item_room->items->item_name }}</td>
+                    <td>{{ $calibration->remarks }}</td>
+                    <td><img src="{{ public_path('temp/' . $calibration->evidence) }}" alt="evidence" width="100"
                             height="100"></td>
                 </tr>
             </tbody>
@@ -171,10 +171,10 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>{{ $maintenance->created_at }}</td>
-                    <td>{{ $technician->name }}</td>
-                    <td>{{ $maintenance->date_worked_on }}</td>
-                    <td> {{ $maintenance->date_completed }}</td>
+                    <td>{{ $calibration->created_at }}</td>
+                    <td>Vendor</td>
+                    <td>{{ $calibration->date_worked_on }}</td>
+                    <td> {{ $calibration->date_completed }}</td>
                 </tr>
             </tbody>
         </table>
@@ -186,7 +186,7 @@
             <br>
             <br>
             <br>
-            <p><strong>{{ $technician->name }}</strong></p>
+            <p><strong>Technician Leader</strong></p>
             <p style="margin-top: 0">Technician</p>
         </div>
         <div class="kanan">

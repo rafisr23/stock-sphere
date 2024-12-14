@@ -47,7 +47,7 @@
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="serial_no" class="col-sm-3 col-form-label required">Serial number</label>
+                                <label for="serial_no" class="col-sm-3 col-form-label required">Phone Line</label>
                                 <div class="col-sm-9 mb-4">
                                     <input type="text" class="form-control" id="serial_no" name="serial_no" required
                                         value="{{ $room->serial_no }}">

@@ -23,8 +23,7 @@
                             <th>No</th>
                             <th>Room Name</th>
                             <th>Description</th>
-                            <th>Serial Number</th>
-                            {{-- <th>Postal Code</th> --}}
+                            <th>Phone Line</th>
                             <th>Action</th>
                         </thead>
                     </table>

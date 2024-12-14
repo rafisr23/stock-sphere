@@ -123,5 +123,26 @@ class RoleAccountSeeder extends Seeder
             'username' => 'techlead',
             'password' => bcrypt('techlead'),
         ])->assignRole('technician')->givePermissionTo($permission);
+
+        $rajal = User::create([
+            'name' => 'Rajal',
+            'email' => 'rajal@simpellada.com',
+            'username' => 'rajal',
+            'password' => bcrypt('rajal'),
+        ])->assignRole('room');
+
+        $ibs = User::create([
+            'name' => 'IBS',
+            'email' => 'ibs@simpellada.com',
+            'username' => 'ibs',
+            'password' => bcrypt('ibs'),
+        ])->assignRole('room');
+
+        $vk = User::create([
+            'name' => 'VK',
+            'email' => 'vk@simpellada.com',
+            'username' => 'vk',
+            'password' => bcrypt('vk'),
+        ])->assignRole('room');
     }
 }
