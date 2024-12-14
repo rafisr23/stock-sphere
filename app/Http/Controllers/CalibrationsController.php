@@ -215,6 +215,7 @@ class CalibrationsController extends Controller
                         'is_calibration' => true,
                         'desc' => 'Item ' . $itemUnit->items->item_name . ' has been requested for calibration by ' . auth()->user()->name . ' from ' . $create->room->name . ' (' . $create->room->units->customer_name . ')',
                         'item_unit_id' => $itemUnit->id,
+                        'item_unit_status' => $itemUnit->status,
                     ];
 
                     $calibrationLog = [
@@ -224,6 +225,7 @@ class CalibrationsController extends Controller
                         'is_calibration' => true,
                         'desc' => 'Item ' . $itemUnit->items->item_name . ' has been requested for calibration by ' . auth()->user()->name . ' from ' . $create->room->name . ' (' . $create->room->units->customer_name . ')',
                         'item_unit_id' => $itemUnit->id,
+                        'item_unit_status' => $itemUnit->status,
                     ];
 
                     createLog($itemLog);
@@ -282,6 +284,7 @@ class CalibrationsController extends Controller
                     'is_calibration' => true,
                     'desc' => 'Item ' . $calibration->item_room->items->item_name . ' has been accepted for calibration by ' . auth()->user()->name . ' from ' . $calibration->room->name . ' (' . $calibration->room->units->customer_name . ')',
                     'item_unit_id' => $calibration->item_room->id,
+                    'item_unit_status' => $calibration->item_room->status,
                 ];
 
                 $calibrationLog = [
@@ -290,6 +293,7 @@ class CalibrationsController extends Controller
                     'is_calibration' => true,
                     'desc' => 'Item ' . $calibration->item_room->items->item_name . ' has been accepted for calibration by ' . auth()->user()->name . ' from ' . $calibration->room->name . ' (' . $calibration->room->units->customer_name . ')',
                     'item_unit_id' => $calibration->item_room->id,
+                    'item_unit_status' => $calibration->item_room->status,
                 ];
 
                 createLog($itemLog);
@@ -324,6 +328,7 @@ class CalibrationsController extends Controller
                     'is_calibration' => true,
                     'desc' => 'Item ' . $calibration->item_room->items->item_name . ' has been rescheduled for calibration to: ' . $request->newCalibration_date . ' by ' . auth()->user()->name . ' from ' . $calibration->room->name . ' (' . $calibration->room->units->customer_name . ')',
                     'item_unit_id' => $calibration->item_room->id,
+                    'item_unit_status' => $calibration->item_room->status,
                 ];
 
                 $calibrationLog = [
@@ -332,6 +337,7 @@ class CalibrationsController extends Controller
                     'is_calibration' => true,
                     'desc' => 'Item ' . $calibration->item_room->items->item_name . ' has been rescheduled for calibration to: ' . $request->newCalibration_date . ' by ' . auth()->user()->name . ' from ' . $calibration->room->name . ' (' . $calibration->room->units->customer_name . ')',
                     'item_unit_id' => $calibration->item_room->id,
+                    'item_unit_status' => $calibration->item_room->status,
                 ];
 
                 createLog($itemLog);
@@ -361,6 +367,7 @@ class CalibrationsController extends Controller
                     'is_calibration' => true,
                     'desc' => 'Technician has called vandor to calibrate on item ' . $calibration->item_room->items->item_name . ' by ' . auth()->user()->name . ' from ' . $calibration->room->name . ' (' . $calibration->room->units->customer_name . ')',
                     'item_unit_id' => $calibration->item_room_id,
+                    'item_unit_status' => $calibration->item_room->status,
                 ];
 
                 createLog($calibrationLog);
@@ -414,6 +421,7 @@ class CalibrationsController extends Controller
                     'desc' => 'Technician has UPDATED THE STATUS and REMARKS of ' . $calibration->item_room->items->item_name . ' to ' . $request->status . ' from ' . $oldStatus . ' by ' . auth()->user()->name . ' from ' . $calibration->room->name . ' (' . $calibration->room->units->customer_name . ')' . ' with REMARKS ' . $request->remarks,
                     'old_data' => $oldData,
                     'item_unit_id' => $calibration->item_room_id,
+                    'item_unit_status' => $calibration->item_room->status,
                 ];
 
                 $itemLog = [
@@ -423,6 +431,7 @@ class CalibrationsController extends Controller
                     'desc' => 'STATUS of ' . $item_unit->items->item_name . ' has been UPDATED to ' . $request->status . ' from ' . $oldStatus . ' with REMARKS ' . $request->remarks,
                     'old_data' => $oldItemUnit,
                     'item_unit_id' => $calibration->item_room_id,
+                    'item_unit_status' => $calibration->item_room->status,
                 ];
 
                 createLog($calibrationLog);
@@ -474,6 +483,7 @@ class CalibrationsController extends Controller
                     'desc' => 'Technician has finished calibration ' . $calibration->item_room->items->item_name . ' by ' . auth()->user()->name . ' from ' . $calibration->room->name . ' (' . $calibration->room->units->customer_name . ')',
                     'old_data' => $calibration->toJson(),
                     'item_unit_id' => $calibration->item_room_id,
+                    'item_unit_status' => $calibration->item_room->status,
                 ];
 
                 $itemLog = [
@@ -483,6 +493,7 @@ class CalibrationsController extends Controller
                     'desc' => 'Calibration of ' . $calibration->item_room->items->item_name . ' has been FINISHED by vendor from ' . $calibration->room->name . ' (' . $calibration->room->units->customer_name . ') with last STATUS ' . $calibration->item_room->status . ' and REMARKS ' . $calibration->remarks,
                     'old_data' => $calibration->item_room->toJson(),
                     'item_unit_id' => $calibration->item_room_id,
+                    'item_unit_status' => $calibration->item_room->status,
                 ];
 
                 createLog($calibrationLog);
