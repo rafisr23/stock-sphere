@@ -796,12 +796,13 @@ class MaintenancesController extends Controller
     public function toPDF($maintenanceId)
     {
         $maintenance = Maintenances::where('date_completed', '!=', null)->where('id', decrypt($maintenanceId))->first();
-        $date_worked_on = $maintenance->date_worked_on;
-        $date_completed = $maintenance->date_completed;
+        $date_worked_on = $maintenance->pluck('date_worked_on');
+        $date_completed = $maintenance->pluck('date_completed');
+        $technician = Technician::where('id', $maintenance->technician_id)->first();
         $workHours = $this->calculateWorkHoursDifference($date_worked_on, $date_completed);
         $pdf = app('dompdf.wrapper');
-        $pdf->loadView('maintenances.toPDF', compact('maintenance', 'workHours'));
-        return $pdf->download($maintenance->updated_at . 'maintenance_' . $maintenance->item_room->items->item_name . '.pdf');
+        $pdf->loadView('maintenances.toPDF', compact('maintenance', 'workHours', 'technician'));
+        return $pdf->download(date(now()) . '_maintenance_' . $maintenance->item_room->items->item_name . '.pdf');
     }
 
     private function calculateWorkHoursDifference($datesWorkedOn, $datesCompleted)
