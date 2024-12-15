@@ -7,10 +7,25 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Service Report</title>
     <style>
+        @page {
+            margin: 0cm 0cm;
+        }
+        
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
+            margin-top: 6.5cm;
+            margin-left: 1cm;
+            margin-right: 1cm;
+            margin-bottom: 2cm;
+        }
+
+        header {
+            position: fixed;
+            top: 0cm;
+            left: 0cm;
+            right: 0cm;
+            height: 4cm;
+            padding: 0px 50px 0px 50px;
         }
 
         .header {
@@ -19,20 +34,10 @@
             justify-content: space-between;
             padding: 10px 20px;
             border-bottom: 1px solid #000;
-
-        }
-
-        .header .kiri img {
-            width: 100px;
-        }
-
-        .header .kanan {
-            text-align: right;
-            font-size: 12px;
         }
 
         h1 {
-            margin-top: 20px;
+            margin-top: -30px;
             text-align: center;
             width: 100%;
             font-size: 18px;
@@ -92,28 +97,30 @@
 </head>
 
 <body>
-    <div class="header">
-        <table style="border-collapse: collapse; width: 100%; border: none;">
-            <tr>
-                <td rowspan="3" style="border: none; padding: 0; margin:0;">
-                    <img src="{{ public_path('images/rslogo2.jpg') }}" alt="logo" width="150">
-                </td>
-                <td style="text-align: right; border: none; padding: 0; margin:0;">
-                    <h2>Oetomo Hospital</h2>
-                </td>
-            </tr>
-            <tr>
-                <td style="text-align: right; border: none; padding: 0; margin:0;">
-                    <p>Jl. Raya Bojongsoang No.156, Bandung 40287</p>
-                </td>
-            </tr>
-            <tr>
-                <td style="text-align: right; border: none; padding: 0; margin:0;">
-                    <p>Telp. (022) 87538888</p>
-                </td>
-            </tr>
-        </table>
-    </div>
+    <header>
+        <div class="header">
+            <table style="border-collapse: collapse; width: 100%; border: none;">
+                <tr>
+                    <td rowspan="3" style="border: none; padding: 0; margin:0;">
+                        <img src="{{ public_path('images/rslogo2.jpg') }}" alt="logo" width="150">
+                    </td>
+                    <td style="text-align: right; border: none; padding: 0; margin:0;">
+                        <h2>Oetomo Hospital</h2>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align: right; border: none; padding: 0; margin:0;">
+                        <p>Jl. Raya Bojongsoang No.156, Bandung 40287</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align: right; border: none; padding: 0; margin:0;">
+                        <p>Telp. (022) 87538888</p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </header>
 
     <h1>Calibration Report</h1>
 
@@ -140,15 +147,41 @@
         <table>
             <thead>
                 <tr>
-                    <th>Item Name</th>
+                    <th>Detail Activity</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <ul>
+                            @foreach ($calibrationLog as $log)
+                                <li>{{ $log->desc }} at: {{ $log->created_at }}</li>
+                            @endforeach
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
                     <th>Remarks</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ $calibration->remarks }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
                     <th>Evidence</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td>{{ $calibration->item_room->items->item_name }}</td>
-                    <td>{{ $calibration->remarks }}</td>
                     <td><img src="{{ public_path('temp/' . $calibration->evidence) }}" alt="evidence" width="100"
                             height="100"></td>
                 </tr>

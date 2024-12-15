@@ -209,4 +209,6 @@ Route::middleware(['auth'])->group(function () {
     Route::controller(LogController::class)->name('log.')->prefix('log')->middleware('auth')->group(function () {
         Route::get('/getLog/{norec?}/{module}/{status}', 'getLog')->name('getLog');
     });
+
+    Route::get('/getPerformanceData/{startDate?}/{endDate?}', [HomeController::class, 'getPerformanceData'])->name('getPerformanceData');
 });

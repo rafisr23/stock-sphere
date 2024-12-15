@@ -2,15 +2,27 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Service Report</title>
     <style>
+        @page {
+            margin: 0cm 0cm;
+        }
+        
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
+            margin-top: 6.5cm;
+            margin-left: 1cm;
+            margin-right: 1cm;
+            margin-bottom: 2cm;
+        }
+
+        header {
+            position: fixed;
+            top: 0cm;
+            left: 0cm;
+            right: 0cm;
+            height: 4cm;
+            padding: 0px 50px 0px 50px;
         }
 
         .header {
@@ -19,20 +31,10 @@
             justify-content: space-between;
             padding: 10px 20px;
             border-bottom: 1px solid #000;
-
-        }
-
-        .header .kiri img {
-            width: 100px;
-        }
-
-        .header .kanan {
-            text-align: right;
-            font-size: 12px;
         }
 
         h1 {
-            margin-top: 20px;
+            margin-top: -30px;
             text-align: center;
             width: 100%;
             font-size: 18px;
@@ -104,209 +106,183 @@
 </head>
 
 <body>
-    <div class="header">
-        <table style="border-collapse: collapse; width: 100%; border: none;">
-            <tr>
-                <td rowspan="3" style="border: none; padding: 0; margin:0;">
-                    <img src="{{ public_path('images/rslogo2.jpg') }}" alt="logo" width="150">
-                </td>
-                <td style="text-align: right; border: none; padding: 0; margin:0;">
-                    <h2>Oetomo Hospital</h2>
-                </td>
-            </tr>
-            <tr>
-                <td style="text-align: right; border: none; padding: 0; margin:0;">
-                    <p>Jl. Raya Bojongsoang No.156, Bandung 40287</p>
-                </td>
-            </tr>
-            <tr>
-                <td style="text-align: right; border: none; padding: 0; margin:0;">
-                    <p>Telp. (022) 87538888</p>
-                </td>
-            </tr>
-        </table>
-    </div>
-
-    <h1>Repairment Report</h1>
-
-    <div class="section">
-        <h3>Reason of visit</h3>
-        <table>
-            <thead>
+    <header>
+        <div class="header">
+            <table style="border-collapse: collapse; width: 100%; border: none;">
                 <tr>
-                    <th>Room</th>
-                    <th>Item Name</th>
-                    <th>Description</th>
+                    <td rowspan="3" style="border: none; padding: 0; margin:0;">
+                        <img src="{{ public_path('images/rslogo2.jpg') }}" alt="logo" width="150">
+                    </td>
+                    <td style="text-align: right; border: none; padding: 0; margin:0;">
+                        <h2>Oetomo Hospital</h2>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
                 <tr>
-                    <td>{{ $detail->itemUnit->rooms->name }}</td>
-                    <td>{{ $detail->itemUnit->items->item_name }}</td>
-                    <td>{{ $detail->description }}</td>
+                    <td style="text-align: right; border: none; padding: 0; margin:0;">
+                        <p>Jl. Raya Bojongsoang No.156, Bandung 40287</p>
+                    </td>
                 </tr>
-            </tbody>
-        </table>
-    </div>
+                <tr>
+                    <td style="text-align: right; border: none; padding: 0; margin:0;">
+                        <p>Telp. (022) 87538888</p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </header>
 
-    <div class="section">
-        <h3>Activity</h3>
-        @foreach ($detailsWithWorkHours as $d)
+    <main class="content">
+        <h1>Repairment Report</h1>
+    
+        <div class="section">
+            <h3>Reason of visit</h3>
             <table>
                 <thead>
                     <tr>
+                        <th>Room</th>
                         <th>Item Name</th>
-                        <th>Remarks</th>
-                        <th>Evidence</th>
+                        <th>Description</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>{{ $d['detail']->itemUnit->items->item_name }}</td>
-                        <td>{{ $d['detail']->remarks }}</td>
+                        <td>{{ $detail->itemUnit->rooms->name }}</td>
+                        <td>{{ $detail->itemUnit->items->item_name }}</td>
+                        <td>{{ $detail->description }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    
+        <div class="section">
+            <h3>Activity</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th><strong>Detail Activity</strong></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
                         <td>
-                            @if ($d['detail']->evidence || $d['detail']->evidence != '')
-                                <img src="{{ public_path('temp/' . $d['detail']->evidence) }}" alt="evidence"
-                                    width="100" height="100">
-                            @else
-                                <p>No evidence</p>
-                            @endif
-
+                            <ul>
+                                @foreach ($repairLog as $activity)
+                                    <li>{{ $activity->desc }} at: {{ $activity->created_at }}</li>
+                                @endforeach
+                            </ul>
                         </td>
                     </tr>
                 </tbody>
             </table>
-
+            <table>
+                <thead>
+                    <tr>
+                        <th><strong>Remarks</strong></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ $detail->remarks ?? 'No Remarks' }}</td>
+                    </tr>
+                </tbody>
+            </table>
+    
             <h4>Evidance From Technician</h4>
-            <ul style="list-style: none;">
-                @if (count($d['detail']->evidenceTechnician) == 0 && isset($d['detail']->evidenceTechnician))
-                    <li>No evidence</li>
+            <div class="row">
+                @if (count($detail->evidenceTechnician) == 0 && isset($detail->evidenceTechnician))
+                    <col>No evidence</col>
                 @else
-                    @foreach ($d['detail']->evidenceTechnician as $eT)
-                        <li><img src="{{ public_path($eT->evidence) }}" alt="evidence" width="100" height="100">
-                        </li>
+                    @foreach ($detail->evidenceTechnician as $eT)
+                        <col><img src="{{ public_path($eT->evidence) }}" alt="evidence" width="100" height="100">
+                        </col>
                     @endforeach
                 @endif
-            </ul>
-        <table>
-            <thead>
-                <tr>
-                    <th><strong>Detail Activity</strong></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>{{ $detail->itemUnit->items->item_name }}</td>
-                </tr>
-            </tbody>
-        </table>
-        <table>
-            <thead>
-                <tr>
-                    <th><strong>Remarks</strong></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>{{ $detail->remarks ?? 'No Remarks' }}</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <h4>Evidance From Technician</h4>
-        <div class="row">
-            @if (count($detail->evidenceTechnician) == 0 && isset($detail->evidenceTechnician))
-                <col>No evidence</col>
-            @else
-                @foreach ($detail->evidenceTechnician as $eT)
-                    <col><img src="{{ public_path($eT->evidence) }}" alt="evidence" width="100" height="100">
-                    </col>
-                @endforeach
-            @endif
+            </div>
+    
+            <p><strong>Work Hours:</strong>{{ $workHour['hours'] }} hour(s), {{ $workHour['minutes'] }} minute(s)</p>
         </div>
-
-        <p><strong>Work Hours:</strong>{{ $workHour['hours'] }} hour(s), {{ $workHour['minutes'] }} minute(s)</p>
-    </div>
-
-    <div class="section">
-        <h3>Sparepart Used</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Sparepart Name</th>
-                    <th>Serial Number</th>
-                    <th>Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (count($detail->sparepartsOfRepair) == 0)
+    
+        <div class="section">
+            <h3>Sparepart Used</h3>
+            <table>
+                <thead>
                     <tr>
-                        <td colspan="3">No sparepart used</td>
+                        <th>Sparepart Name</th>
+                        <th>Serial Number</th>
+                        <th>Description</th>
                     </tr>
-                @endif
-                @foreach ($detail->sparepartsOfRepair as $sparepart)
-                    <tr>
-                        <td>{{ $sparepart->sparepart->name }}</td>
-                        <td>{{ $sparepart->sparepart->serial_no }}</td>
-                        <td>{{ $sparepart->sparepart->description }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-
-    <div class="section">
-        <h3>Technician Detail</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Technician Name</th>
-                    <th>Start Date</th>
-                    <th>Finish Date</th>
-                    <th>Hours</th>
-                    <th>Minutes</th>
-                </tr>
-            </thead>
-            <tbody>
-                @for ($i = 0; $i < count($workHour['hoursArr']); $i++)
-                    <tr>
-                        <td>{{ $detail->created_at }}</td>
-                        <td>{{ $detail->technician->name }}</td>
-                        <td>{{ $workHour['start'] }}</td>
-                        <td>{{ $workHour['start']->day == $workHour['end']->day ? $workHour['end'] : $workHour['start']->copy()->hour(17)->minute(0)->second(0) }}
-                        </td>
-                        <td>{{ $workHour['hoursArr'][$i] }}</td>
-                        <td>{{ $workHour['minutesArr'][$i] }}</td>
-                    </tr>
-                    @php
-                        $workHour['start']->addDay()->hour(8)->minute(0)->second(0);
-                        if ($workHour['start']->isWeekend()) {
-                            $workHour['start']->nextWeekday()->hour(8)->minute(0)->second(0);
-                        }
-                    @endphp
-                @endfor
-            </tbody>
-        </table>
-    </div>
-
-    <div class="technician-signature" style="margin-left: 20px; margin-right: 20px">
-        <div class="kiri">
-            <p>Bandung, {{ date('d F Y') }}</p>
-            <br>
-            <br>
-            <br>
-            <p><strong>{{ $detail->technician->name }}</strong></p>
-            <p style="margin-top: 0">Technician</p>
+                </thead>
+                <tbody>
+                    @if (count($detail->sparepartsOfRepair) == 0)
+                        <tr>
+                            <td colspan="3">No sparepart used</td>
+                        </tr>
+                    @endif
+                    @foreach ($detail->sparepartsOfRepair as $sparepart)
+                        <tr>
+                            <td>{{ $sparepart->sparepart->name }}</td>
+                            <td>{{ $sparepart->sparepart->serial_no }}</td>
+                            <td>{{ $sparepart->sparepart->description }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
-        <div class="kanan">
-            <p>Acknowledged,</p>
-            <br>
-            <br>
-            <br>
-            <br>
+    
+        <div class="section">
+            <h3>Technician Detail</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Technician Name</th>
+                        <th>Start Date</th>
+                        <th>Finish Date</th>
+                        <th>Hours</th>
+                        <th>Minutes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for ($i = 0; $i < count($workHour['hoursArr']); $i++)
+                        <tr>
+                            <td>{{ $detail->created_at }}</td>
+                            <td>{{ $detail->technician->name }}</td>
+                            <td>{{ $workHour['start'] }}</td>
+                            <td>{{ $workHour['start']->day == $workHour['end']->day ? $workHour['end'] : $workHour['start']->copy()->hour(17)->minute(0)->second(0) }}
+                            </td>
+                            <td>{{ $workHour['hoursArr'][$i] }}</td>
+                            <td>{{ $workHour['minutesArr'][$i] }}</td>
+                        </tr>
+                        @php
+                            $workHour['start']->addDay()->hour(8)->minute(0)->second(0);
+                            if ($workHour['start']->isWeekend()) {
+                                $workHour['start']->nextWeekday()->hour(8)->minute(0)->second(0);
+                            }
+                        @endphp
+                    @endfor
+                </tbody>
+            </table>
         </div>
-    </div>
+    
+        <div class="technician-signature" style="margin-left: 20px; margin-right: 20px">
+            <div class="kiri">
+                <p>Bandung, {{ date('d F Y') }}</p>
+                <br>
+                <br>
+                <br>
+                <p><strong>{{ $detail->technician->name }}</strong></p>
+                <p style="margin-top: 0">Technician</p>
+            </div>
+            <div class="kanan">
+                <p>Acknowledged,</p>
+                <br>
+                <br>
+                <br>
+                <br>
+            </div>
+        </div>
+    </main>
+
 </body>
 
 </html>

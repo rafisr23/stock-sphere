@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Items;
 use App\Models\Rooms;
+use App\Models\NewLog;
 use App\Models\Technician;
 use App\Models\Items_units;
 use App\Models\Maintenances;
@@ -286,6 +287,7 @@ class MaintenancesController extends Controller
                     'is_maintenance' => true,
                     'desc' => 'Item ' . $itemUnit->items->item_name . ' has been requested for maintenance by ' . auth()->user()->name . ' from ' . $room->name . ' (' . $room->units->customer_name . ')',
                     'item_unit_id' => $itemUnit->id,
+                    'item_unit_status' => $itemUnit->status,
                 ];
 
                 $maintenanceLog = [
@@ -295,6 +297,7 @@ class MaintenancesController extends Controller
                     'is_maintenance' => true,
                     'desc' => 'Item ' . $itemUnit->items->item_name . ' has been requested for maintenance by ' . auth()->user()->name . ' from ' . $room->name . ' (' . $room->units->customer_name . ')',
                     'item_unit_id' => $itemUnit->id,
+                    'item_unit_status' => $itemUnit->status,
                 ];
 
                 createLog($itemLog);
@@ -341,6 +344,7 @@ class MaintenancesController extends Controller
                         'desc' => 'Technician ' . $create->technician->name . ' has been assigned for maintenance of ' . $create->item_room->items->item_name . ' by ' . auth()->user()->name . ' from ' . $room->name . ' (' . $room->units->customer_name . ')',
                         'item_unit_id' => $create->item_room_id,
                         'technician_id' => $create->technician_id,
+                        'item_unit_status' => $create->item_room->status,
                     ];
 
                     $technicianLog = [
@@ -351,6 +355,7 @@ class MaintenancesController extends Controller
                         'is_maintenance' => true,
                         'item_unit_id' => $create->item_room_id,
                         'technician_id' => $create->technician_id,
+                        'item_unit_status' => $create->item_room->status,
                     ];
 
                     createLog($maintenanceLog);
@@ -373,6 +378,30 @@ class MaintenancesController extends Controller
             $file = $request->file('evidence');
             $fileName = time() . '_temp_' . $file->getClientOriginalName();
             $file->move(public_path('temp'), $fileName);
+
+            // $detailLog = [
+            //     'norec' => $detailSubmission->norec,
+            //     'norec_parent' => $detailSubmission->submission->norec,
+            //     'module_id' => 2,
+            //     'is_repair' => true,
+            //     'desc' => 'Technician ' . auth()->user()->technician->name . ' has uploaded evidence for repair of ' . $detailSubmission->itemUnit->items->item_name . ' by ' . auth()->user()->name . ' from ' . $detailSubmission->submission->room->name . ' (' . $detailSubmission->submission->unit->customer_name . ')',
+            //     'item_unit_id' => $detailSubmission->item_unit_id,
+            //     'item_unit_status' => $detailSubmission->itemUnit->status,
+            //     'technician_id' => $detailSubmission->technician_id,
+            // ];
+
+            // $technicianLog = [
+            //     'norec' => $detailSubmission->technician->norec,
+            //     'module_id' => 2,
+            //     'is_repair' => true,
+            //     'desc' => $detailSubmission->technician->name . ' has uploaded evidence for repair of ' . $detailSubmission->itemUnit->items->item_name . ' from ' . $detailSubmission->submission->room->name . ' (' . $detailSubmission->submission->unit->customer_name . ')',
+            //     'item_unit_id' => $detailSubmission->item_unit_id,
+            //     'item_unit_status' => $detailSubmission->itemUnit->status,
+            //     'technician_id' => $detailSubmission->technician_id,
+            // ];
+
+            createLog($detailLog);
+            createLog($technicianLog);
 
             return response()->json([
                 'success' => true,
@@ -442,6 +471,7 @@ class MaintenancesController extends Controller
                     'desc' => 'Technician ' . $maintenance->technician->name . ' has started maintenance on item ' . $maintenance->item_room->items->item_name . ' by ' . auth()->user()->name . ' from ' . $room->name . ' (' . $room->units->customer_name . ')',
                     'item_unit_id' => $maintenance->item_room_id,
                     'technician_id' => $maintenance->technician_id,
+                    'item_unit_status' => $maintenance->item_room->status,
                 ];
 
                 $technicianLog = [
@@ -451,6 +481,7 @@ class MaintenancesController extends Controller
                     'is_maintenance' => true,
                     'item_unit_id' => $maintenance->item_room_id,
                     'technician_id' => $maintenance->technician_id,
+                    'item_unit_status' => $maintenance->item_room->status,
                 ];
 
                 createLog($maintenanceLog);
@@ -495,6 +526,7 @@ class MaintenancesController extends Controller
                     'old_data' => $maintenance->toJson(),
                     'item_unit_id' => $maintenance->item_room_id,
                     'technician_id' => $maintenance->technician_id,
+                    'item_unit_status' => $maintenance->item_room->status,
                 ];
 
                 $technicianLog = [
@@ -504,6 +536,7 @@ class MaintenancesController extends Controller
                     'desc' => $maintenance->technician->name . ' has finished maintenance ' . $maintenance->item_room->items->item_name . ' from ' . $maintenance->room->name . ' (' . $maintenance->room->units->customer_name . ')',
                     'item_unit_id' => $maintenance->item_room_id,
                     'technician_id' => $maintenance->technician_id,
+                    'item_unit_status' => $maintenance->item_room->status,
                 ];
 
                 $itemLog = [
@@ -514,6 +547,7 @@ class MaintenancesController extends Controller
                     'old_data' => $maintenance->item_room->toJson(),
                     'item_unit_id' => $maintenance->item_room_id,
                     'technician_id' => $maintenance->technician_id,
+                    'item_unit_status' => $maintenance->item_room->status,
                 ];
 
                 createLog($maintenanceLog);
@@ -563,6 +597,7 @@ class MaintenancesController extends Controller
                     'is_maintenance' => true,
                     'desc' => 'Item ' . $itemUnit->items->item_name . ' has been accepted for maintenance by ' . auth()->user()->name . ' from ' . $room->name . ' (' . $room->units->customer_name . ')',
                     'item_unit_id' => $itemUnit->id,
+                    'item_unit_status' => $itemUnit->status,
                 ];
 
                 $maintenanceLog = [
@@ -571,6 +606,7 @@ class MaintenancesController extends Controller
                     'is_maintenance' => true,
                     'desc' => 'Item ' . $itemUnit->items->item_name . ' has been accepted for maintenance by ' . auth()->user()->name . ' from ' . $room->name . ' (' . $room->units->customer_name . ')',
                     'item_unit_id' => $itemUnit->id,
+                    'item_unit_status' => $itemUnit->status,
                 ];
 
                 createLog($itemLog);
@@ -608,6 +644,7 @@ class MaintenancesController extends Controller
                     'is_maintenance' => true,
                     'desc' => 'Item ' . $itemUnit->items->item_name . ' has been rescheduled for maintenance to: ' . $request->newMaintenance_date . ' by ' . auth()->user()->name . ' from ' . $room->name . ' (' . $room->units->customer_name . ')',
                     'item_unit_id' => $itemUnit->id,
+                    'item_unit_status' => $itemUnit->status,
                 ];
 
                 $maintenanceLog = [
@@ -616,6 +653,7 @@ class MaintenancesController extends Controller
                     'is_maintenance' => true,
                     'desc' => 'Item ' . $itemUnit->items->item_name . ' has been rescheduled for maintenance to: ' . $request->newMaintenance_date . ' by ' . auth()->user()->name . ' from ' . $room->name . ' (' . $room->units->customer_name . ')',
                     'item_unit_id' => $itemUnit->id,
+                    'item_unit_status' => $itemUnit->status,
                 ];
 
                 createLog($itemLog);
@@ -670,6 +708,7 @@ class MaintenancesController extends Controller
                 'old_data' => $oldData,
                 'item_unit_id' => $maintenance->item_room_id,
                 'technician_id' => $maintenance->technician_id,
+                'item_unit_status' => $maintenance->item_room->status,
             ];
 
             $technicianLog = [
@@ -679,6 +718,7 @@ class MaintenancesController extends Controller
                 'desc' => $maintenance->technician->name . ' has UPDATED THE STATUS and REMARKS of ' . $maintenance->item_room->items->item_name . ' to ' . $request->status . ' from ' . $oldStatus . ' with REMARKS ' . $request->remarks,
                 'item_unit_id' => $maintenance->item_room_id,
                 'technician_id' => $maintenance->technician_id,
+                'item_unit_status' => $maintenance->item_room->status,
             ];
 
             $itemLog = [
@@ -689,6 +729,7 @@ class MaintenancesController extends Controller
                 'old_data' => $oldItemUnit,
                 'item_unit_id' => $maintenance->item_room_id,
                 'technician_id' => $maintenance->technician_id,
+                'item_unit_status' => $maintenance->item_room->status,
             ];
 
             createLog($maintenanceLog);
@@ -774,7 +815,7 @@ class MaintenancesController extends Controller
                         'status' => 'is_maintenance',
                     ];
                     $toPDFURL = route('maintenances.toPDF', encrypt($row->id));
-                    $btn .= '<a href="' . $toPDFURL . '" class="edit btn btn-danger btn-sm me-2" title="Export to PDF"><i class="ph-duotone ph-file-pdf"></i></a>';
+                    $btn .= '<a href="' . $toPDFURL . '" class="edit btn btn-danger btn-sm me-2" title="Export to PDF" target="_blank"><i class="ph-duotone ph-file-pdf"></i></a>';
                     $showLogBtn =
                         "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
                             data-bs-target='#exampleModal'
@@ -802,9 +843,10 @@ class MaintenancesController extends Controller
         $date_completed = $maintenance->date_completed;
         $technician = Technician::where('id', $maintenance->technician_id)->first();
         $workHours = $this->calculateWorkHourDifference($date_worked_on, $date_completed);
+        $maintenanceLog = NewLog::where('norec', $maintenance->norec)->where('is_maintenance', true)->get();
         $pdf = app('dompdf.wrapper');
-        $pdf->loadView('maintenances.toPDF', compact('maintenance', 'workHours', 'technician'));
-        return $pdf->download(date(now()) . '_maintenance_' . $maintenance->item_room->items->item_name . '.pdf');
+        $pdf->loadView('maintenances.toPDF', compact('maintenance', 'workHours', 'technician', 'maintenanceLog'));
+        return $pdf->stream(date(now()) . '_maintenance_' . $maintenance->item_room->items->item_name . '.pdf');
     }
 
     private function calculateWorkHourDifference($datesWorkedOn, $datesCompleted)

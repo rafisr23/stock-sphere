@@ -172,20 +172,20 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">System Performance</h4>
-                    <div class="btn-group mb-2 me-2 dropdown">
+                    {{-- <div class="btn-group mb-2 me-2 dropdown">
                         <select name="selectItem" id="selectItem" class="form-control" style="padding-right: 30px">
                             <option value="All">All Items </option>
                             @foreach ($items_units as $items)
                                 <option value="{{ $items->item_id }}">{{ $items->items->item_name }}</option>
                             @endforeach
                         </select>
-                    </div>
-                    {{-- <p class="mb-0">From date</p>
-                    <input type="date" name="fromDateSparepart" id="fromDateSparepart"
+                    </div> --}}
+                    <p class="mb-0">From date</p>
+                    <input type="date" name="fromDatePerformance" id="fromDatePerformance"
                         class="form-control form-control-sm w-auto border-0 shadow-none2">
                     <p class="mb-0">To date</p>
-                    <input type="date" name="toDateSparepart" id="toDateSparepart"
-                        class="form-control form-control-sm w-auto border-0 shadow-none2"> --}}
+                    <input type="date" name="toDatePerformance" id="toDatePerformance"
+                        class="form-control form-control-sm w-auto border-0 shadow-none2">
                 </div>
                 <div class="card-body">
                     {{-- @if ($performanceData-) --}}
@@ -276,12 +276,12 @@
                             @endforeach
                         </select> --}}
                     </div>
-                    {{-- <p class="mb-0">From date</p>
-                    <input type="date" name="fromDateSparepart" id="fromDateSparepart"
+                    <p class="mb-0">From date</p>
+                    <input type="date" name="fromDatePerformance" id="fromDatePerformance"
                         class="form-control form-control-sm w-auto border-0 shadow-none2">
                     <p class="mb-0">To date</p>
-                    <input type="date" name="toDateSparepart" id="toDateSparepart"
-                        class="form-control form-control-sm w-auto border-0 shadow-none2"> --}}
+                    <input type="date" name="toDatePerformance" id="toDatePerformance"
+                        class="form-control form-control-sm w-auto border-0 shadow-none2">
                 </div>
                 <div class="card-body">
                     {{-- @if ($performanceData-) --}}
