@@ -139,7 +139,6 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/getList', 'getListOfRepairs')->name('getList');
             Route::get('/getTechnicians', 'getTechnicians')->name('getTechnicians');
             Route::post('/assignTechnician', 'assignTechnician')->name('assignTechnician');
-
         });
 
         // Route::get('/repairments', [DetailsOfRepairSubmissionController::class, 'index'])->name('detail_submission.index');
@@ -202,6 +201,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/history', 'history')->name('history');
             Route::get('/confirmation', 'confirmation')->name('confirmation');
             Route::post('/store/temporary-file', 'storeTemporaryFile')->middleware('role:superadmin|technician')->name('store-temporary-file');
+            Route::get('/toPDF/{calibrationId}', 'toPDF')->name('toPDF');
         });
         Route::resource('calibrations', CalibrationsController::class);
     });
@@ -209,4 +209,6 @@ Route::middleware(['auth'])->group(function () {
     Route::controller(LogController::class)->name('log.')->prefix('log')->middleware('auth')->group(function () {
         Route::get('/getLog/{norec?}/{module}/{status}', 'getLog')->name('getLog');
     });
+
+    Route::get('/getPerformanceData/{startDate?}/{endDate?}', [HomeController::class, 'getPerformanceData'])->name('getPerformanceData');
 });

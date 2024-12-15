@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Log;
+use App\Models\User;
 use App\Models\NewLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -180,7 +181,13 @@ if (! function_exists('getVillage')) {
 if (!function_exists('createLog')) {
     function createLog($data)
     {
-        $ipAddr = \Request::ip(); // Mendapatkan IP address pengguna
+        $ipAddr = \Request::ip(); 
+
+        if (php_sapi_name() == 'cli') {
+            $user = User::where('username', 'superadmin')->first();
+        } else {
+            $user = auth()->user();
+        }
 
         $log = [
             'norec' => $data['norec'],
@@ -196,7 +203,7 @@ if (!function_exists('createLog')) {
             'item_unit_id' => $data['item_unit_id'] ?? null,
             'item_unit_status' => $data['item_unit_status'] ?? null,
             'technician_id' => $data['technician_id'] ?? null,
-            'user_id' => auth()->user()->id,
+            'user_id' => $user->id,
         ];
 
         NewLog::create($log);

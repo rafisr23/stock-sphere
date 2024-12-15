@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Rooms;
 use App\Models\Units;
+use App\Models\NewLog;
+use Barryvdh\DomPDF\PDF;
+use App\Models\Spareparts;
 use App\Models\Technician;
 use App\Models\Items_units;
 use Illuminate\Http\Request;
+use App\Models\SparepartsOfRepair;
 use App\Models\SubmissionOfRepair;
 use Illuminate\Support\Facades\DB;
 use App\Models\DetailsOfRepairSubmission;
-use App\Models\Spareparts;
-use App\Models\SparepartsOfRepair;
-use Barryvdh\DomPDF\PDF;
-use Carbon\Carbon;
 
 class SubmissionOfRepairController extends Controller
 {
@@ -485,8 +486,10 @@ class SubmissionOfRepairController extends Controller
         $date_completed = $detail->date_completed;
         $workHour = $this->calculateWorkHourDifference($date_worked_on, $date_completed);
 
+        $repairLog = NewLog::where('norec', $detail->norec)->where('is_repair', true)->get();
+
         $pdf = app('dompdf.wrapper');
-        $pdf->loadView('submission.toPDF', compact('detail', 'workHour'));
+        $pdf->loadView('submission.toPDF', compact('detail', 'workHour', 'repairLog'));
 
         return $pdf->stream('submission-of-repair.pdf');
     }
@@ -499,7 +502,6 @@ class SubmissionOfRepairController extends Controller
         if ($start->greaterThanOrEqualTo($end)) {
             return 0;
         }
-
         $workStart = 8;
         $workEnd = 17;
         $totalMinutes = 0;

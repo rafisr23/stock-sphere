@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Rooms;
+use App\Models\NewLog;
 use App\Models\Technician;
 use App\Models\Items_units;
 use App\Models\Calibrations;
@@ -207,12 +208,6 @@ class CalibrationsController extends Controller
                         'item_room_id' => decrypt($request->item_unit_id),
                         'status' => 5,
                     ]);
-                    // if ($create) {
-                    //     // createLog(3, $create->id, 'alert calibration to unit', null, now());
-                    //     return response()->json(['success' => 'The room has been successfully alerted!']);
-                    // } else {
-                    //     return response()->json(['error' => 'Failed to alert calibration to unit']);
-                    // }
                     $itemUnit = Items_units::find(decrypt($request->item_unit_id));
                     $itemLog = [
                         'norec' => $itemUnit->norec,
@@ -221,6 +216,7 @@ class CalibrationsController extends Controller
                         'is_calibration' => true,
                         'desc' => 'Item ' . $itemUnit->items->item_name . ' has been requested for calibration by ' . auth()->user()->name . ' from ' . $create->room->name . ' (' . $create->room->units->customer_name . ')',
                         'item_unit_id' => $itemUnit->id,
+                        'item_unit_status' => $itemUnit->status,
                     ];
 
                     $calibrationLog = [
@@ -230,6 +226,7 @@ class CalibrationsController extends Controller
                         'is_calibration' => true,
                         'desc' => 'Item ' . $itemUnit->items->item_name . ' has been requested for calibration by ' . auth()->user()->name . ' from ' . $create->room->name . ' (' . $create->room->units->customer_name . ')',
                         'item_unit_id' => $itemUnit->id,
+                        'item_unit_status' => $itemUnit->status,
                     ];
 
                     createLog($itemLog);
@@ -245,32 +242,7 @@ class CalibrationsController extends Controller
                 return response()->json(['error' => 'Failed to alert calibration to unit']);
             }
         } else {
-            // $request->validate([
-            //     'item_unit_id' => 'required',
-            //     'technician' => 'required',
-            // ]);
-
-            // if (auth()->user()->can('assign technician') || auth()->user()->hasRole('superadmin')) {
-            //     $create = Maintenances::updateOrCreate(
-            //         [
-            //             'item_room_id' => decrypt($request->item_unit_id),
-            //         ],
-            //         [
-            //             'room_id' => Items_units::find(decrypt($request->item_unit_id))->room_id,
-            //             'technician_id' => decrypt($request->technician),
-            //             'status' => 0,
-            //         ]
-            //     );
-            // } else {
-            //     return redirect()->back()->with('error', 'You are not authorized to assign maintenance to technician');
-            // }
-
-            // if ($create) {
-            //     createLog(3, $create->id, 'assign maintenance to technician', null, Items_units::where('id', $create->item_room_id)->get('maintenance_date')->toJson());
-            //     return redirect()->back()->with('success', 'Maintenance assigned to technician');
-            // } else {
-            //     return redirect()->back()->with('error', 'Failed to assign maintenance to technician');
-            // }
+            return response()->json(['error' => 'Failed to alert calibration to unit']);
         }
     }
 
@@ -313,6 +285,7 @@ class CalibrationsController extends Controller
                     'is_calibration' => true,
                     'desc' => 'Item ' . $calibration->item_room->items->item_name . ' has been accepted for calibration by ' . auth()->user()->name . ' from ' . $calibration->room->name . ' (' . $calibration->room->units->customer_name . ')',
                     'item_unit_id' => $calibration->item_room->id,
+                    'item_unit_status' => $calibration->item_room->status,
                 ];
 
                 $calibrationLog = [
@@ -321,6 +294,7 @@ class CalibrationsController extends Controller
                     'is_calibration' => true,
                     'desc' => 'Item ' . $calibration->item_room->items->item_name . ' has been accepted for calibration by ' . auth()->user()->name . ' from ' . $calibration->room->name . ' (' . $calibration->room->units->customer_name . ')',
                     'item_unit_id' => $calibration->item_room->id,
+                    'item_unit_status' => $calibration->item_room->status,
                 ];
 
                 createLog($itemLog);
@@ -355,6 +329,7 @@ class CalibrationsController extends Controller
                     'is_calibration' => true,
                     'desc' => 'Item ' . $calibration->item_room->items->item_name . ' has been rescheduled for calibration to: ' . $request->newCalibration_date . ' by ' . auth()->user()->name . ' from ' . $calibration->room->name . ' (' . $calibration->room->units->customer_name . ')',
                     'item_unit_id' => $calibration->item_room->id,
+                    'item_unit_status' => $calibration->item_room->status,
                 ];
 
                 $calibrationLog = [
@@ -363,6 +338,7 @@ class CalibrationsController extends Controller
                     'is_calibration' => true,
                     'desc' => 'Item ' . $calibration->item_room->items->item_name . ' has been rescheduled for calibration to: ' . $request->newCalibration_date . ' by ' . auth()->user()->name . ' from ' . $calibration->room->name . ' (' . $calibration->room->units->customer_name . ')',
                     'item_unit_id' => $calibration->item_room->id,
+                    'item_unit_status' => $calibration->item_room->status,
                 ];
 
                 createLog($itemLog);
@@ -392,6 +368,7 @@ class CalibrationsController extends Controller
                     'is_calibration' => true,
                     'desc' => 'Technician has called vandor to calibrate on item ' . $calibration->item_room->items->item_name . ' by ' . auth()->user()->name . ' from ' . $calibration->room->name . ' (' . $calibration->room->units->customer_name . ')',
                     'item_unit_id' => $calibration->item_room_id,
+                    'item_unit_status' => $calibration->item_room->status,
                 ];
 
                 createLog($calibrationLog);
@@ -445,6 +422,7 @@ class CalibrationsController extends Controller
                     'desc' => 'Technician has UPDATED THE STATUS and REMARKS of ' . $calibration->item_room->items->item_name . ' to ' . $request->status . ' from ' . $oldStatus . ' by ' . auth()->user()->name . ' from ' . $calibration->room->name . ' (' . $calibration->room->units->customer_name . ')' . ' with REMARKS ' . $request->remarks,
                     'old_data' => $oldData,
                     'item_unit_id' => $calibration->item_room_id,
+                    'item_unit_status' => $calibration->item_room->status,
                 ];
 
                 $itemLog = [
@@ -454,6 +432,7 @@ class CalibrationsController extends Controller
                     'desc' => 'STATUS of ' . $item_unit->items->item_name . ' has been UPDATED to ' . $request->status . ' from ' . $oldStatus . ' with REMARKS ' . $request->remarks,
                     'old_data' => $oldItemUnit,
                     'item_unit_id' => $calibration->item_room_id,
+                    'item_unit_status' => $calibration->item_room->status,
                 ];
 
                 createLog($calibrationLog);
@@ -505,6 +484,7 @@ class CalibrationsController extends Controller
                     'desc' => 'Technician has finished calibration ' . $calibration->item_room->items->item_name . ' by ' . auth()->user()->name . ' from ' . $calibration->room->name . ' (' . $calibration->room->units->customer_name . ')',
                     'old_data' => $calibration->toJson(),
                     'item_unit_id' => $calibration->item_room_id,
+                    'item_unit_status' => $calibration->item_room->status,
                 ];
 
                 $itemLog = [
@@ -514,6 +494,7 @@ class CalibrationsController extends Controller
                     'desc' => 'Calibration of ' . $calibration->item_room->items->item_name . ' has been FINISHED by vendor from ' . $calibration->room->name . ' (' . $calibration->room->units->customer_name . ') with last STATUS ' . $calibration->item_room->status . ' and REMARKS ' . $calibration->remarks,
                     'old_data' => $calibration->item_room->toJson(),
                     'item_unit_id' => $calibration->item_room_id,
+                    'item_unit_status' => $calibration->item_room->status,
                 ];
 
                 createLog($calibrationLog);
@@ -599,6 +580,7 @@ class CalibrationsController extends Controller
                         'module_id' => 10,
                         'status' => 'is_maintenance',
                     ];
+                    $btn .= '<a href="' . route('calibrations.toPDF', encrypt($row->id)) . '" class="edit btn btn-danger btn-sm me-2" target="_blank" title="Export to PDF"><i class="ph-duotone ph-file-pdf"></i></a>';
                     $showLogBtn =
                         "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
                             data-bs-target='#exampleModal'
@@ -608,7 +590,6 @@ class CalibrationsController extends Controller
                             <i class='ph-duotone ph-info'></i>
                         </a>
                     ";
-
                     $btn .= $showLogBtn . '</div>';
                     return $btn;
                 })
@@ -691,5 +672,51 @@ class CalibrationsController extends Controller
                 'fileName' => $fileName
             ]);
         }
+    }
+
+    public function toPDF($id)
+    {
+        $calibration = Calibrations::where('date_completed', '!=', null)->where('id', decrypt($id))->first();
+        $date_worked_on = $calibration->date_worked_on;
+        $date_completed = $calibration->date_completed;
+        // $technician = Technician::where('id', $calibration->technician_id)->first();
+        $workHours = $this->calculateWorkHourDifference($date_worked_on, $date_completed);
+        $calibrationLog = NewLog::where('norec', $calibration->norec)->where('module_id', 10)->get();
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('calibrations.toPDF', compact('calibration', 'workHours', 'calibrationLog'));
+        return $pdf->stream(date(now()) . '_calibration_' . $calibration->item_room->items->item_name . '.pdf');
+    }
+
+    private function calculateWorkHourDifference($datesWorkedOn, $datesCompleted)
+    {
+        $start = Carbon::parse($datesWorkedOn);
+        $end = Carbon::parse($datesCompleted);
+
+        if ($start->greaterThanOrEqualTo($end)) {
+            return 0;
+        }
+
+        $workStart = 8;
+        $workEnd = 17;
+        $totalMinutes = 0;
+
+        while ($start->lessThan($end)) {
+            if ($start->isWeekday()) {
+                $workDayStart = $start->copy()->hour($workStart)->minute(0)->second(0);
+                $workDayEnd = $start->copy()->hour($workEnd)->minute(0)->second(0);
+
+                if ($start->between($workDayStart, $workDayEnd)) {
+                    $endOfDay = $workDayEnd->lessThan($end) ? $workDayEnd : $end;
+                    $totalMinutes += $start->diffInMinutes($endOfDay);
+                }
+            }
+
+            $start->addDay()->hour($workStart)->minute(0)->second(0);
+        }
+
+        return [
+            'hours' => intdiv($totalMinutes, 60),
+            'minutes' => $totalMinutes % 60,
+        ];
     }
 }
