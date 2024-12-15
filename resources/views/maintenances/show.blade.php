@@ -242,7 +242,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <table class="table">
-                                @if ($maintenance->room->units->image)
+                                @if ($maintenance->room->units->image != null)
                                     <tr>
                                         <td colspan="2">
                                             <a class="card-gallery" data-fslightbox="gallery"

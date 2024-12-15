@@ -174,7 +174,7 @@
                                     data-trigger id="user_id" name="user_id">
                                     <option value="">-- Select Account --</option>
                                     @foreach ($users as $user)
-                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                        <option value="{{ encrypt($user->id) }}">{{ $user->name }}</option>
                                     @endforeach
                                 </select>
                                 @error('user_id')
