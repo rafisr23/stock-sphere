@@ -102,6 +102,14 @@ class DetailsOfRepairSubmissionController extends Controller
 
                         return $remark;
                     })
+                    ->addColumn('descriptionTechnician', function ($row) {
+                        $description = '<textarea type="text" name="descriptionTechnician" rows="4" id="" class="form-control descriptionTechnician" data-id="' . encrypt($row->id);
+                        $description .= '"placeholder="Enter repairment description for ' . $row->itemUnit->items->item_name . '">';
+                        $description .= old('descriptionTechnician', $row->descriptionTechnician);
+                        $description .= '</textarea>';
+
+                        return $description;
+                    })
                     ->addColumn('sparepart_used', function ($row) {
                         $sparepartUsedCount = SparepartsOfRepair::where('details_of_repair_submission_id', $row->id)->count();
                         // Tambahin show sparepart used
@@ -132,7 +140,7 @@ class DetailsOfRepairSubmissionController extends Controller
                         $btn .= '</div>';
                         return $btn;
                     })
-                    ->rawColumns(['action', 'remark', 'status', 'sparepart_used'])
+                    ->rawColumns(['action', 'remark', 'status', 'sparepart_used', 'descriptionTechnician'])
                     ->make(true);
             }
         }
@@ -392,6 +400,7 @@ class DetailsOfRepairSubmissionController extends Controller
             $oldStatus = $item_unit->status;
             $item_unit->status = $request->status;
             $details_of_repair_submission->remarks = $request->remarks;
+            $details_of_repair_submission->descriptionTechnician = $request->descriptionTechnician;
 
             $details_of_repair_submission->save();
             $item_unit->save();
@@ -578,6 +587,7 @@ class DetailsOfRepairSubmissionController extends Controller
             $details_of_repair_submission->date_completed = now();
             $item_unit->status = $request->status;
             $details_of_repair_submission->remarks = $request->remarks;
+            $details_of_repair_submission->descriptionTechnician = $request->descriptionTechnician;
             $item_unit = Items_units::find($details_of_repair_submission->item_unit_id);
             $fullData = DetailsOfRepairSubmission::where('submission_of_repair_id', $details_of_repair_submission->submission_of_repair_id)->count();
             $allCompleted = DetailsOfRepairSubmission::where('submission_of_repair_id', $details_of_repair_submission->submission_of_repair_id)

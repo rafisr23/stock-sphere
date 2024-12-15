@@ -80,6 +80,7 @@
                                                         <th>Serial Number</th>
                                                         <th>Status</th>
                                                         <th>Remark</th>
+                                                        <th>Description</th>
                                                         <th>Sparepart Used</th>
                                                         <th>Action</th>
                                                     </tr>
