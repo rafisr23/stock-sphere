@@ -16,7 +16,7 @@ class UnitsSeeder extends Seeder
     {
         DB::table('units')->insert([
             'id' => 1,
-            'user_id' => 1,
+            'user_id' => 3,
             'customer_name' => 'Oetomo Hospital',
             'street' => 'Jl. Raya Bojongsoang, Lengkong',
             'city' => 'KABUPATEN BANDUNG',

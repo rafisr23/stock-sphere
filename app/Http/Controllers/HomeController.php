@@ -138,7 +138,7 @@ class HomeController extends Controller
                 ->leftJoin('items as i', 'iu.item_id', '=', 'i.id')
                 ->leftJoin('rooms as r', 'iu.room_id', '=', 'r.id')
                 ->select('i.item_name', 'd.created_at as date')
-                ->where('d.item_unit_id', '!=', null, )
+                ->where('d.item_unit_id', '!=', null,)
                 ->where('r.id', '=', auth()->user()->room->id)
                 ->get();
 
@@ -174,7 +174,7 @@ class HomeController extends Controller
                 ->where('sr.sparepart_id', '!=', null)
                 ->where('d.technician_id', '=', auth()->user()->technician->id)
                 ->get();
-            
+
             $performanceData = $this->getPerformanceData();
 
             return view('index', compact('items_repairments_count', 'sparepart_repairments_count', 'performanceData'));
@@ -204,7 +204,7 @@ class HomeController extends Controller
                 // ->where('u.id', '=', auth()->user()->unit->id)
                 ->whereIn('r.id', $room)
                 ->get();
-            
+
             $performanceData = $this->getPerformanceData();
 
             return view('index', compact('items_repairments_count', 'sparepart_repairments_count', 'performanceData'));

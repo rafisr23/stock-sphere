@@ -84,9 +84,7 @@
                     </a>
                 </li>
             @endrole
-            @if (
-                (auth()->user()->can('assign technician') && auth()->user()->hasRole('technician')) ||
-                    auth()->user()->hasRole('superadmin'))
+            @if (auth()->user()->hasRole('technician') || auth()->user()->hasRole('superadmin'))
                 <li class="pc-item ">
                     <a href="{{ route('submission-of-repair.list') }}" class="pc-link">
                         <span class="pc-mtext">List Of Repairs</span>
