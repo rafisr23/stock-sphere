@@ -95,6 +95,7 @@
                                                             <th>Item Name</th>
                                                             <th>Status</th>
                                                             <th>Remarks</th>
+                                                            <th>Description</th>
                                                             <th>Evidence</th>
                                                             <th>Action</th>
                                                         </tr>

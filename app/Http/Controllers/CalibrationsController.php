@@ -152,6 +152,14 @@ class CalibrationsController extends Controller
 
                             return $remark;
                         })
+                        ->addColumn('description', function ($row) {
+                            $description = '<textarea type="text" name="description" rows="4" id="" class="form-control description" data-id="' . encrypt($row->id);
+                            $description .= '"placeholder="Enter calibration description for ' . $row->item_room->items->item_name . '">';
+                            $description .= old('description', $row->description);
+                            $description .= '</textarea>';
+
+                            return $description;
+                        })
                         ->addColumn('evidence', function ($row) {
                             $evidence = '<input type="file" name="evidence" class="form-control" id="evidence" placeholder="Upload evidence for ' . $row->item_room->items->item_name . '" accept="image/png, image/jpeg, ,image/jpg">';
                             return $evidence;
@@ -170,7 +178,7 @@ class CalibrationsController extends Controller
                             $btn .= '</div>';
                             return $btn;
                         })
-                        ->rawColumns(['action', 'remarks', 'evidence', 'status'])
+                        ->rawColumns(['action', 'remarks', 'description', 'evidence', 'status'])
                         ->make(true);
                 }
             } else {
@@ -388,12 +396,14 @@ class CalibrationsController extends Controller
                 $request->validate([
                     'status' => 'required',
                     'remarks' => 'required',
+                    'description' => 'required',
                     'evidence' => 'required',
                 ]);
 
                 $calibration = Calibrations::find($id);
                 $oldCalibration = $calibration->toJson();
                 $calibration->remarks = $request->remarks;
+                $calibration->description = $request->description;
                 $calibration->evidence = $request->evidence;
 
                 $item_unit = Items_units::find($calibration->item_room_id);
