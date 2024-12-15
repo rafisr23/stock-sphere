@@ -119,16 +119,19 @@
                                             class="btn btn-primary btn-sm" title="See Evidance"><i
                                                 class="ph-duotone ph-file-image"></i></a>
                                         @role('superadmin|technician')
-                                            <a href="#" class="view btn btn-info btn-sm btn-assign"
-                                                title="Assign Technician" data-id="{{ $detail->id }}"><i
-                                                    class="ph-duotone ph-user-plus"></i></a>
-                                            @elserole('room|unit|superadmin')
-                                            @isset($detail->technician)
-                                                <a href="#" type="button" data-bs-toggle="modal"
-                                                    data-bs-target=".bd-example-modal-lg" class="view btn btn-info btn-sm btn-show"
-                                                    title="Show Technician" data-id="{{ encrypt($detail->technician->id) }}"><i
-                                                        class="ph-duotone ph-user-gear"></i></a>
-                                            @endisset
+                                            @if (auth()->user()->can('assign technician') || auth()->user()->hasRole('superadmin'))
+                                                <a href="#" class="view btn btn-info btn-sm btn-assign"
+                                                    title="Assign Technician" data-id="{{ $detail->id }}"><i
+                                                        class="ph-duotone ph-user-plus"></i></a>
+                                                @elserole('room|unit|superadmin')
+                                                @isset($detail->technician)
+                                                    <a href="#" type="button" data-bs-toggle="modal"
+                                                        data-bs-target=".bd-example-modal-lg"
+                                                        class="view btn btn-info btn-sm btn-show" title="Show Technician"
+                                                        data-id="{{ encrypt($detail->technician->id) }}"><i
+                                                            class="ph-duotone ph-user-gear"></i></a>
+                                                @endisset
+                                            @endif
                                         @endrole
                                         @if ($detail->status == 2)
                                             <a href="{{ route('submission-of-repair.toPDF', encrypt($detail->id)) }}"
