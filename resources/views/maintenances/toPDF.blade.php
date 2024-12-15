@@ -152,7 +152,9 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>{{ $maintenance->description }}</td>
+                    <td>
+                        <p>{!! nl2br(e($maintenance->description)) !!}</p>
+                    </td>
                 </tr>
             </tbody>
         </table>
