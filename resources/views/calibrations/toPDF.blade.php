@@ -10,7 +10,7 @@
         @page {
             margin: 0cm 0cm;
         }
-        
+
         body {
             font-family: Arial, sans-serif;
             margin-top: 6.5cm;
@@ -125,7 +125,7 @@
     <h1>Calibration Report</h1>
 
     <div class="section">
-        <h3>Alasan Kunjungan</h3>
+        <h3>Reason For Visit</h3>
         <table>
             <thead>
                 <tr>
