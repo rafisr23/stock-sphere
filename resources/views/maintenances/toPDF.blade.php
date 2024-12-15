@@ -131,14 +131,12 @@
                 <tr>
                     <th>Room</th>
                     <th>Item Name</th>
-                    <th>Description</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td>{{ $maintenance->item_room->rooms->name }}</td>
                     <td>{{ $maintenance->item_room->items->item_name }}</td>
-                    <td>{{ $maintenance->description }}</td>
                 </tr>
             </tbody>
         </table>
@@ -155,11 +153,7 @@
             <tbody>
                 <tr>
                     <td>
-                        <ul>
-                            @foreach ($maintenanceLog as $log)
-                                <li>{{ $log->desc }} at: {{ $log->created_at }}</li>
-                            @endforeach
-                        </ul>
+                        <p>{!! nl2br(e($maintenance->description)) !!}</p>
                     </td>
                 </tr>
             </tbody>
@@ -190,11 +184,7 @@
             </tbody>
         </table>
 
-        @if ($workHours['hours'] == 0 && $workHours['minutes'] == 0)
-            <p><strong>Work Hours:</strong> No work hours</p>
-        @else
-            <p><strong>Work Hours:</strong> {{ $workHours['hours'] }} hours {{ $workHours['minutes'] }} minutes</p>
-        @endif
+        <p><strong>Work Hours:</strong> {{ $workHours['hours'] }} hours {{ $workHours['minutes'] }} minutes</p>
     </div>
 
     <div class="section">

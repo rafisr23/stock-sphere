@@ -152,6 +152,14 @@ class CalibrationsController extends Controller
 
                             return $remark;
                         })
+                        ->addColumn('description', function ($row) {
+                            $description = '<textarea type="text" name="description" rows="4" id="" class="form-control description" data-id="' . encrypt($row->id);
+                            $description .= '"placeholder="Enter calibration description for ' . $row->item_room->items->item_name . '">';
+                            $description .= old('description', $row->description);
+                            $description .= '</textarea>';
+
+                            return $description;
+                        })
                         ->addColumn('evidence', function ($row) {
                             $evidence = '<input type="file" name="evidence" class="form-control" id="evidence" placeholder="Upload evidence for ' . $row->item_room->items->item_name . '" accept="image/png, image/jpeg, ,image/jpg">';
                             return $evidence;
@@ -170,7 +178,7 @@ class CalibrationsController extends Controller
                             $btn .= '</div>';
                             return $btn;
                         })
-                        ->rawColumns(['action', 'remarks', 'evidence', 'status'])
+                        ->rawColumns(['action', 'remarks', 'description', 'evidence', 'status'])
                         ->make(true);
                 }
             } else {
@@ -388,12 +396,14 @@ class CalibrationsController extends Controller
                 $request->validate([
                     'status' => 'required',
                     'remarks' => 'required',
+                    'description' => 'required',
                     'evidence' => 'required',
                 ]);
 
                 $calibration = Calibrations::find($id);
                 $oldCalibration = $calibration->toJson();
                 $calibration->remarks = $request->remarks;
+                $calibration->description = $request->description;
                 $calibration->evidence = $request->evidence;
 
                 $item_unit = Items_units::find($calibration->item_room_id);
@@ -695,28 +705,32 @@ class CalibrationsController extends Controller
         if ($start->greaterThanOrEqualTo($end)) {
             return 0;
         }
-
         $workStart = 8;
-        $workEnd = 17;
+        $workEnd = 21;
         $totalMinutes = 0;
+        $minutes = [];
+        $hours = [];
 
         while ($start->lessThan($end)) {
-            if ($start->isWeekday()) {
-                $workDayStart = $start->copy()->hour($workStart)->minute(0)->second(0);
-                $workDayEnd = $start->copy()->hour($workEnd)->minute(0)->second(0);
+            $workDayStart = $start->copy()->hour($workStart)->minute(0)->second(0);
+            $workDayEnd = $start->copy()->hour($workEnd)->minute(0)->second(0);
 
-                if ($start->between($workDayStart, $workDayEnd)) {
-                    $endOfDay = $workDayEnd->lessThan($end) ? $workDayEnd : $end;
-                    $totalMinutes += $start->diffInMinutes($endOfDay);
-                }
+            if ($start->between($workDayStart, $workDayEnd)) {
+                $endOfDay = $workDayEnd->lessThan($end) ? $workDayEnd : $end;
+                $totalMinutes += $start->diffInMinutes($endOfDay);
+                $hours[] = intdiv($start->diffInMinutes($endOfDay), 60);
+                $minutes[] = $start->diffInMinutes($endOfDay) % 60;
             }
-
             $start->addDay()->hour($workStart)->minute(0)->second(0);
         }
 
         return [
+            'start' => Carbon::parse($datesWorkedOn),
+            'end' => Carbon::parse($datesCompleted),
             'hours' => intdiv($totalMinutes, 60),
             'minutes' => $totalMinutes % 60,
+            'hoursArr' => $hours,
+            'minutesArr' => $minutes,
         ];
     }
 }

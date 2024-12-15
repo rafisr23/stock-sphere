@@ -97,6 +97,10 @@ let workOnRepairmentTable = $("#work_on_repairment_table").DataTable({
             name: "remark",
         },
         {
+            data: "descriptionTechnician",
+            name: "descriptionTechnician",
+        },
+        {
             data: "sparepart_used",
             name: "sparepart_used",
         },
@@ -249,6 +253,7 @@ $("#work_on_repairment_table").on("click", ".update", function (e) {
     let url = "repairments/update/" + id;
     let status = $(this).closest("tr").find(".status").val();
     let remarks = $(this).closest("tr").find(".remarks").val();
+    let descriptionTechnician = $(this).closest("tr").find(".descriptionTechnician").val();
 
     console.log(status, remarks);
     $.ajax({
@@ -260,6 +265,7 @@ $("#work_on_repairment_table").on("click", ".update", function (e) {
             id: id,
             remarks: remarks,
             status: status,
+            descriptionTechnician: descriptionTechnician,
         },
         success: function (response) {
             if (response.success) {
@@ -297,7 +303,7 @@ $("#work_on_repairment_table").on("click", ".finish", function (e) {
     let url = "repairments/finish/" + id;
     let status = $(this).closest("tr").find(".status").val();
     let remarks = $(this).closest("tr").find(".remarks").val();
-
+    let descriptionTechnician = $(this).closest("tr").find(".descriptionTechnician").val();
     $.ajax({
         url: url,
         type: "POST",
@@ -307,6 +313,7 @@ $("#work_on_repairment_table").on("click", ".finish", function (e) {
             id: id,
             remarks: remarks,
             status: status,
+            descriptionTechnician: descriptionTechnician,
         },
         success: function (response) {
             if (response.success) {

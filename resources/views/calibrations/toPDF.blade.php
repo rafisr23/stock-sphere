@@ -152,13 +152,7 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>
-                        <ul>
-                            @foreach ($calibrationLog as $log)
-                                <li>{{ $log->desc }} at: {{ $log->created_at }}</li>
-                            @endforeach
-                        </ul>
-                    </td>
+                    <td>{!! nl2br(e($calibration->description)) !!}</td>
                 </tr>
             </tbody>
         </table>

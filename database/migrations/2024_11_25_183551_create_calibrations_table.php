@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->bigInteger('room_id')->unsigned();
             $table->bigInteger('item_room_id')->unsigned();
             $table->string('remarks')->nullable();
+            $table->text('description')->nullable();
             $table->integer('status')->default(5)->comment('0 - Pending, 1 - Worked on, 2 - Work On Delay, 3 - Completed, 4 - Need Repair, 5 - Pending Room, 6 - Accepted by Room, 7 - Reschedule');
             $table->string('evidence')->nullable();
             $table->date('schedule_by_room')->nullable();

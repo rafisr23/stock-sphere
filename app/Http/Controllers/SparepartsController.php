@@ -34,7 +34,7 @@ class SparepartsController extends Controller
                         'module_id' => 6,
                         'status' => 'is_generic',
                     ];
-                    $showLogBtn = 
+                    $showLogBtn =
                         "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
                             data-bs-target='#exampleModal'
                             data-title='Detail Log' data-bs-tooltip='tooltip'
@@ -45,7 +45,7 @@ class SparepartsController extends Controller
                     ";
 
                     $btn .= $showLogBtn . '</div>';
-                    
+
                     return $btn;
                 })
                 ->rawColumns(['action'])
@@ -70,11 +70,11 @@ class SparepartsController extends Controller
     public function store(StoreSparepartsRequest $request)
     {
         $request->validate([
-            'name'=>'required',
-            'description'=>'required',
-            'serial_no'=>'required',
-            'item_id'=>'nullable',
-            'is_generic'=>'required|in:0,1',
+            'name' => 'required',
+            'description' => 'required',
+            'serial_no' => 'required',
+            'item_id' => 'nullable',
+            'is_generic' => 'required|in:0,1',
         ]);
 
         DB::beginTransaction();
@@ -92,7 +92,7 @@ class SparepartsController extends Controller
                 $items = Items::find(decrypt($request->item_id));
             }
 
-            $desc = $spareparts->item_id ? 'Create a new sparepart: ' . $spareparts->name . ' for item: ' . $items->item_name . ' by ' . auth()->user()->name : 'Create a new generic sparepart: ' . $spareparts->name . ' by ' . auth()->user()->name; 
+            $desc = $spareparts->item_id ? 'Create a new sparepart: ' . $spareparts->name . ' for item: ' . $items->item_name . ' by ' . auth()->user()->name : 'Create a new generic sparepart: ' . $spareparts->name . ' by ' . auth()->user()->name;
 
             $log = [
                 'norec' => $spareparts->norec,
@@ -129,7 +129,7 @@ class SparepartsController extends Controller
         $id_enc = encrypt($sparepart->id);
 
         $item = Items::all();
-        return view('spareparts.edit', compact( 'item', 'id_enc', 'sparepart'));
+        return view('spareparts.edit', compact('item', 'id_enc', 'sparepart'));
     }
 
     /**
@@ -154,7 +154,7 @@ class SparepartsController extends Controller
                 $items = Items::find(decrypt($request->item_id));
             }
 
-            $desc = $spareparts->item_id ? 'Update sparepart: ' . $spareparts->name . ' for item: ' . $items->item_name . ' by ' . auth()->user()->name : 'Update generic sparepart: ' . $spareparts->name . ' by ' . auth()->user()->name; 
+            $desc = $spareparts->item_id ? 'Update sparepart: ' . $spareparts->name . ' for item: ' . $items->item_name . ' by ' . auth()->user()->name : 'Update generic sparepart: ' . $spareparts->name . ' by ' . auth()->user()->name;
 
             $log = [
                 'norec' => $spareparts->norec,
@@ -191,7 +191,7 @@ class SparepartsController extends Controller
                 $items = Items::find($spareparts->item_id);
             }
 
-            $desc = $spareparts->item_id ? 'Delete sparepart: ' . $spareparts->name . ' for item: ' . $items->item_name . ' by ' . auth()->user()->name : 'Delete generic sparepart: ' . $spareparts->name . ' by ' . auth()->user()->name; 
+            $desc = $spareparts->item_id ? 'Delete sparepart: ' . $spareparts->name . ' for item: ' . $items->item_name . ' by ' . auth()->user()->name : 'Delete generic sparepart: ' . $spareparts->name . ' by ' . auth()->user()->name;
 
             $log = [
                 'norec' => $spareparts->norec,

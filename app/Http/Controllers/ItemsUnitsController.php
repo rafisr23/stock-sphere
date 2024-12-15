@@ -111,7 +111,7 @@ class ItemsUnitsController extends Controller
         try {
             foreach ($request['item_id'] as $key => $value) {
                 $item = Items::find($value);
-                $maintenance_date = date('Y-m-d', strtotime($request['installation_date']) + ($item->downtime * 86400));
+                $maintenance_date = date('Y-m-d', strtotime('+6 month', strtotime($request['installation_date'])));
                 $calibration_date = date('Y-m-d', strtotime('+1 year', strtotime($request['installation_date'])));
 
                 $items_units = Items_units::create([
@@ -204,7 +204,7 @@ class ItemsUnitsController extends Controller
         }
 
         $maintenance_date = $request->installation_date != $itemUnits->installation_date
-            ? date('Y-m-d', strtotime($request['installation_date']) + ($itemUnits->items->downtime * 86400))
+            ? date('Y-m-d', strtotime('+6 month', strtotime($request['installation_date'])))
             : $itemUnits->maintenance_date;
 
         $calibration_date = $request->installation_date != $itemUnits->installation_date ? date('Y-m-d', strtotime('+1 year', strtotime($request['installation_date']))) : $itemUnits->calibration_date;

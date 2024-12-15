@@ -491,10 +491,8 @@ class SubmissionOfRepairController extends Controller
         $date_completed = $detail->date_completed;
         $workHour = $this->calculateWorkHourDifference($date_worked_on, $date_completed);
 
-        $repairLog = NewLog::where('norec', $detail->norec)->where('is_repair', true)->get();
-
         $pdf = app('dompdf.wrapper');
-        $pdf->loadView('submission.toPDF', compact('detail', 'workHour', 'repairLog'));
+        $pdf->loadView('submission.toPDF', compact('detail', 'workHour'));
 
         return $pdf->stream('submission-of-repair.pdf');
     }
@@ -508,22 +506,20 @@ class SubmissionOfRepairController extends Controller
             return 0;
         }
         $workStart = 8;
-        $workEnd = 17;
+        $workEnd = 21;
         $totalMinutes = 0;
         $minutes = [];
         $hours = [];
 
         while ($start->lessThan($end)) {
-            if ($start->isWeekday()) {
-                $workDayStart = $start->copy()->hour($workStart)->minute(0)->second(0);
-                $workDayEnd = $start->copy()->hour($workEnd)->minute(0)->second(0);
+            $workDayStart = $start->copy()->hour($workStart)->minute(0)->second(0);
+            $workDayEnd = $start->copy()->hour($workEnd)->minute(0)->second(0);
 
-                if ($start->between($workDayStart, $workDayEnd)) {
-                    $endOfDay = $workDayEnd->lessThan($end) ? $workDayEnd : $end;
-                    $totalMinutes += $start->diffInMinutes($endOfDay);
-                    $hours[] = intdiv($start->diffInMinutes($endOfDay), 60);
-                    $minutes[] = $start->diffInMinutes($endOfDay) % 60;
-                }
+            if ($start->between($workDayStart, $workDayEnd)) {
+                $endOfDay = $workDayEnd->lessThan($end) ? $workDayEnd : $end;
+                $totalMinutes += $start->diffInMinutes($endOfDay);
+                $hours[] = intdiv($start->diffInMinutes($endOfDay), 60);
+                $minutes[] = $start->diffInMinutes($endOfDay) % 60;
             }
             $start->addDay()->hour($workStart)->minute(0)->second(0);
         }

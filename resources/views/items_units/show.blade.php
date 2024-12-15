@@ -149,6 +149,20 @@
                                 <i class="ph-duotone ph-headset"></i>
                             </h1>
                             <div class="form-group row">
+                                <label for="maintenance_date" class="col-sm-6 col-form-label">Maintenance Date :</label>
+                                <div class="col-sm-6">
+                                    <label for="maintenance_date"
+                                        class="col-form-label">{{ $item->maintenance_date }}</label>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="calibration_date" class="col-sm-6 col-form-label">Calibration Date :</label>
+                                <div class="col-sm-6">
+                                    <label for="calibration_date"
+                                        class="col-form-label">{{ $item->calibration_date }}</label>
+                                </div>
+                            </div>
+                            <div class="form-group row">
                                 <label for="srs_status" class="col-sm-6 col-form-label">SRS Status :</label>
                                 <div class="col-sm-6">
                                     <label for="srs_status" class="col-form-label">{{ $item->srs_status }}</label>

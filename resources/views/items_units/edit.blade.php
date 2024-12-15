@@ -113,7 +113,7 @@
                             <div class="col-sm-9 mb-4">
                                 <input type="text" class="form-control @error('srs_status') is-invalid @enderror"
                                     id="srs_status" name="srs_status"
-                                    value="{{ old('srs_status') . $item_unit->srs_status }}" required disabled>
+                                    value="{{ old('srs_status') . $item_unit->srs_status }}" required readonly>
                             </div>
                         </div>
                         <div class="form-group row">
@@ -134,11 +134,30 @@
                         <div class="form-group row">
                             <label for="last_checked_date" class="col-sm-3 col-form-label">Last Checked
                                 Date</label>
-                            <div class="col-sm-9">
-                                <input type="text"
+                            <div class="col-sm-9 mb-4">
+                                <input type="date"
                                     class="form-control @error('last_checked_date') is-invalid @enderror"
                                     id="last_checked_date" name="last_checked_date"
-                                    value="{{ old('last_checked_date') . now() }}" required disabled>
+                                    value="{{ old('last_checked_date') . now() }}" required readonly>
+                            </div>
+                        </div>
+                        {{-- add row for maintenance_date and calibration_date --}}
+                        <div class="form-group row">
+                            <label for="maintenance_date" class="col-sm-3 col-form-label">Maintenance Date</label>
+                            <div class="col-sm-9 mb-4">
+                                <input type="date"
+                                    class="form-control @error('maintenance_date') is-invalid @enderror"
+                                    id="maintenance_date" name="maintenance_date"
+                                    value="{{ old('maintenance_date') . $item_unit->maintenance_date }}" required>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="calibration_date" class="col-sm-3 col-form-label">Calibration Date</label>
+                            <div class="col-sm-9">
+                                <input type="date"
+                                    class="form-control @error('calibration_date') is-invalid @enderror"
+                                    id="calibration_date" name="calibration_date"
+                                    value="{{ old('calibration_date') . $item_unit->calibration_date }}" required>
                             </div>
                         </div>
                         <div class="form-group row">
