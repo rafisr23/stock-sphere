@@ -814,7 +814,7 @@ class MaintenancesController extends Controller
                         'module_id' => 3,
                         'status' => 'is_maintenance',
                     ];
-                    if ($row->date_completed) {
+                    if ($row->status == 3) {
                         $toPDFURL = route('maintenances.toPDF', encrypt($row->id));
                         $btn .= '<a href="' . $toPDFURL . '" class="edit btn btn-danger btn-sm me-2" title="Export to PDF" target="_blank"><i class="ph-duotone ph-file-pdf"></i></a>';
                     }

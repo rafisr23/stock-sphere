@@ -29,13 +29,13 @@ class RoomsController extends Controller
                     $btn .= '<a href="' . route('rooms.show', encrypt($row->id)) . '" class="view btn btn-info btn-sm me-2" title="See Details"><i class="ph-duotone ph-eye"></i></a>';
                     $btn .= '<a href="' . route('rooms.edit', encrypt($row->id)) . '" class="edit btn btn-warning btn-sm me-2" title="Edit Data"><i class="ph-duotone ph-pencil-line"></i></a>';
                     $btn .= '<a href="#" class="delete btn btn-danger btn-sm me-2" data-id="' . encrypt($row->id) . '" title="Delete Data"><i class="ph-duotone ph-trash"></i></a>';
-                    
+
                     $log = [
                         'norec' => $row->norec ?? null,
                         'module_id' => 4,
                         'status' => 'is_generic',
                     ];
-                    $showLogBtn = 
+                    $showLogBtn =
                         "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
                             data-bs-target='#exampleModal'
                             data-title='Detail Log' data-bs-tooltip='tooltip'
@@ -46,7 +46,7 @@ class RoomsController extends Controller
                     ";
 
                     $btn .= $showLogBtn . '</div>';
-                    
+
                     return $btn;
                 })
                 ->rawColumns(['action'])
@@ -64,7 +64,7 @@ class RoomsController extends Controller
         $user = User::whereHas('roles', function ($query) {
             $query->where('name', 'room');
         })->get();
-        $hospital = Units::all();
+        $hospital = Units::where('is_enabled', true)->get();
         return view('rooms.create', compact('user', 'hospital'));
     }
 
@@ -72,7 +72,7 @@ class RoomsController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(StoreRoomsRequest $request)
-    {   
+    {
         DB::beginTransaction();
 
         try {
@@ -126,7 +126,7 @@ class RoomsController extends Controller
         $user = User::whereHas('roles', function ($query) {
             $query->where('name', 'room');
         })->get();
-        $hospital = Units::all();
+        $hospital = Units::where('is_enabled', true)->get();
 
         return view('rooms.edit', compact('room', 'id_enc', 'user', 'hospital'));
     }

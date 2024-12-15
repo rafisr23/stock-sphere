@@ -130,9 +130,12 @@
                                                         class="ph-duotone ph-user-gear"></i></a>
                                             @endisset
                                         @endrole
-                                        <a href="{{ route('submission-of-repair.toPDF', encrypt($detail->id)) }}"
-                                            class='btn btn-sm btn-danger' title="Export to PDF"
-                                            data-id="{{ $detail->id }}" target="_blank"><i class="ph-duotone ph-file-pdf"></i></a>
+                                        @if ($detail->status == 2)
+                                            <a href="{{ route('submission-of-repair.toPDF', encrypt($detail->id)) }}"
+                                                class='btn btn-sm btn-danger' title="Export to PDF"
+                                                data-id="{{ $detail->id }}" target="_blank"><i
+                                                    class="ph-duotone ph-file-pdf"></i></a>
+                                        @endif
                                         <a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
                                             data-bs-target='#exampleModal' data-title='Detail Log' data-bs-tooltip='tooltip'
                                             data-remote="{{ route('log.getLog', ['norec' => $detail->norec, 'module' => 2, 'status' => 'is_repair']) }}"

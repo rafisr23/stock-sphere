@@ -113,7 +113,7 @@
                             <div class="col-sm-9 mb-4">
                                 <input type="text" class="form-control @error('srs_status') is-invalid @enderror"
                                     id="srs_status" name="srs_status"
-                                    value="{{ old('srs_status') . $item_unit->srs_status }}" readonly>
+                                    value="{{ old('srs_status') . $item_unit->srs_status }}" required disabled>
                             </div>
                         </div>
                         <div class="form-group row">
@@ -138,7 +138,7 @@
                                 <input type="text"
                                     class="form-control @error('last_checked_date') is-invalid @enderror"
                                     id="last_checked_date" name="last_checked_date"
-                                    value="{{ old('last_checked_date') . now() }}" readonly>
+                                    value="{{ old('last_checked_date') . now() }}" required disabled>
                             </div>
                         </div>
                         <div class="form-group row">

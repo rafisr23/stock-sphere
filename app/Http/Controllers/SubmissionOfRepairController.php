@@ -70,7 +70,7 @@ class SubmissionOfRepairController extends Controller
                 ->make(true);
         }
 
-        $rooms = Rooms::all();
+        $rooms = Rooms::where('is_enabled', true)->get();
 
         return view('submission.index', compact('rooms'));
     }

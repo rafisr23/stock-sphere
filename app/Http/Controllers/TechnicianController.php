@@ -313,7 +313,7 @@ class TechnicianController extends Controller
                 'norec_parent' => auth()->user()->norec,
                 'module_id' => 8,
                 'is_generic' => true,
-                'desc' => 'Update technician data: ' . $technician->name . 'from' . $technician->city . ' by ' . auth()->user()->name,
+                'desc' => 'Update technician data: ' . $technician->name . ' from ' . $technician->city . ' by ' . auth()->user()->name,
                 'old_data' => $oldTechnician,
             ];
             createLog($log);

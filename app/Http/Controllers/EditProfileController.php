@@ -63,11 +63,14 @@ class EditProfileController extends Controller
                 'name' => 'required',
                 'email' => 'required|email',
                 'username' => 'required|unique:users,username,' . $user->id,
-                'password' => ['required', function ($attribute, $value, $fail) use ($request, $user) {
-                    if (!Hash::check($value, $user->password)) {
-                        return $fail('Password is incorrect.');
+                'password' => [
+                    'required',
+                    function ($attribute, $value, $fail) use ($request, $user) {
+                        if (!Hash::check($value, $user->password)) {
+                            return $fail('Password is incorrect.');
+                        }
                     }
-                }],
+                ],
             ]);
 
             // if (!Hash::check($request->password, $user->password)) {
@@ -105,6 +108,7 @@ class EditProfileController extends Controller
 
     public function update_password(Request $request, string $id)
     {
+        DB::beginTransaction();
         try {
             $user = User::find(decrypt($id));
             $oldUser = $user->toJson();
@@ -115,7 +119,7 @@ class EditProfileController extends Controller
             ]);
 
             if (!Hash::check($request->old_password, $user->password)) {
-                return back()->withErrors(['old_password' => 'Old password is incorrect.']);
+                return redirect()->route('profile.change_password', encrypt($user->id))->with('error', 'Old password is incorrect.');
             }
 
             $user->update([
@@ -132,11 +136,12 @@ class EditProfileController extends Controller
             ];
 
             createLog($log);
-
-            return back()->with('success', 'Password updated successfully.');
+            DB::commit();
+            return redirect()->route('profile.change_password', encrypt($user->id))->with('success', 'Password updated successfully.');
 
         } catch (\Exception $e) {
-            return back()->with('error', 'Password update failed: ' . $e->getMessage());
+            DB::rollBack();
+            return redirect()->route('profile.change_password', encrypt($user->id))->with('error', 'Password update failed: ' . $e->getMessage());
         }
     }
 
