@@ -152,7 +152,9 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>{{ $maintenance->description }}</td>
+                    <td>
+                        <p>{!! nl2br(e($maintenance->description)) !!}</p>
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -182,11 +184,7 @@
             </tbody>
         </table>
 
-        @if ($workHours['hours'] == 0 && $workHours['minutes'] == 0)
-            <p><strong>Work Hours:</strong> No work hours</p>
-        @else
-            <p><strong>Work Hours:</strong> {{ $workHours['hours'] }} hours {{ $workHours['minutes'] }} minutes</p>
-        @endif
+        <p><strong>Work Hours:</strong> {{ $workHours['hours'] }} hours {{ $workHours['minutes'] }} minutes</p>
     </div>
 
     <div class="section">
