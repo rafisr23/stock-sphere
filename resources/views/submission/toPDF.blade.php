@@ -272,6 +272,7 @@
                 <br>
                 <br>
                 <br>
+                <p><strong>{{ $detail->itemUnit->rooms->name }}</strong></p>
             </div>
         </div>
     </main>

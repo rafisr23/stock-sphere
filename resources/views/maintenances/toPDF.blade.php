@@ -223,7 +223,7 @@
             <br>
             <br>
             <br>
-            <br>
+            <p><strong>{{ $maintenance->item_room->rooms->name }}</strong></p>
         </div>
     </div>
 </body>
