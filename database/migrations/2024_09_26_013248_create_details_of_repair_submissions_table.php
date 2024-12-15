@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -20,6 +19,7 @@ return new class extends Migration
             $table->integer('status')->default(0)->description('0 - Pending, 1 - Worked on, 2 - Completed, 3 - Cancelled');
             $table->string('remarks')->nullable();
             $table->string('evidence')->nullable();
+            $table->string('descriptionTechnician')->nullable();
             $table->timestamp('date_worked_on')->nullable();
             $table->timestamp('date_completed')->nullable();
             $table->timestamp('date_cancelled')->nullable();

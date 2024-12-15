@@ -252,7 +252,7 @@ class SubmissionOfRepairController extends Controller
                     $btn = '<div class="d-flex justify-content-center align-items-center">';
                     $btn .= '<a href="' . $detailUrl . '" class="view btn btn-info btn-sm me-2" title="See Details"><i class="ph-duotone ph-eye"></i></a>';
                     // $btn .= '<a href="#" class="delete btn btn-danger btn-sm" data-id="' . encrypt($row->id) . '" title="Delete Data"><i class="ph-duotone ph-trash"></i></a>';
-    
+
                     $log = [
                         'norec' => $row->norec ?? null,
                         'module_id' => 2,
@@ -330,7 +330,7 @@ class SubmissionOfRepairController extends Controller
                 $btn .= '<a href="' . $detailUrl . '" class="view btn btn-info btn-sm me-2" title="Detail Submission"><i class="ph-duotone ph-eye"></i></a>';
                 // $btn .= '<a href="' . route('items_units.edit', $row->id) . '" class="edit btn btn-warning btn-sm me-2" title="Edit Data"><i class="ph-duotone ph-pencil-line"></i></a>';
                 // $btn .= '<a href="#" class="delete btn btn-danger btn-sm" data-id="' . encrypt($row->id) . '" title="Delete Data"><i class="ph-duotone ph-trash"></i></a>';
-    
+
                 $log = [
                     'norec' => $row->norec ?? null,
                     'module_id' => 2,
@@ -486,10 +486,8 @@ class SubmissionOfRepairController extends Controller
         $date_completed = $detail->date_completed;
         $workHour = $this->calculateWorkHourDifference($date_worked_on, $date_completed);
 
-        $repairLog = NewLog::where('norec', $detail->norec)->where('is_repair', true)->get();
-
         $pdf = app('dompdf.wrapper');
-        $pdf->loadView('submission.toPDF', compact('detail', 'workHour', 'repairLog'));
+        $pdf->loadView('submission.toPDF', compact('detail', 'workHour'));
 
         return $pdf->stream('submission-of-repair.pdf');
     }
@@ -503,22 +501,20 @@ class SubmissionOfRepairController extends Controller
             return 0;
         }
         $workStart = 8;
-        $workEnd = 17;
+        $workEnd = 21;
         $totalMinutes = 0;
         $minutes = [];
         $hours = [];
 
         while ($start->lessThan($end)) {
-            if ($start->isWeekday()) {
-                $workDayStart = $start->copy()->hour($workStart)->minute(0)->second(0);
-                $workDayEnd = $start->copy()->hour($workEnd)->minute(0)->second(0);
+            $workDayStart = $start->copy()->hour($workStart)->minute(0)->second(0);
+            $workDayEnd = $start->copy()->hour($workEnd)->minute(0)->second(0);
 
-                if ($start->between($workDayStart, $workDayEnd)) {
-                    $endOfDay = $workDayEnd->lessThan($end) ? $workDayEnd : $end;
-                    $totalMinutes += $start->diffInMinutes($endOfDay);
-                    $hours[] = intdiv($start->diffInMinutes($endOfDay), 60);
-                    $minutes[] = $start->diffInMinutes($endOfDay) % 60;
-                }
+            if ($start->between($workDayStart, $workDayEnd)) {
+                $endOfDay = $workDayEnd->lessThan($end) ? $workDayEnd : $end;
+                $totalMinutes += $start->diffInMinutes($endOfDay);
+                $hours[] = intdiv($start->diffInMinutes($endOfDay), 60);
+                $minutes[] = $start->diffInMinutes($endOfDay) % 60;
             }
             $start->addDay()->hour($workStart)->minute(0)->second(0);
         }

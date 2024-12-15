@@ -7,7 +7,7 @@
         @page {
             margin: 0cm 0cm;
         }
-        
+
         body {
             font-family: Arial, sans-serif;
             margin-top: 6.5cm;
@@ -133,7 +133,7 @@
 
     <main class="content">
         <h1>Repairment Report</h1>
-    
+
         <div class="section">
             <h3>Reason of visit</h3>
             <table>
@@ -153,7 +153,7 @@
                 </tbody>
             </table>
         </div>
-    
+
         <div class="section">
             <h3>Activity</h3>
             <table>
@@ -165,11 +165,7 @@
                 <tbody>
                     <tr>
                         <td>
-                            <ul>
-                                @foreach ($repairLog as $activity)
-                                    <li>{{ $activity->desc }} at: {{ $activity->created_at }}</li>
-                                @endforeach
-                            </ul>
+                            <p>{!! nl2br(e($detail->descriptionTechnician)) !!}</p>
                         </td>
                     </tr>
                 </tbody>
@@ -186,7 +182,7 @@
                     </tr>
                 </tbody>
             </table>
-    
+
             <h4>Evidance From Technician</h4>
             <div class="row">
                 @if (count($detail->evidenceTechnician) == 0 && isset($detail->evidenceTechnician))
@@ -198,10 +194,10 @@
                     @endforeach
                 @endif
             </div>
-    
+
             <p><strong>Work Hours:</strong>{{ $workHour['hours'] }} hour(s), {{ $workHour['minutes'] }} minute(s)</p>
         </div>
-    
+
         <div class="section">
             <h3>Sparepart Used</h3>
             <table>
@@ -228,7 +224,7 @@
                 </tbody>
             </table>
         </div>
-    
+
         <div class="section">
             <h3>Technician Detail</h3>
             <table>
@@ -248,22 +244,19 @@
                             <td>{{ $detail->created_at }}</td>
                             <td>{{ $detail->technician->name }}</td>
                             <td>{{ $workHour['start'] }}</td>
-                            <td>{{ $workHour['start']->day == $workHour['end']->day ? $workHour['end'] : $workHour['start']->copy()->hour(17)->minute(0)->second(0) }}
+                            <td>{{ $workHour['start']->day == $workHour['end']->day ? $workHour['end'] : $workHour['start']->copy()->hour(21)->minute(0)->second(0) }}
                             </td>
                             <td>{{ $workHour['hoursArr'][$i] }}</td>
                             <td>{{ $workHour['minutesArr'][$i] }}</td>
                         </tr>
                         @php
                             $workHour['start']->addDay()->hour(8)->minute(0)->second(0);
-                            if ($workHour['start']->isWeekend()) {
-                                $workHour['start']->nextWeekday()->hour(8)->minute(0)->second(0);
-                            }
                         @endphp
                     @endfor
                 </tbody>
             </table>
         </div>
-    
+
         <div class="technician-signature" style="margin-left: 20px; margin-right: 20px">
             <div class="kiri">
                 <p>Bandung, {{ date('d F Y') }}</p>
