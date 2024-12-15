@@ -118,16 +118,18 @@
     <h1>Maintenance Report</h1>
 
     <div class="section">
-        <h3>Alasan Kunjungan</h3>
+        <h3>Reason of visit</h3>
         <table>
             <thead>
                 <tr>
+                    <th>Room</th>
                     <th>Item Name</th>
                     <th>Description</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
+                    <td>{{ $maintenance->item_room->rooms->name }}</td>
                     <td>{{ $maintenance->item_room->items->item_name }}</td>
                     <td>{{ $maintenance->description }}</td>
                 </tr>
