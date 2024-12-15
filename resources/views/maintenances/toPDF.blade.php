@@ -182,11 +182,7 @@
             </tbody>
         </table>
 
-        @if ($workHours['hours'] == 0 && $workHours['minutes'] == 0)
-            <p><strong>Work Hours:</strong> No work hours</p>
-        @else
-            <p><strong>Work Hours:</strong> {{ $workHours['hours'] }} hours {{ $workHours['minutes'] }} minutes</p>
-        @endif
+        <p><strong>Work Hours:</strong> {{ $workHours['hours'] }} hours {{ $workHours['minutes'] }} minutes</p>
     </div>
 
     <div class="section">
