@@ -131,14 +131,12 @@
                 <tr>
                     <th>Room</th>
                     <th>Item Name</th>
-                    <th>Description</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td>{{ $maintenance->item_room->rooms->name }}</td>
                     <td>{{ $maintenance->item_room->items->item_name }}</td>
-                    <td>{{ $maintenance->description }}</td>
                 </tr>
             </tbody>
         </table>
@@ -154,13 +152,7 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>
-                        <ul>
-                            @foreach ($maintenanceLog as $log)
-                                <li>{{ $log->desc }} at: {{ $log->created_at }}</li>
-                            @endforeach
-                        </ul>
-                    </td>
+                    <td>{{ $maintenance->description }}</td>
                 </tr>
             </tbody>
         </table>
