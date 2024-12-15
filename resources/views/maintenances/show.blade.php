@@ -242,17 +242,19 @@
                     <div class="row">
                         <div class="col-md-12">
                             <table class="table">
-                                @if ($maintenance->room->units->image != null)
-                                    <tr>
-                                        <td colspan="2">
-                                            <a class="card-gallery" data-fslightbox="gallery"
-                                                href="{{ asset('images/units/' . $maintenance->room->units->image) }}">
-                                                <img class="img-fluid"
-                                                    src="{{ asset('images/units/' . $maintenance->room->units->image) }}"
-                                                    alt="Card image">
-                                            </a>
-                                        </td>
-                                    </tr>
+                                @if ($maintenance->room->units->image)
+                                    @if (file_exists(public_path('images/units/' . $maintenance->room->units->image)))
+                                        <tr>
+                                            <td colspan="2">
+                                                <a class="card-gallery" data-fslightbox="gallery"
+                                                    href="{{ asset('images/units/' . $maintenance->room->units->image) }}">
+                                                    <img class="img-fluid"
+                                                        src="{{ asset('images/units/' . $maintenance->room->units->image) }}"
+                                                        alt="Card image">
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endif
                                 @endif
                                 <tr>
                                     <th>Customer Name</th>

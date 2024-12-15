@@ -107,9 +107,6 @@ class TechnicianController extends Controller
         }
 
         if ($request->has('user_id') && $request->user_id != null) {
-            $decryptedUserId = decrypt($request->user_id);
-            $request->merge(['user_id' => $decryptedUserId]);
-
             $validator = Validator::make($request->all(), [
                 'user_id' => 'required|unique:technicians,user_id',
             ]);

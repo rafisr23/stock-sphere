@@ -816,7 +816,7 @@ class MaintenancesController extends Controller
                     ];
                     if ($row->status == 3) {
                         $toPDFURL = route('maintenances.toPDF', encrypt($row->id));
-                        $btn .= '<a href="' . $toPDFURL . '" class="edit btn btn-danger btn-sm me-2" title="Export to PDF"><i class="ph-duotone ph-file-pdf"></i></a>';
+                        $btn .= '<a href="' . $toPDFURL . '" class="edit btn btn-danger btn-sm me-2" title="Export to PDF" target="_blank"><i class="ph-duotone ph-file-pdf"></i></a>';
                     }
                     $showLogBtn =
                         "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'

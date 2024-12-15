@@ -10,7 +10,7 @@
         @page {
             margin: 0cm 0cm;
         }
-        
+
         body {
             font-family: Arial, sans-serif;
             margin-top: 6.5cm;
@@ -125,16 +125,18 @@
     <h1>Maintenance Report</h1>
 
     <div class="section">
-        <h3>Alasan Kunjungan</h3>
+        <h3>Reason of visit</h3>
         <table>
             <thead>
                 <tr>
+                    <th>Room</th>
                     <th>Item Name</th>
                     <th>Description</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
+                    <td>{{ $maintenance->item_room->rooms->name }}</td>
                     <td>{{ $maintenance->item_room->items->item_name }}</td>
                     <td>{{ $maintenance->description }}</td>
                 </tr>
@@ -188,7 +190,11 @@
             </tbody>
         </table>
 
-        <p><strong>Work Hours:</strong> {{ $workHours['hours'] }} hours {{ $workHours['minutes'] }} minutes</p>
+        @if ($workHours['hours'] == 0 && $workHours['minutes'] == 0)
+            <p><strong>Work Hours:</strong> No work hours</p>
+        @else
+            <p><strong>Work Hours:</strong> {{ $workHours['hours'] }} hours {{ $workHours['minutes'] }} minutes</p>
+        @endif
     </div>
 
     <div class="section">
