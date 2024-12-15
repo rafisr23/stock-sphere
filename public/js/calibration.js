@@ -228,6 +228,10 @@ let calibrationProcessTable = $("#calibrationProcessTable").DataTable({
             name: "remarks",
         },
         {
+            data: "description",
+            name: "description",
+        },
+        {
             data: "evidence",
             name: "evidence",
         },
@@ -252,10 +256,12 @@ $("#calibrationProcessTable").on("click", ".update", function (e) {
 
     let status = $(this).closest("tr").find(".status").val();
     let remarks = $(this).closest("tr").find(".remarks").val();
+    let description = $(this).closest("tr").find(".description").val();
     let evidence = sessionStorage.getItem("evidence_file");
 
     formUpdateCalibration.append("status", status);
     formUpdateCalibration.append("remarks", remarks);
+    formUpdateCalibration.append("description", description);
     formUpdateCalibration.append("evidence", evidence);
     formUpdateCalibration.append("type", "updateCalibration");
     formUpdateCalibration.append("_token", CSRF_TOKEN);
