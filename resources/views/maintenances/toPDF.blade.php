@@ -10,7 +10,7 @@
         @page {
             margin: 0cm 0cm;
         }
-        
+
         body {
             font-family: Arial, sans-serif;
             margin-top: 6.5cm;
@@ -190,7 +190,11 @@
             </tbody>
         </table>
 
-        <p><strong>Work Hours:</strong> {{ $workHours['hours'] }} hours {{ $workHours['minutes'] }} minutes</p>
+        @if ($workHours['hours'] == 0 && $workHours['minutes'] == 0)
+            <p><strong>Work Hours:</strong> No work hours</p>
+        @else
+            <p><strong>Work Hours:</strong> {{ $workHours['hours'] }} hours {{ $workHours['minutes'] }} minutes</p>
+        @endif
     </div>
 
     <div class="section">

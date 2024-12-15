@@ -400,8 +400,8 @@ class MaintenancesController extends Controller
             //     'technician_id' => $detailSubmission->technician_id,
             // ];
 
-            createLog($detailLog);
-            createLog($technicianLog);
+            // createLog($detailLog);
+            // createLog($technicianLog);
 
             return response()->json([
                 'success' => true,
@@ -814,8 +814,10 @@ class MaintenancesController extends Controller
                         'module_id' => 3,
                         'status' => 'is_maintenance',
                     ];
-                    $toPDFURL = route('maintenances.toPDF', encrypt($row->id));
-                    $btn .= '<a href="' . $toPDFURL . '" class="edit btn btn-danger btn-sm me-2" title="Export to PDF" target="_blank"><i class="ph-duotone ph-file-pdf"></i></a>';
+                    if ($row->date_completed) {
+                        $toPDFURL = route('maintenances.toPDF', encrypt($row->id));
+                        $btn .= '<a href="' . $toPDFURL . '" class="edit btn btn-danger btn-sm me-2" title="Export to PDF" target="_blank"><i class="ph-duotone ph-file-pdf"></i></a>';
+                    }
                     $showLogBtn =
                         "<a href='#'class='btn btn-sm btn-secondary' data-bs-toggle='modal'
                             data-bs-target='#exampleModal'
