@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Http;
 if (! function_exists('getAllProvince')) {
     function getAllProvince()
     {
-        $apiUrl = 'https://dzaki-abd.github.io/api-wilayah-indonesia/api/provinces.json';
+        $apiUrl = 'https://dzakiabd.github.io/api-wilayah-indonesia/api/provinces.json';
 
         $response = Http::get($apiUrl);
 
@@ -29,7 +29,7 @@ if (! function_exists('getAllProvince')) {
 if (! function_exists('getAllCity')) {
     function getAllCity($provinceId)
     {
-        $apiUrl = 'https://dzaki-abd.github.io/api-wilayah-indonesia/api/regencies/' . $provinceId . '.json';
+        $apiUrl = 'https://dzakiabd.github.io/api-wilayah-indonesia/api/regencies/' . $provinceId . '.json';
 
         $response = Http::get($apiUrl);
 
@@ -48,7 +48,7 @@ if (! function_exists('getAllCity')) {
 if (! function_exists('getAllDistrict')) {
     function getAllDistrict($cityId)
     {
-        $apiUrl = 'https://dzaki-abd.github.io/api-wilayah-indonesia/api/districts/' . $cityId . '.json';
+        $apiUrl = 'https://dzakiabd.github.io/api-wilayah-indonesia/api/districts/' . $cityId . '.json';
 
         $response = Http::get($apiUrl);
 
@@ -67,7 +67,7 @@ if (! function_exists('getAllDistrict')) {
 if (! function_exists('getAllVillage')) {
     function getAllVillage($districtId)
     {
-        $apiUrl = 'https://dzaki-abd.github.io/api-wilayah-indonesia/api/villages/' . $districtId . '.json';
+        $apiUrl = 'https://dzakiabd.github.io/api-wilayah-indonesia/api/villages/' . $districtId . '.json';
 
         $response = Http::get($apiUrl);
 
@@ -86,7 +86,7 @@ if (! function_exists('getAllVillage')) {
 if (! function_exists('getProvince')) {
     function getProvince($province_id)
     {
-        $apiUrl = 'https://dzaki-abd.github.io/api-wilayah-indonesia/api/province/' . $province_id . '.json';
+        $apiUrl = 'https://dzakiabd.github.io/api-wilayah-indonesia/api/province/' . $province_id . '.json';
 
         $response = Http::get($apiUrl);
 
@@ -105,7 +105,7 @@ if (! function_exists('getProvince')) {
 if (! function_exists('getCity')) {
     function getCity($city_id)
     {
-        $apiUrl = 'https://dzaki-abd.github.io/api-wilayah-indonesia/api/regency/' . $city_id . '.json';
+        $apiUrl = 'https://dzakiabd.github.io/api-wilayah-indonesia/api/regency/' . $city_id . '.json';
 
         $response = Http::get($apiUrl);
 
@@ -124,7 +124,7 @@ if (! function_exists('getCity')) {
 if (! function_exists('getDistrict')) {
     function getDistrict($district_id)
     {
-        $apiUrl = 'https://dzaki-abd.github.io/api-wilayah-indonesia/api/district/' . $district_id . '.json';
+        $apiUrl = 'https://dzakiabd.github.io/api-wilayah-indonesia/api/district/' . $district_id . '.json';
 
         $response = Http::get($apiUrl);
 
@@ -143,7 +143,7 @@ if (! function_exists('getDistrict')) {
 if (! function_exists('getVillage')) {
     function getVillage($village_id)
     {
-        $apiUrl = 'https://dzaki-abd.github.io/api-wilayah-indonesia/api/village/' . $village_id . '.json';
+        $apiUrl = 'https://dzakiabd.github.io/api-wilayah-indonesia/api/village/' . $village_id . '.json';
 
         $response = Http::get($apiUrl);
 
@@ -160,7 +160,7 @@ if (! function_exists('getVillage')) {
 }
 
 // if (! function_exists('createLog')) {
-    // function createLog($module, $module_id = null, $action = null, $extra = null, $data = null, $item_id = null)
+// function createLog($module, $module_id = null, $action = null, $extra = null, $data = null, $item_id = null)
 //     {
 //         $ipAddr = \Request::ip();
 //         // $log = [
@@ -181,7 +181,7 @@ if (! function_exists('getVillage')) {
 if (!function_exists('createLog')) {
     function createLog($data)
     {
-        $ipAddr = \Request::ip(); 
+        $ipAddr = \Request::ip();
 
         if (php_sapi_name() == 'cli') {
             $user = User::where('username', 'superadmin')->first();
